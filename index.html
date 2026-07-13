@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
+        /* 1920*1080 固定の仮想キャンバス（16:9を完全維持） */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -120,23 +120,23 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】右側タブシステム（カンプ通りに完全にセパレートさせ、重なり白浮きを完全消滅） */
+        /* 🔥【大幅修正】右側タブシステム（位置を中央から「左上」へ移動。物理隔離で白浮きを完全破壊） */
         .tab-header {
             display: flex;
-            justify-content: center;
-            gap: 25px; /* カンプに合わせボタン同士を完全にセパレート */
+            justify-content: flex-start;
+            gap: 15px; /* ボタン同士を完全に離して、絶対に重なりを発生させない */
             position: absolute;
-            top: -65px;
-            left: 50%;
-            transform: translateX(-50%);
+            top: -62px; /* パネルの上辺フレームラインにジャストフィット */
+            left: 40px; /* カンプ通りの左寄せ位置 */
             width: max-content;
             white-space: nowrap;
         }
         .tab-btn {
             background: rgba(0, 0, 0, 0.55);
             border: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: none;
             color: #666;
-            padding: 12px 60px;
+            padding: 12px 55px;
             font-size: 2rem;
             font-family: inherit;
             border-radius: 20px 20px 0 0;
@@ -152,11 +152,8 @@
             -webkit-backdrop-filter: blur(25px);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.18);
-            border-bottom: none; /* 下のメインパネルと美しく融合 */
+            border-bottom: none;
         }
-
-        .tab-content { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
-        .tab-content.active { display: flex; }
 
         /* ブル率表示エリア */
         .bull-rate-container {
@@ -169,7 +166,7 @@
             margin: 0 auto;
         }
         
-        /* 🔥【構造変更】SVGを廃止し、滑らかな360度コニックグラデーションのCSSメーターを採用 */
+        /* 🔥【構造変更】カンプ画像（image_0c855a.png）と100%一致する時計回り無段階グラデーション構造 */
         .gauge-track-css {
             position: absolute;
             width: 360px;
@@ -185,10 +182,25 @@
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
-            /* マスクを使って幅16pxの完璧な円形ドーナツ状にくり抜く（後ろの黒スモークが透ける仕様） */
             -webkit-mask: radial-gradient(transparent 164px, #000 165px);
             mask: radial-gradient(transparent 164px, #000 165px);
-            transform: scaleX(-1) rotate(-90deg); /* 時計回りに綺麗に伸びるように軸を反転調整 */
+            /* 回転・反転用transformを全撤廃。12時から素直に時計回りに描画 */
+        }
+
+        /* 🔥【新設】カンプにある、グラデーションの先端を追従する美しい丸ツマミ（ドットピン） */
+        .gauge-dot {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background: #ffffff;
+            border: 5px solid #0044ff;
+            border-radius: 50%;
+            box-sizing: border-box;
+            box-shadow: 0 0 15px rgba(255,255,255,0.8), 0 5px 10px rgba(0,0,0,0.5);
+            display: none;
+            z-index: 100;
+            transform: translate(-13px, -14px); /* 中心点をジャストフィットさせる */
+            pointer-events: none;
         }
 
         /* ゲージ中央のテキスト */
@@ -283,6 +295,7 @@
                     
                     <div class="gauge-track-css"></div>
                     <div class="gauge-progress-css" id="gaugeCircleCSS"></div>
+                    <div class="gauge-dot" id="gaugeDot"></div>
                     
                     <div class="gauge-text">
                         <div class="label">BULL RATE</div>
@@ -383,41 +396,61 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
-        // 🔥【修正】コニックグラデーションのメーターを完全に狙い通りの色範囲で伸ばす動的制御
+        // 🔥【超絶強化】カンプと完全に一致する時計回りのコニックグラデーション制御 ＆ ピン連動
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
+            const dot = document.getElementById('gaugeDot');
             
-            // 0〜25%で青、25〜50%でピンク、50〜75%で赤、75〜100%で黄色
-            // 固定位置のグラデーション情報を用意し、進捗％（rate）以降を transparent でマスクする
+            // カンプの配色（12時から時計回り）：0%青(#0044ff) ➔ 25%紫(#9900ff) ➔ 50%チェリーマゼンタ(#ff007f) ➔ 75%赤(#ff0000)
             let gradientStr = 'transparent';
             if (rate > 0) {
                 if (rate <= 25) {
-                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff ${rate}%, transparent ${rate}%)`;
                 } else if (rate <= 50) {
-                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f ${rate}%, transparent ${rate}%)`;
                 } else if (rate <= 75) {
-                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, #ffea00 75%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 ${rate}%, transparent ${rate}%)`;
                 } else {
-                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, #ffea00 75%, #ffea00 ${rate}%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, #ffea00 ${rate}%, transparent ${rate}%)`;
                 }
             }
             gauge.style.background = gradientStr;
+
+            // 🔥 カンプの白い丸ピンを先端にピッタリ配置する動的物理演算
+            if (rate > 0) {
+                dot.style.display = 'block';
+                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180; // 12時が-90度
+                const r = 172; // ドーナツゲージのジャスト中心を通る半径
+                const dotX = 250 + r * Math.cos(angleRad); // 500*500コンテナの完全中心
+                const dotY = 250 + r * Math.sin(angleRad);
+                dot.style.left = `${dotX}px`;
+                dot.style.top = `${dotY}px`;
+                
+                // ピンのフチの枠線カラーも、進行度に応じた先端の色と完全にシンクロ
+                let dotBorderColor = '#0044ff';
+                if (rate > 25) dotBorderColor = '#9900ff';
+                if (rate > 50) dotBorderColor = '#ff007f';
+                if (rate > 75) dotBorderColor = '#ff0000';
+                dot.style.borderColor = dotBorderColor;
+            } else {
+                dot.style.display = 'none';
+            }
 
             // 中央テキスト更新
             const intPart = Math.floor(rate);
             const decPart = (rate - intPart).toFixed(2).substring(1);
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            // 弧状レベルメーターも完全に同じ色配置（比率）に連動して美しくシンクロ発光
+            // 弧状レベルメーターも完全に同じグラデーション比率で連動発光
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
                 if(idx < activeBarsCount) {
                     const ratio = idx / bars.length;
-                    let barColor = '#0066ff'; // 0〜25%エリア
-                    if (ratio >= 0.25) barColor = '#d900ff'; // 25〜50%エリア
-                    if (ratio >= 0.50) barColor = '#ff0000'; // 50〜75%エリア
-                    if (ratio >= 0.75) barColor = '#ffea00'; // 75〜100%エリア
+                    let barColor = '#0044ff';
+                    if (ratio >= 0.25) barColor = '#9900ff';
+                    if (ratio >= 0.50) barColor = '#ff007f';
+                    if (ratio >= 0.75) barColor = '#ff0000';
                     
                     bar.style.background = barColor;
                     bar.style.boxShadow = `0 0 12px ${barColor}`;
