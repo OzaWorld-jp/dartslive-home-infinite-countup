@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
+        /* 1920*1080 固定の仮想キャンバス */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -120,7 +120,7 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（完全中央寄せ固定・横潰れ防止） */
+        /* 右側タブシステム（完全中央寄せ固定） */
         .tab-header {
             display: flex;
             justify-content: center;
@@ -220,6 +220,22 @@
         /* 全画面ビデオオーバーレイ */
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
         #videoOverlay video { width: 100%; height: 100%; object-fit: contain; display: none; }
+
+        /* 🔥【新設】接続完了後のアクティベート専用全画面オーバーレイ */
+        #startOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); z-index: 99998;
+            flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
+        }
+        #startOverlay .msg-main {
+            font-size: 5.5rem; font-weight: 700; color: #00adb5; font-family: 'Impact', sans-serif;
+            letter-spacing: 6px; text-shadow: 0 0 25px #00adb5; animation: blink 1.5s infinite;
+        }
+        #startOverlay .msg-sub { font-size: 1.5rem; color: #aaa; margin-top: 20px; letter-spacing: 2px; }
+
+        @keyframes blink {
+            0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; }
+        }
     </style>
 </head>
 <body>
@@ -230,7 +246,6 @@
     </div>
 
     <div id="app-scaler">
-        
         <div class="left-column">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -288,7 +303,6 @@
                     <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count" id="cnt_black">0</div></div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -301,6 +315,11 @@
         <video id="video_bed" src="videos/three-in-a-bed.mp4" preload="auto" playsinline webkit-playsinline></video>
         <video id="video_whitehorse" src="videos/white-horse.mp4" preload="auto" playsinline webkit-playsinline></video>
         <video id="video_black" src="videos/three-in-the-black.mp4" preload="auto" playsinline webkit-playsinline></video>
+    </div>
+
+    <div id="startOverlay">
+        <div class="msg-main">TAP TO START</div>
+        <div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div>
     </div>
 
     <script>
@@ -433,7 +452,6 @@
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
                 currentPlayingVideo.pause();
-                currentPlayingVideo.style.style.display = 'none'; // 前回のタイポ修正済箇所
                 currentPlayingVideo.style.display = 'none';
                 currentPlayingVideo.currentTime = 0;
                 currentPlayingVideo = null;
@@ -460,35 +478,15 @@
             return null;
         }
 
-        // 🔥【超重要】セキュリティ制限（User Gesture）を完璧に回避するPromise構造に変更
+        // 🔥【超重要修正】ド頭1本目で即座にBluetoothを要求（User Gestureを100%汚さない）
         document.getElementById('connectBtn').addEventListener('click', () => {
-            playSound('poti');
-            
-            // 1. Android対応ブラウザならフルスクリーン化（同期的トップレベル実行）
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
-            }
-
-            // 2. iOS/Android両対応用の全動画一斉アンロック（一切の遅延なく同期的トップレベル実行）
-            awardKeys.forEach(key => {
-                const v = document.getElementById(`video_${key}`);
-                if (v) {
-                    v.play().then(() => {
-                        v.pause();
-                        v.currentTime = 0;
-                    }).catch(e => console.log(`${key} unlock deferred:`, e));
-                }
-            });
-
             addLog("SEARCHING BOARD...");
 
-            // 3. 🔥【ここが核心】一切の間を置かず、クリックイベントの直系コンテキストのまま即座に発動
             navigator.bluetooth.requestDevice({
                 filters: [{ name: 'DARTSLIVE HOME' }],
                 optionalServices: [SERVICE_UUID]
             })
             .then(async (device) => {
-                // デバイス選択ダイアログが無事に開いて、ユーザーが選んだ後の「非同期処理」
                 addLog("CONNECTING...");
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
@@ -502,11 +500,35 @@
 
                 await targetCharacteristic.startNotifications();
                 targetCharacteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
+                
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
+
+                // 🔥 接続成功後、全画面の「TAP TO START」スクリーンを起動
+                const startOverlay = document.getElementById('startOverlay');
+                startOverlay.style.display = 'flex';
+
+                // 新しいクリーンなタップ操作で、メディアを一斉アンロックする
+                startOverlay.onclick = () => {
+                    playSound('round-change'); // 爆音で起動合図を鳴らす
+                    
+                    // 8つのアワード動画を一斉アンロック
+                    awardKeys.forEach(key => {
+                        const v = document.getElementById(`video_${key}`);
+                        if (v) {
+                            v.play().then(() => {
+                                v.pause();
+                                v.currentTime = 0;
+                            }).catch(e => console.log(`${key} unlock error:`, e));
+                        }
+                    });
+
+                    // 完了したらオーバーレイを消して完全解禁！
+                    startOverlay.style.display = 'none';
+                    addLog("ALL SYSTEMS OPERATIONAL. READY!");
+                };
             })
             .catch(error => {
-                // エラーログを画面上部のインジケーターに綺麗に流す
                 addLog(`ERROR: ${error.message}`);
             });
         });
