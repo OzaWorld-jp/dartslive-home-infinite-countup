@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス */
+        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -89,7 +89,7 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* メイン巨大スコア */
+        /* メイン巨大スコア（上下の中間地点に完全センター配置） */
         .huge-score {
             font-size: 28rem; 
             font-family: 'Impact', 'Arial Black', sans-serif;
@@ -121,13 +121,13 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（パネルの左上に完全固定） */
+        /* 右側タブシステム（パネルの左上に完全ジャストフィット） */
         .tab-header {
             display: flex;
             position: absolute;
             bottom: 100%;
             left: 50px;
-            margin-bottom: -1px;
+            margin-bottom: -1px; /* 1px重ねてパネルの境界線を美しく上書き */
             z-index: 10;
         }
         .tab-btn {
@@ -154,10 +154,10 @@
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.22);
             border-bottom: none;
-            z-index: 12;
+            z-index: 12; /* 枠線の上に重ねて、下のパネル線を完全に消去 */
         }
 
-        /* 🔥【重要】アワード数が下にはみ出るバグを、強烈なID優先順位で物理的に非表示ロック */
+        /* 🚨【バグ修正】アワード数が下にはみ出る現象を、強烈なID優先順位で物理的に非表示ロック */
         #contentBull, #contentAward {
             display: none;
             flex-direction: column;
@@ -166,7 +166,7 @@
             gap: 10px;
         }
         #contentBull.active, #contentAward.active {
-            display: flex; /* activeクラスがついている方だけを100%確実に表示 */
+            display: flex; /* activeクラスがついているタブだけを100%確実に表示 */
         }
 
         /* ブル率表示エリア */
@@ -180,10 +180,10 @@
             margin: 0 auto;
         }
         
-        /* 🔥【修正】メーターの直径を360pxから「440px」に超巨大化！中の数字との重なりを完全回避 */
+        /* 12時起点・時計回りの滑らかな円周グラデーション構造（コニックメーター） */
         .gauge-track-css {
             position: absolute;
-            width: 440px;
+            width: 440px; /* 直径を440pxに超巨大化 */
             height: 440px;
             border: 16px solid rgba(255, 255, 255, 0.04);
             border-radius: 50%;
@@ -196,7 +196,7 @@
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
-            /* 440pxに合わせてくり抜きマスクの半径を調整（440 - 16 = 424 / 2 = 212px） */
+            /* くり抜きマスクの半径を440px用に再計算（(440 - 16) / 2 = 212px） */
             -webkit-mask: radial-gradient(transparent 203px, #000 204px);
             mask: radial-gradient(transparent 203px, #000 204px);
         }
@@ -217,7 +217,7 @@
             pointer-events: none;
         }
 
-        /* 🔥【修正】文字サイズを8.5remに黄金比率調整し、拡大した円の内側へ美しく完全パッキング */
+        /* ゲージ中央のテキスト（サイズを8.5remに調整して内側に完璧にパッキング） */
         .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
         .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
         .gauge-text .percent { 
@@ -233,12 +233,12 @@
         .level-meter-deco { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
         .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; }
 
-        /* BULL COUNT表示 */
+        /* BULL COUNT表示（隙間をギュッと詰めて超巨大化） */
         .bull-count-box { text-align: center; margin-top: 0px; }
         .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
         .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
 
-        /* アワード数表示エリア */
+        /* アワード数表示エリア（高さいっぱいに均等配置して上下の隙間を完全に埋める） */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -354,6 +354,11 @@
         <video id="video_black" src="videos/three-in-the-black.mp4" preload="auto" playsinline webkit-playsinline></video>
     </div>
 
+    <div id="startOverlay">
+        <div class="msg-main">TAP TO START</div>
+        <div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div>
+    </div>
+
     <script>
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         const awardKeys = ['onebull', 'lowton', 'highton', 'ton80', 'hattrick', 'bed', 'whitehorse', 'black'];
@@ -367,7 +372,15 @@
 
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
 
-        // 🔥【修正】拡大した円ゲージ（直径440px）に合わせてイコライザーの配置半径を自動拡張（248➔272）
+        function resizeApp() {
+            const scaler = document.getElementById('app-scaler');
+            const scale = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
+            scaler.style.transform = `scale(${scale})`;
+        }
+        window.addEventListener('resize', resizeApp);
+        window.addEventListener('DOMContentLoaded', resizeApp);
+
+        // 拡大した円ゲージ（440px）に合わせてレベルメーターの配置半径を自動拡張（248➔272）
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
         const radius = 272; 
@@ -381,7 +394,7 @@
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
             const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY + radius * Math.sin(angleRad) - 4;
+            const y = centerY * radius * Math.sin(angleRad) - 4;
             bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
@@ -403,13 +416,14 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
+        // 12時起点コニックカラー補間計算
         function getColorAtRate(rate) {
             const colors = [
-                { p: 0, r: 0, g: 68, b: 255 },
-                { p: 25, r: 153, g: 0, b: 255 },
-                { p: 50, r: 255, g: 0, b: 127 },
-                { p: 75, r: 255, g: 0, b: 0 },
-                { p: 100, r: 255, g: 234, b: 0 }
+                { p: 0, r: 0, g: 68, b: 255 },     // 0%: 青
+                { p: 25, r: 153, g: 0, b: 255 },   // 25%: 紫
+                { p: 50, r: 255, g: 0, b: 127 },   // 50%: チェリーマゼンタ
+                { p: 75, r: 255, g: 0, b: 0 },     // 75%: 赤
+                { p: 100, r: 255, g: 234, b: 0 }   // 100%: 黄色
             ];
             if (rate <= 0) return 'rgb(0,68,255)';
             if (rate >= 100) return 'rgb(255,234,0)';
@@ -431,7 +445,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 12時を0%起点とし、時計回りに無段階で伸びるコニックグラデーション制御
+        // 12時起点・時計回りのコニックグラデーション ＆ ピンの同期追従
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -451,11 +465,11 @@
             }
             gauge.style.background = gradientStr;
 
-            // 🔥【修正】拡大した円（直径440px）に合わせて、ドットピンの軌道半径を「212px」に再計算して同期！
+            // 拡大した円に合わせて丸ピンの軌道半径を再計算（212px）
             if (rate > 0) {
                 dot.style.display = 'block';
-                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                const r = 212; // (440 - 16) / 2 = 線の真ん中を通る物理半径
+                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180; // 12時（真上）が -90度
+                const r = 212; 
                 const dotX = 250 + r * Math.cos(angleRad);
                 const dotY = 250 + r * Math.sin(angleRad);
                 dot.style.left = `${dotX}px`;
@@ -553,6 +567,7 @@
             isVideoPlaying = false;
         }
 
+        // 3投終了時の一括アワード判定
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
@@ -667,6 +682,7 @@
 
                     playSound(result.type);
 
+                    // 3投終了した瞬間にアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
