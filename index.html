@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Premium 1080p Interface</title>
+    <title>DARTSLIVE Home - Premium Custom Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -120,11 +120,11 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（完全中央寄せ固定・横潰れ防止） */
+        /* 🔥【修正】右側タブシステム（gapを0にし、重ね合わせによる白浮きを完全に消去） */
         .tab-header {
             display: flex;
             justify-content: center;
-            gap: 20px;
+            gap: 0; /* 隙間をゼロにしてピタッと密着 */
             position: absolute;
             top: -68px;
             left: 50%;
@@ -133,8 +133,8 @@
             white-space: nowrap;
         }
         .tab-btn {
-            background: rgba(0,0,0,0.4);
-            border: none;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             color: #777;
             padding: 12px 60px;
             font-size: 2rem;
@@ -145,6 +145,7 @@
             font-weight: 700;
             white-space: nowrap;
             flex-shrink: 0;
+            margin-right: -1px; /* 境界線の重複による白浮きを防ぐ微調整 */
         }
         .tab-btn.active {
             background: var(--bg-translucent);
@@ -152,7 +153,8 @@
             -webkit-backdrop-filter: blur(25px);
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            border-bottom: none;
+            border-bottom: none; /* パネルと繋がっているように見せる */
+            z-index: 2;
         }
 
         .tab-content { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
@@ -271,11 +273,8 @@
                     <div class="level-meter-deco" id="levelMeter"></div>
                     <svg class="circle-gauge" width="360" height="360" viewBox="0 0 360 360">
                         <defs>
-                            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                <stop offset="0%" stop-color="#0052d4" />
-                                <stop offset="50%" stop-color="#4364f7" />
-                                <stop offset="100%" stop-color="#6fb1fc" />
-                            </linearGradient>
+                            <linearGradient id="gauge-gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#0066ff" />    <stop offset="35%" stop-color="#ff007f" />   <stop offset="70%" stop-color="#ff0000" />   <stop offset="100%" stop-color="#ffea00" />  </linearGradient>
                         </defs>
                         <circle class="circle-bg" cx="180" cy="180" r="160" stroke-width="16" fill="none"/>
                         <circle class="circle-progress" id="gaugeCircle" cx="180" cy="180" r="160" stroke-width="16" fill="none"/>
@@ -459,33 +458,30 @@
             isVideoPlaying = false;
         }
 
-        // 3投終了時の一括アワード判定（ワンブルの優先順位を最下位に設定）
+        // 3投終了時の一括アワード判定
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
             const isAllTriple = hits.every(h => h.type === 'triple');
             const isAllDouble = hits.every(h => h.type === 'double');
 
-            // 1. 最上位アワードの判定
             if (isAllInBull) return 'black';
             if (isAllBull) return 'hattrick';
             if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
             if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
             if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
 
-            // 2. スコア合計による点数系アワードの判定
             const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
 
-            // 3. 上記のどれにも該当せず、3本の中にブルが1本以上含まれる場合に初めて「ONE BULL」
             const hasAnyBull = hits.some(h => h.type === 'bull' || h.type === 'inbull');
             if (hasAnyBull) return 'onebull';
 
             return null;
         }
 
-        // 🔥【超重要】最優先でダイアログを開くクリーン構造に再復元（デグレード完全解消）
+        // Bluetooth接続（最優先実行構造）
         document.getElementById('connectBtn').addEventListener('click', () => {
             addLog("SEARCHING BOARD...");
 
@@ -515,7 +511,6 @@
                 const startOverlay = document.getElementById('startOverlay');
                 startOverlay.style.display = 'flex';
 
-                // 🔥 ユーザーの「2回目のタップ」を起点にして、フルスクリーンや動画ロック解除を一斉に安全発動
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
@@ -576,10 +571,9 @@
                     const currentRate = (totalBullCount / totalDartsCount) * 100;
                     updateBullRateUI(currentRate);
 
-                    // 1投ごとの通常ヒット音を鳴らす（フライングワンブルは完全撤廃）
                     playSound(result.type);
 
-                    // 🎯 3投終了した瞬間に、すべての条件を精査して最上位のアワードを1つだけ再生
+                    // 🎯 3投終了した瞬間にアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
