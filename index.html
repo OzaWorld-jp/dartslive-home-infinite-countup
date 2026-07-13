@@ -331,7 +331,6 @@
         let totalBullCount = 0;
         let roundHits = []; 
         let isVideoPlaying = false;
-        let hasRoundBull = false; 
         let currentPlayingVideo = null;
 
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
@@ -448,7 +447,6 @@
             video.onended = () => { closeAwardVideo(); };
         }
 
-        /* 🔥【バグ完全修正】styleの重複タイポをきれいに駆逐しました */
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
@@ -461,27 +459,50 @@
             isVideoPlaying = false;
         }
 
+        // 🔥【修正】3投終了時の一括アワード判定（ワンブルの優先順位を最下位に設定）
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
             const isAllTriple = hits.every(h => h.type === 'triple');
             const isAllDouble = hits.every(h => h.type === 'double');
 
+            // 1. 最上位アワードの判定
             if (isAllInBull) return 'black';
             if (isAllBull) return 'hattrick';
             if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
             if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
             if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
 
+            // 2. スコア合計による点数系アワードの判定
             const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
+
+            // 3. 上記のどれにも該当せず、3本の中にブルが1本以上含まれる場合に「ONE BULL」
+            const hasAnyBull = hits.some(h => h.type === 'bull' || h.type === 'inbull');
+            if (hasAnyBull) return 'onebull';
+
             return null;
         }
 
-        // Bluetooth接続（最優先実行構造）
+        // Bluetooth接続
         document.getElementById('connectBtn').addEventListener('click', () => {
             playSound('poti');
+            
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            }
+
+            awardKeys.forEach(key => {
+                const v = document.getElementById(`video_${key}`);
+                if (v) {
+                    v.play().then(() => {
+                        v.pause();
+                        v.currentTime = 0;
+                    }).catch(e => console.log(`${key} unlock error:`, e));
+                }
+            });
+
             addLog("SEARCHING BOARD...");
 
             navigator.bluetooth.requestDevice({
@@ -506,15 +527,12 @@
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
 
-                // 接続成功後、全画面の「TAP TO START」スクリーンを起動
                 const startOverlay = document.getElementById('startOverlay');
                 startOverlay.style.display = 'flex';
 
-                // 新しいクリーンなタップ操作で、メディアを一斉アンロックする
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    // 8つのアワード動画を一斉アンロック
                     awardKeys.forEach(key => {
                         const v = document.getElementById(`video_${key}`);
                         if (v) {
@@ -540,7 +558,7 @@
                 if (isVideoPlaying) { closeAwardVideo(); }
 
                 if (roundHits.length === 3) {
-                    roundHits = []; hasRoundBull = false;
+                    roundHits = [];
                     document.getElementById('slot0').innerText = '---';
                     document.getElementById('slot1').innerText = '---';
                     document.getElementById('slot2').innerText = '---';
@@ -566,17 +584,18 @@
                     const currentRate = (totalBullCount / totalDartsCount) * 100;
                     updateBullRateUI(currentRate);
 
+                    // 1投ごとの通常ヒット音を鳴らす（★フライングONE BULL判定は削除しました）
                     playSound(result.type);
 
-                    if (isBullHit && !hasRoundBull && roundHits.length < 3) {
-                        hasRoundBull = true;
-                        setTimeout(() => { if (!isVideoPlaying) playAwardVideo('onebull'); }, 400); 
-                    }
-
+                    // 🎯 3投終了した瞬間に、すべての条件を精査してアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
-                            if (award) { playAwardVideo(award); } else { playSound('round-change'); }
+                            if (award) { 
+                                playAwardVideo(award); 
+                            } else { 
+                                playSound('round-change'); 
+                            }
                         }, 600); 
                     }
                 }
