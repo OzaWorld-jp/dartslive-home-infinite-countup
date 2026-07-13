@@ -89,18 +89,18 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【機能追加】経過時間タイマー（上部中央にジャスト配置） */
+        /* 🔥【修正】経過時間タイマー（白色・細め・等幅フォント指定でガタつきを完全防御、中間地点へ固定） */
         .top-timer {
             position: absolute;
-            top: 95px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 4.5rem;
-            font-weight: 700;
-            font-family: 'Impact', 'Arial Black', sans-serif;
-            letter-spacing: 4px;
-            color: var(--primary-color);
-            text-shadow: 0 0 20px rgba(0, 173, 181, 0.7);
+            top: 98px;
+            left: 780px; /* ラウンド数枠と右パネルのちょうど中間に配置固定 */
+            font-size: 4.2rem;
+            font-weight: 400; /* 細めのウエイト */
+            font-family: 'Oswald', sans-serif;
+            font-variant-numeric: tabular-nums; /* 数字の横幅を等幅に固定して左右の微振動をシャットアウト */
+            letter-spacing: 2px;
+            color: #ffffff; /* 白色に変更 */
+            text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
 
@@ -136,12 +136,12 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（パネルの左上に完全固定・一体化） */
+        /* 🔥【修正】右側タブシステム（PCでの右側はみ出しを防ぐため、左寄せ位置とボタン横幅を再調整） */
         .tab-header {
             display: flex;
             position: absolute;
             bottom: 100%;
-            left: 50px;
+            left: 35px; /* 50pxから35pxへ少し左にシフト */
             margin-bottom: -1px;
             z-index: 10;
         }
@@ -150,7 +150,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-bottom: none;
             color: #666;
-            padding: 12px 55px;
+            padding: 12px 42px; /* 横パディングを55pxから42pxへ縮小し、3つ並んでもパネル内に完全格納 */
             font-size: 2rem;
             font-family: inherit;
             border-radius: 20px 20px 0 0;
@@ -172,7 +172,7 @@
             z-index: 12;
         }
 
-        /* 露出バグを物理ロックする最強の非表示構造 */
+        /* アワード数・スコアの露出バグを物理ロックする最強の非表示構造 */
         #contentBull, #contentAward, #contentScore {
             display: none;
             flex-direction: column;
@@ -265,12 +265,12 @@
         .award-item .label { font-size: 1.8rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700; }
         .award-item .count { font-size: 7rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
 
-        /* 🔥【新設】スコア履歴表示エリア（カンプの縦12行×2カラムの美しい等間隔を完全再現） */
+        /* スコア履歴表示エリア */
         .score-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(12, 1fr);
-            grid-auto-flow: column; /* 縦方向に12個埋めてから自動で右列へリレーする神設定 */
+            grid-auto-flow: column;
             height: 100%;
             padding: 10px 0;
             box-sizing: border-box;
@@ -390,11 +390,10 @@
         let isVideoPlaying = false;
         let currentPlayingVideo = null;
 
-        // 🔥 新設した追加制御用ステート
-        let isRoundLock = false;    // ダーツ引き抜き時の誤反応防止フラグ
-        let timerInterval = null;   // タイマーの周期監視用
-        let totalSeconds = 0;       // 通算経過時間の秒数
-        let roundScores = [];       // ラウンドスコアのローテーション配列
+        let isRoundLock = false;    
+        let timerInterval = null;   
+        let totalSeconds = 0;       
+        let roundScores = [];       
 
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
         const awardVideos = {
@@ -410,7 +409,7 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // レベルメーター配置計算（半径272px拡張版）
+        // 拡大サークルに合わせたレベルメーターの配置半径自動拡張（272px）
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
         const radius = 272; 
@@ -429,7 +428,7 @@
             levelMeter.appendChild(bar);
         }
 
-        // 🔥【修正】3つのタブ切り替えの完璧なリファクタリング
+        // タブ切り替え
         const btnTabBull = document.getElementById('btnTabBull');
         const btnTabAward = document.getElementById('btnTabAward');
         const btnTabScore = document.getElementById('btnTabScore');
@@ -448,12 +447,9 @@
         btnTabAward.addEventListener('click', () => switchTab(btnTabAward, contentAward));
         btnTabScore.addEventListener('click', () => switchTab(btnTabScore, contentScore));
 
-        // 🔥【機能追加】スコア履歴の24枠初期レンダリング
         function recordRoundScore(score) {
             const roundNum = Math.ceil(totalDartsCount / 3);
             roundScores.push({ num: roundNum, score: score });
-            
-            // 24個（縦12×2列）を超えたら、古いデータを先頭から削除してリレーローテーション
             if (roundScores.length > 24) {
                 roundScores.shift();
             }
@@ -474,12 +470,11 @@
                 grid.appendChild(row);
             }
         }
-        renderScoreGrid(); // 初期起動時に空枠を綺麗に展開
+        renderScoreGrid();
 
-        // 🔥【機能追加】通算経過時間タイマーの駆動処理（1投目着弾で始動）
         function startGameTimer() {
             if (timerInterval) return;
-            document.getElementById('gameTimer').style.display = 'block'; // タイマーを可視化
+            document.getElementById('gameTimer').style.display = 'block';
             timerInterval = setInterval(() => {
                 totalSeconds++;
                 const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
@@ -489,7 +484,6 @@
             }, 1000);
         }
 
-        // コニックカラー補間計算
         function getColorAtRate(rate) {
             const colors = [
                 { p: 0, r: 0, g: 68, b: 255 },     
@@ -515,7 +509,6 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 12時起点時計回りグラデーションUI同期
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -686,11 +679,14 @@
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    // 🔥【機能追加】ゲーム本格始動から「5秒後」に状態表示(ログ)をフェードアウト消去
+                    // 🔥【修正】5秒後に文字だけでなくコントロールコンソールエリア全体を完全消去（フェード消去➔完全none化）
                     setTimeout(() => {
-                        const consoleLog = document.getElementById('logConsole');
-                        consoleLog.style.transition = 'opacity 1s ease';
-                        consoleLog.style.opacity = '0';
+                        const controlsHeader = document.querySelector('.header-controls');
+                        if (controlsHeader) {
+                            controlsHeader.style.transition = 'opacity 1s ease';
+                            controlsHeader.style.opacity = '0';
+                            setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
+                        }
                     }, 5000);
 
                     const v = document.getElementById('awardVideo');
@@ -708,7 +704,6 @@
         });
 
         function handleDataChanged(event) {
-            // 🔥【機能追加】ダーツ抜き取り時（3投終了〜6秒間）はボードデータを完全無視して誤加算を徹底防御
             if (isRoundLock) return;
 
             const data = event.target.value;
@@ -726,7 +721,6 @@
                 const result = calculateScore(segmentId);
 
                 if (result.score >= 0) {
-                    // 🔥【機能追加】記念すべき「第1投目」が刺さった瞬間に通算タイマースタート
                     if (totalDartsCount === 0) {
                         startGameTimer();
                     }
@@ -749,11 +743,9 @@
 
                     playSound(result.type);
 
-                    // 🎯 3投終了した運命の瞬間
                     if (roundHits.length === 3) {
-                        isRoundLock = true; // 🔥【機能追加】即座にロックをかけ、ダーツ抜きの振動を無効化
+                        isRoundLock = true; 
                         
-                        // 今回のラウンドスコアを計算して「スコア」履歴タブへリレー登録
                         const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
                         recordRoundScore(roundTotal);
 
@@ -766,7 +758,6 @@
                             }
                         }, 600); 
 
-                        // 🔥【機能追加】6秒（6000ms）経過したらロックを自動解除して次のラウンドへ
                         setTimeout(() => {
                             isRoundLock = false;
                         }, 6000);
