@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス（16:9を完全維持） */
+        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -67,6 +67,7 @@
             position: relative;
             height: 100%;
             box-sizing: border-box;
+            z-index: 5;
         }
 
         /* 上部ラウンド表示 */
@@ -120,19 +121,17 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【大幅修正】右側タブシステム（位置を中央から「左上」へ移動。物理隔離で白浮きを完全破壊） */
+        /* 🔥【修正】右側タブシステム（パネル枠線と1px重ね、z-indexで潜り込ませることで重なり白浮きを完全消滅） */
         .tab-header {
             display: flex;
-            justify-content: flex-start;
-            gap: 15px; /* ボタン同士を完全に離して、絶対に重なりを発生させない */
             position: absolute;
-            top: -62px; /* パネルの上辺フレームラインにジャストフィット */
-            left: 40px; /* カンプ通りの左寄せ位置 */
-            width: max-content;
-            white-space: nowrap;
+            bottom: 100%; /* パネルの真上に配置 */
+            left: 50px;    /* カンプ通りの左上の位置 */
+            margin-bottom: -1px; /* 右パネルの枠線（1px）とピッタリ重ねる */
+            z-index: 10;
         }
         .tab-btn {
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.6);
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-bottom: none;
             color: #666;
@@ -141,18 +140,21 @@
             font-family: inherit;
             border-radius: 20px 20px 0 0;
             cursor: pointer;
-            transition: all 0.2s;
             font-weight: 700;
             white-space: nowrap;
             flex-shrink: 0;
+            margin-right: -1px; /* タブ同士の境界線を重ねて太くなるのを防ぐ */
+            z-index: 1; /* 通常時は枠線の下に潜らせる */
+            transition: all 0.15s ease;
         }
         .tab-btn.active {
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.22);
             border-bottom: none;
+            z-index: 12; /* 🔥枠線より「上」に重ねることで、下のパネル線を物理的に消し去り完全一体化 */
         }
 
         /* ブル率表示エリア */
@@ -166,7 +168,7 @@
             margin: 0 auto;
         }
         
-        /* 🔥【構造変更】カンプ画像（image_0c855a.png）と100%一致する時計回り無段階グラデーション構造 */
+        /* 🔥 円周グラデーション用ベーストラック */
         .gauge-track-css {
             position: absolute;
             width: 360px;
@@ -184,10 +186,10 @@
             box-sizing: border-box;
             -webkit-mask: radial-gradient(transparent 164px, #000 165px);
             mask: radial-gradient(transparent 164px, #000 165px);
-            /* 回転・反転用transformを全撤廃。12時から素直に時計回りに描画 */
+            /* 回転・反転を一切排除。12時から時計回りに素直に描画 */
         }
 
-        /* 🔥【新設】カンプにある、グラデーションの先端を追従する美しい丸ツマミ（ドットピン） */
+        /* グラデーションの先端を追従する白いドットピン */
         .gauge-dot {
             position: absolute;
             width: 26px;
@@ -199,7 +201,7 @@
             box-shadow: 0 0 15px rgba(255,255,255,0.8), 0 5px 10px rgba(0,0,0,0.5);
             display: none;
             z-index: 100;
-            transform: translate(-13px, -14px); /* 中心点をジャストフィットさせる */
+            transform: translate(-13px, -13px);
             pointer-events: none;
         }
 
@@ -396,37 +398,66 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
-        // 🔥【超絶強化】カンプと完全に一致する時計回りのコニックグラデーション制御 ＆ ピン連動
+        // 🔥【新設】円周に沿ったピッチを崩さずに、現在の進捗度（rate）でパチッと透明に切るための補間計算
+        function getColorAtRate(rate) {
+            const colors = [
+                { p: 0, r: 0, g: 68, b: 255 },      // 0%: 青 (#0044ff)
+                { p: 25, r: 153, g: 0, b: 255 },   // 25%: 紫 (#9900ff)
+                { p: 50, r: 255, g: 0, b: 127 },   // 50%: チェリーマゼンタ (#ff007f)
+                { p: 75, r: 255, g: 0, b: 0 },     // 75%: 赤 (#ff0000)
+                { p: 100, r: 255, g: 234, b: 0 }   // 100%: 黄色 (#ffea00)
+            ];
+            if (rate <= 0) return 'rgb(0,68,255)';
+            if (rate >= 100) return 'rgb(255,234,0)';
+            
+            let lower = colors[0];
+            let upper = colors[colors.length - 1];
+            for (let i = 0; i < colors.length - 1; i++) {
+                if (rate >= colors[i].p && rate <= colors[i+1].p) {
+                    lower = colors[i];
+                    upper = colors[i+1];
+                    break;
+                }
+            }
+            const range = upper.p - lower.p;
+            const factor = (rate - lower.p) / range;
+            const r = Math.round(lower.r + (upper.r - lower.r) * factor);
+            const g = Math.round(lower.g + (upper.g - lower.g) * factor);
+            const b = Math.round(lower.b + (upper.b - lower.b) * factor);
+            return `rgb(${r},${g},${b})`;
+        }
+
+        // 🔥【修正】12時を0%（青）起点とし、時計回りに無段階で伸びるコニックグラデーション制御
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
             
-            // カンプの配色（12時から時計回り）：0%青(#0044ff) ➔ 25%紫(#9900ff) ➔ 50%チェリーマゼンタ(#ff007f) ➔ 75%赤(#ff0000)
             let gradientStr = 'transparent';
             if (rate > 0) {
+                const currentSecColor = getColorAtRate(rate);
                 if (rate <= 25) {
-                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff ${rate}%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
                 } else if (rate <= 50) {
-                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f ${rate}%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
                 } else if (rate <= 75) {
-                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 ${rate}%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
                 } else {
-                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, #ffea00 ${rate}%, transparent ${rate}%)`;
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
                 }
             }
             gauge.style.background = gradientStr;
 
-            // 🔥 カンプの白い丸ピンを先端にピッタリ配置する動的物理演算
+            // 🔥 先端の白いドットピンの軌道を12時（真上）起点に100%シンクロ
             if (rate > 0) {
                 dot.style.display = 'block';
-                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180; // 12時が-90度
-                const r = 172; // ドーナツゲージのジャスト中心を通る半径
-                const dotX = 250 + r * Math.cos(angleRad); // 500*500コンテナの完全中心
+                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180; // 12時（真上）が -90度
+                const r = 172; // ドーナツの真ん中を通る物理半径
+                const dotX = 250 + r * Math.cos(angleRad);
                 const dotY = 250 + r * Math.sin(angleRad);
                 dot.style.left = `${dotX}px`;
                 dot.style.top = `${dotY}px`;
                 
-                // ピンのフチの枠線カラーも、進行度に応じた先端の色と完全にシンクロ
+                // ピンのフチの色もグラデーション先端色と自動シンクロ
                 let dotBorderColor = '#0044ff';
                 if (rate > 25) dotBorderColor = '#9900ff';
                 if (rate > 50) dotBorderColor = '#ff007f';
@@ -441,7 +472,7 @@
             const decPart = (rate - intPart).toFixed(2).substring(1);
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            // 弧状レベルメーターも完全に同じグラデーション比率で連動発光
+            // 弧状レベルメーターの連動発光も時計回りのカラーピッチに完全シンクロ
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
@@ -634,6 +665,7 @@
 
                     playSound(result.type);
 
+                    // 🎯 3投終了した瞬間にアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
