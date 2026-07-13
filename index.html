@@ -89,7 +89,22 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* メイン巨大スコア（上下の中間地点に完全センター配置） */
+        /* 🔥【機能追加】経過時間タイマー（上部中央にジャスト配置） */
+        .top-timer {
+            position: absolute;
+            top: 95px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 4.5rem;
+            font-weight: 700;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            letter-spacing: 4px;
+            color: var(--primary-color);
+            text-shadow: 0 0 20px rgba(0, 173, 181, 0.7);
+            z-index: 10;
+        }
+
+        /* メイン巨大スコア */
         .huge-score {
             font-size: 28rem; 
             font-family: 'Impact', 'Arial Black', sans-serif;
@@ -121,13 +136,13 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（パネルの左上に完全ジャストフィット） */
+        /* 右側タブシステム（パネルの左上に完全固定・一体化） */
         .tab-header {
             display: flex;
             position: absolute;
             bottom: 100%;
             left: 50px;
-            margin-bottom: -1px; /* 1px重ねてパネルの境界線を美しく上書き */
+            margin-bottom: -1px;
             z-index: 10;
         }
         .tab-btn {
@@ -154,19 +169,19 @@
             color: #fff;
             border: 1px solid rgba(255, 255, 255, 0.22);
             border-bottom: none;
-            z-index: 12; /* 枠線の上に重ねて、下のパネル線を完全に消去 */
+            z-index: 12;
         }
 
-        /* 🚨【バグ修正】アワード数が下にはみ出る現象を、強烈なID優先順位で物理的に非表示ロック */
-        #contentBull, #contentAward {
+        /* 露出バグを物理ロックする最強の非表示構造 */
+        #contentBull, #contentAward, #contentScore {
             display: none;
             flex-direction: column;
             height: 100%;
             justify-content: center;
             gap: 10px;
         }
-        #contentBull.active, #contentAward.active {
-            display: flex; /* activeクラスがついているタブだけを100%確実に表示 */
+        #contentBull.active, #contentAward.active, #contentScore.active {
+            display: flex;
         }
 
         /* ブル率表示エリア */
@@ -180,10 +195,10 @@
             margin: 0 auto;
         }
         
-        /* 12時起点・時計回りの滑らかな円周グラデーション構造（コニックメーター） */
+        /* 12時起点コニックメーター */
         .gauge-track-css {
             position: absolute;
-            width: 440px; /* 直径を440pxに超巨大化 */
+            width: 440px;
             height: 440px;
             border: 16px solid rgba(255, 255, 255, 0.04);
             border-radius: 50%;
@@ -196,12 +211,11 @@
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
-            /* くり抜きマスクの半径を440px用に再計算（(440 - 16) / 2 = 212px） */
             -webkit-mask: radial-gradient(transparent 203px, #000 204px);
             mask: radial-gradient(transparent 203px, #000 204px);
         }
 
-        /* グラデーションの先端を追従する白いドットピン */
+        /* 先端を追従する白いドットピン */
         .gauge-dot {
             position: absolute;
             width: 26px;
@@ -217,7 +231,7 @@
             pointer-events: none;
         }
 
-        /* ゲージ中央のテキスト（サイズを8.5remに調整して内側に完璧にパッキング） */
+        /* 黄金比率パッキングテキスト */
         .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
         .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
         .gauge-text .percent { 
@@ -233,12 +247,12 @@
         .level-meter-deco { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
         .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; }
 
-        /* BULL COUNT表示（隙間をギュッと詰めて超巨大化） */
+        /* BULL COUNT表示 */
         .bull-count-box { text-align: center; margin-top: 0px; }
         .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
         .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
 
-        /* アワード数表示エリア（高さいっぱいに均等配置して上下の隙間を完全に埋める） */
+        /* アワード数表示エリア */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -251,6 +265,29 @@
         .award-item .label { font-size: 1.8rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700; }
         .award-item .count { font-size: 7rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
 
+        /* 🔥【新設】スコア履歴表示エリア（カンプの縦12行×2カラムの美しい等間隔を完全再現） */
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(12, 1fr);
+            grid-auto-flow: column; /* 縦方向に12個埋めてから自動で右列へリレーする神設定 */
+            height: 100%;
+            padding: 10px 0;
+            box-sizing: border-box;
+            font-size: 2.4rem;
+            font-weight: 700;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 40px;
+            align-items: center;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+        }
+        .score-row .r-num { color: #888; font-weight: 400; font-family: inherit; }
+        .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+
         /* 接続ボタン＆ログ */
         .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
         .btn-connect {
@@ -262,23 +299,7 @@
 
         /* 全画面ビデオオーバーレイ */
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
-        #videoOverlay video { width: 100%; height: 100%; object-fit: contain; display: none; }
-
-        /* 接続完了後の演出用スタートスクリーン */
-        #startOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.85); z-index: 99998;
-            flex-direction: column; align-items: center; justify-content: center; cursor: pointer;
-        }
-        #startOverlay .msg-main {
-            font-size: 5.5rem; font-weight: 700; color: #00adb5; font-family: 'Impact', sans-serif;
-            letter-spacing: 6px; text-shadow: 0 0 25px #00adb5; animation: blink 1.5s infinite;
-        }
-        #startOverlay .msg-sub { font-size: 1.5rem; color: #aaa; margin-top: 20px; letter-spacing: 2px; }
-
-        @keyframes blink {
-            0% { opacity: 0.3; } 50% { opacity: 1; } 100% { opacity: 0.3; }
-        }
+        #awardVideo { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -289,6 +310,9 @@
     </div>
 
     <div id="app-scaler">
+        
+        <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
+
         <div class="left-column">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -307,16 +331,15 @@
             <div class="tab-header">
                 <button class="tab-btn active" id="btnTabBull">ブル率</button>
                 <button class="tab-btn" id="btnTabAward">アワード数</button>
+                <button class="tab-btn" id="btnTabScore">スコア</button>
             </div>
 
             <div class="tab-content active" id="contentBull">
                 <div class="bull-rate-container">
                     <div class="level-meter-deco" id="levelMeter"></div>
-                    
                     <div class="gauge-track-css"></div>
                     <div class="gauge-progress-css" id="gaugeCircleCSS"></div>
                     <div class="gauge-dot" id="gaugeDot"></div>
-                    
                     <div class="gauge-text">
                         <div class="label">BULL RATE</div>
                         <div class="percent" id="bullRate">0<span>.00%</span></div>
@@ -340,18 +363,15 @@
                     <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count" id="cnt_black">0</div></div>
                 </div>
             </div>
+
+            <div class="tab-content" id="contentScore">
+                <div class="score-grid" id="scoreGrid"></div>
+            </div>
         </div>
     </div>
 
     <div id="videoOverlay">
-        <video id="video_onebull" src="videos/onebull.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_lowton" src="videos/lowton.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_highton" src="videos/highton.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_ton80" src="videos/ton80.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_hattrick" src="videos/hattrick.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_bed" src="videos/three-in-a-bed.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_whitehorse" src="videos/white-horse.mp4" preload="auto" playsinline webkit-playsinline></video>
-        <video id="video_black" src="videos/three-in-the-black.mp4" preload="auto" playsinline webkit-playsinline></video>
+        <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
 
     <div id="startOverlay">
@@ -370,7 +390,17 @@
         let isVideoPlaying = false;
         let currentPlayingVideo = null;
 
+        // 🔥 新設した追加制御用ステート
+        let isRoundLock = false;    // ダーツ引き抜き時の誤反応防止フラグ
+        let timerInterval = null;   // タイマーの周期監視用
+        let totalSeconds = 0;       // 通算経過時間の秒数
+        let roundScores = [];       // ラウンドスコアのローテーション配列
+
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
+        const awardVideos = {
+            onebull: 'videos/onebull.mp4', lowton: 'videos/lowton.mp4', highton: 'videos/highton.mp4', ton80: 'videos/ton80.mp4',
+            hattrick: 'videos/hattrick.mp4', bed: 'videos/three-in-a-bed.mp4', whitehorse: 'videos/white-horse.mp4', black: 'videos/three-in-the-black.mp4'
+        };
 
         function resizeApp() {
             const scaler = document.getElementById('app-scaler');
@@ -380,7 +410,7 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 拡大した円ゲージ（440px）に合わせてレベルメーターの配置半径を自動拡張（248➔272）
+        // レベルメーター配置計算（半径272px拡張版）
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
         const radius = 272; 
@@ -399,42 +429,82 @@
             levelMeter.appendChild(bar);
         }
 
-        // タブ切り替え
+        // 🔥【修正】3つのタブ切り替えの完璧なリファクタリング
         const btnTabBull = document.getElementById('btnTabBull');
         const btnTabAward = document.getElementById('btnTabAward');
+        const btnTabScore = document.getElementById('btnTabScore');
         const contentBull = document.getElementById('contentBull');
         const contentAward = document.getElementById('contentAward');
+        const contentScore = document.getElementById('contentScore');
 
-        btnTabBull.addEventListener('click', () => {
+        function switchTab(activeBtn, activeContent) {
             playSound('poti');
-            btnTabBull.classList.add('active'); btnTabAward.classList.remove('active');
-            contentBull.classList.add('active'); contentAward.classList.remove('active');
-        });
-        btnTabAward.addEventListener('click', () => {
-            playSound('poti');
-            btnTabAward.classList.add('active'); btnTabBull.classList.remove('active');
-            contentAward.classList.add('active'); contentBull.classList.remove('active');
-        });
+            [btnTabBull, btnTabAward, btnTabScore].forEach(b => b.classList.remove('active'));
+            [contentBull, contentAward, contentScore].forEach(c => c.classList.remove('active'));
+            activeBtn.classList.add('active');
+            activeContent.classList.add('active');
+        }
+        btnTabBull.addEventListener('click', () => switchTab(btnTabBull, contentBull));
+        btnTabAward.addEventListener('click', () => switchTab(btnTabAward, contentAward));
+        btnTabScore.addEventListener('click', () => switchTab(btnTabScore, contentScore));
 
-        // 12時起点コニックカラー補間計算
+        // 🔥【機能追加】スコア履歴の24枠初期レンダリング
+        function recordRoundScore(score) {
+            const roundNum = Math.ceil(totalDartsCount / 3);
+            roundScores.push({ num: roundNum, score: score });
+            
+            // 24個（縦12×2列）を超えたら、古いデータを先頭から削除してリレーローテーション
+            if (roundScores.length > 24) {
+                roundScores.shift();
+            }
+            renderScoreGrid();
+        }
+
+        function renderScoreGrid() {
+            const grid = document.getElementById('scoreGrid');
+            grid.innerHTML = '';
+            for (let i = 0; i < 24; i++) {
+                const row = document.createElement('div');
+                row.className = 'score-row';
+                if (roundScores[i]) {
+                    row.innerHTML = `<span class="r-num">R${roundScores[i].num}</span><span class="r-val">${roundScores[i].score}</span>`;
+                } else {
+                    row.innerHTML = `<span class="r-num">--</span><span class="r-val">---</span>`;
+                }
+                grid.appendChild(row);
+            }
+        }
+        renderScoreGrid(); // 初期起動時に空枠を綺麗に展開
+
+        // 🔥【機能追加】通算経過時間タイマーの駆動処理（1投目着弾で始動）
+        function startGameTimer() {
+            if (timerInterval) return;
+            document.getElementById('gameTimer').style.display = 'block'; // タイマーを可視化
+            timerInterval = setInterval(() => {
+                totalSeconds++;
+                const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
+                const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
+                const secs = String(totalSeconds % 60).padStart(2, '0');
+                document.getElementById('gameTimer').innerText = `${hrs}:${mins}:${secs}`;
+            }, 1000);
+        }
+
+        // コニックカラー補間計算
         function getColorAtRate(rate) {
             const colors = [
-                { p: 0, r: 0, g: 68, b: 255 },     // 0%: 青
-                { p: 25, r: 153, g: 0, b: 255 },   // 25%: 紫
-                { p: 50, r: 255, g: 0, b: 127 },   // 50%: チェリーマゼンタ
-                { p: 75, r: 255, g: 0, b: 0 },     // 75%: 赤
-                { p: 100, r: 255, g: 234, b: 0 }   // 100%: 黄色
+                { p: 0, r: 0, g: 68, b: 255 },     
+                { p: 25, r: 153, g: 0, b: 255 },   
+                { p: 50, r: 255, g: 0, b: 127 },   
+                { p: 75, r: 255, g: 0, b: 0 },     
+                { p: 100, r: 255, g: 234, b: 0 }   
             ];
             if (rate <= 0) return 'rgb(0,68,255)';
             if (rate >= 100) return 'rgb(255,234,0)';
             
-            let lower = colors[0];
-            let upper = colors[colors.length - 1];
+            let lower = colors[0]; let upper = colors[colors.length - 1];
             for (let i = 0; i < colors.length - 1; i++) {
                 if (rate >= colors[i].p && rate <= colors[i+1].p) {
-                    lower = colors[i];
-                    upper = colors[i+1];
-                    break;
+                    lower = colors[i]; upper = colors[i+1]; break;
                 }
             }
             const range = upper.p - lower.p;
@@ -445,7 +515,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 12時起点・時計回りのコニックグラデーション ＆ ピンの同期追従
+        // 12時起点時計回りグラデーションUI同期
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -465,15 +535,12 @@
             }
             gauge.style.background = gradientStr;
 
-            // 拡大した円に合わせて丸ピンの軌道半径を再計算（212px）
             if (rate > 0) {
                 dot.style.display = 'block';
-                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180; // 12時（真上）が -90度
+                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
                 const r = 212; 
-                const dotX = 250 + r * Math.cos(angleRad);
-                const dotY = 250 + r * Math.sin(angleRad);
-                dot.style.left = `${dotX}px`;
-                dot.style.top = `${dotY}px`;
+                const dotX = 250 + r * Math.cos(angleRad); const dotY = 250 + r * Math.sin(angleRad);
+                dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                 
                 let dotBorderColor = '#0044ff';
                 if (rate > 25) dotBorderColor = '#9900ff';
@@ -484,12 +551,9 @@
                 dot.style.display = 'none';
             }
 
-            // 中央テキスト更新
-            const intPart = Math.floor(rate);
-            const decPart = (rate - intPart).toFixed(2).substring(1);
+            const intPart = Math.floor(rate); const decPart = (rate - intPart).toFixed(2).substring(1);
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            // レベルメーター連動発光
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
@@ -499,7 +563,6 @@
                     if (ratio >= 0.25) barColor = '#9900ff';
                     if (ratio >= 0.50) barColor = '#ff007f';
                     if (ratio >= 0.75) barColor = '#ff0000';
-                    
                     bar.style.background = barColor;
                     bar.style.boxShadow = `0 0 12px ${barColor}`;
                 } else {
@@ -528,21 +591,21 @@
             if (type === 'inbull') path = 'sounds/inner-bull.mp3';
             if (type === 'round-change') path = 'sounds/round-change.mp3';
             if (type === 'poti') path = 'sounds/poti.mp3';
-
             if (path) { new Audio(path).play().catch(e => console.log(e)); }
         }
 
         function playAwardVideo(awardKey) {
             const overlay = document.getElementById('videoOverlay');
-            const video = document.getElementById(`video_${awardKey}`);
+            const video = document.getElementById('awardVideo');
+            const path = awardVideos[awardKey];
 
-            if (!video) return;
+            if (!path) return;
 
             awardCounts[awardKey]++;
             document.getElementById(`cnt_${awardKey}`).innerText = awardCounts[awardKey];
 
+            video.src = path;
             overlay.style.display = 'block';
-            video.style.display = 'block';
             currentPlayingVideo = video;
             isVideoPlaying = true;
             video.currentTime = 0;
@@ -557,17 +620,15 @@
 
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
-            if (currentPlayingVideo) {
-                currentPlayingVideo.pause();
-                currentPlayingVideo.style.display = 'none';
-                currentPlayingVideo.currentTime = 0;
-                currentPlayingVideo = null;
+            const video = document.getElementById('awardVideo');
+            if (video) {
+                video.pause(); video.src = ''; video.load();
             }
             overlay.style.display = 'none';
+            currentPlayingVideo = null;
             isVideoPlaying = false;
         }
 
-        // 3投終了時の一括アワード判定
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
@@ -590,12 +651,15 @@
             return null;
         }
 
-        // Bluetooth接続（最優先実行構造）
+        // Bluetooth接続（通信強化マルチ探索フィルター版）
         document.getElementById('connectBtn').addEventListener('click', () => {
             addLog("SEARCHING BOARD...");
 
             navigator.bluetooth.requestDevice({
-                filters: [{ name: 'DARTSLIVE HOME' }],
+                filters: [
+                    { name: 'DARTSLIVE HOME' }, { name: 'DARTSLIVE Home' }, { name: 'dartslive home' },
+                    { namePrefix: 'DARTSLIVE' }, { namePrefix: 'DartsLive' }, { namePrefix: 'dartslive' }
+                ],
                 optionalServices: [SERVICE_UUID]
             })
             .then(async (device) => {
@@ -616,28 +680,23 @@
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
 
-                // 接続成功後、全画面の「TAP TO START」スクリーンを起動
                 const startOverlay = document.getElementById('startOverlay');
                 startOverlay.style.display = 'flex';
 
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    // Android対応ブラウザならフルスクリーン化
-                    if (document.documentElement.requestFullscreen) {
-                        document.documentElement.requestFullscreen().catch(e => console.log(e));
-                    }
+                    // 🔥【機能追加】ゲーム本格始動から「5秒後」に状態表示(ログ)をフェードアウト消去
+                    setTimeout(() => {
+                        const consoleLog = document.getElementById('logConsole');
+                        consoleLog.style.transition = 'opacity 1s ease';
+                        consoleLog.style.opacity = '0';
+                    }, 5000);
 
-                    // 8つのアワード動画を一斉アンロック
-                    awardKeys.forEach(key => {
-                        const v = document.getElementById(`video_${key}`);
-                        if (v) {
-                            v.play().then(() => {
-                                v.pause();
-                                v.currentTime = 0;
-                            }).catch(e => console.log(`${key} unlock error:`, e));
-                        }
-                    });
+                    const v = document.getElementById('awardVideo');
+                    if (v) {
+                        v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
+                    }
 
                     startOverlay.style.display = 'none';
                     addLog("ALL SYSTEMS OPERATIONAL. READY!");
@@ -649,6 +708,9 @@
         });
 
         function handleDataChanged(event) {
+            // 🔥【機能追加】ダーツ抜き取り時（3投終了〜6秒間）はボードデータを完全無視して誤加算を徹底防御
+            if (isRoundLock) return;
+
             const data = event.target.value;
             if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
                 if (isVideoPlaying) { closeAwardVideo(); }
@@ -664,6 +726,11 @@
                 const result = calculateScore(segmentId);
 
                 if (result.score >= 0) {
+                    // 🔥【機能追加】記念すべき「第1投目」が刺さった瞬間に通算タイマースタート
+                    if (totalDartsCount === 0) {
+                        startGameTimer();
+                    }
+
                     totalScore += result.score;
                     totalDartsCount++;
                     const isBullHit = (result.type === 'bull' || result.type === 'inbull');
@@ -682,8 +749,14 @@
 
                     playSound(result.type);
 
-                    // 3投終了した瞬間にアワードを1つだけ再生
+                    // 🎯 3投終了した運命の瞬間
                     if (roundHits.length === 3) {
+                        isRoundLock = true; // 🔥【機能追加】即座にロックをかけ、ダーツ抜きの振動を無効化
+                        
+                        // 今回のラウンドスコアを計算して「スコア」履歴タブへリレー登録
+                        const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
+                        recordRoundScore(roundTotal);
+
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
                             if (award) { 
@@ -692,6 +765,11 @@
                                 playSound('round-change'); 
                             }
                         }, 600); 
+
+                        // 🔥【機能追加】6秒（6000ms）経過したらロックを自動解除して次のラウンドへ
+                        setTimeout(() => {
+                            isRoundLock = false;
+                        }, 6000);
                     }
                 }
             }
