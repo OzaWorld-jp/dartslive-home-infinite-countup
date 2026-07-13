@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Premium 1080p Interface</title>
+    <title>DARTSLIVE Home - Premium Custom Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス */
+        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -120,7 +120,7 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】右側タブシステム（widthとwhite-spaceを指定して絶対に潰れないように修正） */
+        /* 右側タブシステム（完全中央寄せ固定） */
         .tab-header {
             display: flex;
             justify-content: center;
@@ -129,8 +129,8 @@
             top: -68px;
             left: 50%;
             transform: translateX(-50%);
-            width: max-content; /* 中身に合わせて自動で最大の幅を確保 */
-            white-space: nowrap; /* 親要素での折り返しを禁止 */
+            width: max-content;
+            white-space: nowrap;
         }
         .tab-btn {
             background: rgba(0,0,0,0.4);
@@ -143,8 +143,8 @@
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 700;
-            white-space: nowrap; /* 🔥ボタン内の文字が縦に潰れるのを強制防御 */
-            flex-shrink: 0;      /* 縮小の圧力がかかっても絶対に縮まない */
+            white-space: nowrap;
+            flex-shrink: 0;
         }
         .tab-btn.active {
             background: var(--bg-translucent);
@@ -187,21 +187,8 @@
         .gauge-text .percent span { font-size: 3.8rem; font-weight: 400; }
 
         /* 弧状レベルメーター */
-        .level-meter-deco {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            top: 0; left: 0;
-            pointer-events: none;
-        }
-        .level-bar {
-            position: absolute;
-            width: 32px;
-            height: 8px;
-            background: rgba(255,255,255,0.08);
-            border-radius: 2px;
-            transform-origin: center center;
-        }
+        .level-meter-deco { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
+        .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; }
 
         /* BULL COUNT表示 */
         .bull-count-box { text-align: center; margin-top: 0px; }
@@ -248,9 +235,7 @@
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
             </div>
-
             <div class="huge-score" id="totalScore">0</div>
-
             <div class="history-capsule">
                 <div id="slot0">---</div>
                 <div class="separator">|</div>
@@ -269,7 +254,6 @@
             <div class="tab-content active" id="contentBull">
                 <div class="bull-rate-container">
                     <div class="level-meter-deco" id="levelMeter"></div>
-                    
                     <svg class="circle-gauge" width="360" height="360" viewBox="0 0 360 360">
                         <defs>
                             <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -351,18 +335,12 @@
         for(let i=0; i<totalBars; i++) {
             const bar = document.createElement('div');
             bar.className = 'level-bar';
-            
-            const startAngle = 110;
-            const endAngle = 250;
+            const startAngle = 110; const endAngle = 250;
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
-
             const x = centerX + radius * Math.cos(angleRad) - 16;
             const y = centerY + radius * Math.sin(angleRad) - 4;
-
-            bar.style.left = `${x}px`;
-            bar.style.top = `${y}px`;
-            bar.style.transform = `rotate(${angleDeg}deg)`;
+            bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
 
@@ -442,12 +420,16 @@
             currentPlayingVideo = video;
             isVideoPlaying = true;
             video.currentTime = 0;
-            video.play().catch(e => console.log(e));
+            
+            video.play().catch(e => {
+                console.log("Play blocked:", e);
+                closeAwardVideo();
+            });
 
             video.onended = () => { closeAwardVideo(); };
         }
 
-        /* 🔥【修正】タイポ（.style.style.display）をきっちり修正 */
+        /* 🔥【修正】タイポ（.style.style.display）を完全駆逐 */
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
@@ -482,6 +464,12 @@
         document.getElementById('connectBtn').addEventListener('click', async () => {
             playSound('poti');
             
+            // 🔥【Android用】対応ブラウザ（Android Chrome）なら画面をフルスクリーン化
+            if (document.documentElement.requestFullscreen) {
+                document.documentElement.requestFullscreen().catch(e => console.log(e));
+            }
+
+            // 🔥【iOS最重要対策】全8動画をボタン操作の直系で一斉アンロック（タイポ修正により全OS対応完了）
             awardKeys.forEach(key => {
                 const v = document.getElementById(`video_${key}`);
                 if (v) {
