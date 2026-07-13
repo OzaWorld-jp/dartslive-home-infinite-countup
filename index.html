@@ -3,148 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>無限カウントアップ - DARTSLIVE Home</title>
+    <title>DARTSLIVE Home - 無限カウントアップ完全版</title>
     <style>
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: #121212;
             color: #ffffff;
             text-align: center;
-            padding: 40px 20px;
+            padding: 20px;
             margin: 0;
         }
-        h1 { color: #00adb5; font-size: 2rem; margin-bottom: 30px; }
+        h1 { color: #00adb5; font-size: 1.8rem; margin: 10px 0; }
+        
+        /* メインスコア */
         .score-display {
-            font-size: 8rem;
+            font-size: 7rem;
             font-weight: bold;
-            color: #393e46;
+            color: #eeeeee;
             background: #222831;
-            padding: 20px;
+            padding: 15px;
             border-radius: 20px;
             display: inline-block;
-            min-width: 300px;
+            min-width: 280px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 30px;
-            transition: color 0.1s ease;
+            margin-bottom: 15px;
         }
-        .score-display.hit { color: #00adb5; }
-        .stats { font-size: 1.5rem; color: #eeeeee; margin-bottom: 40px; }
-        .btn {
-            background-color: #00adb5;
-            color: white;
-            border: none;
-            padding: 15px 40px;
+        
+        /* 3本ずつのラウンド表示 */
+        .round-stats {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .dart-slot {
+            background: #393e46;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-size: 1.5rem;
+            min-width: 60px;
+        }
+
+        /* スタッツ表示 */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            max-width: 400px;
+            margin: 0 auto 20px;
+            gap: 10px;
             font-size: 1.2rem;
-            font-weight: bold;
-            border-radius: 30px;
-            cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,173,181,0.4);
-            transition: transform 0.2s, background-color 0.2s;
+            background: #222831;
+            padding: 15px;
+            border-radius: 15px;
         }
-        .btn:hover { background-color: #008c92; transform: translateY(-2px); }
-        .btn:active { transform: translateY(1px); }
-        .log { max-width: 400px; margin: 30px auto 0; text-align: left; color: #888; font-size: 0.9rem; word-break: break-all; }
+
+        /* アワードカウンター */
+        .award-counter {
+            max-width: 400px;
+            margin: 0 auto 30px;
+            background: #1a1f29;
+            padding: 15px;
+            border-radius: 15px;
+            text-align: left;
+        }
+        .award-counter h3 { margin-top: 0; color: #00adb5; border-bottom: 1px solid #393e46; padding-bottom: 5px; }
+        .award-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1rem; }
+
+        .btn {
+            background-color: #00adb5; color: white; border: none; padding: 15px 40px;
+            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer;
+        }
+        .log { max-width: 400px; margin: 20px auto 0; text-align: left; color: #666; font-size: 0.8rem; }
+
+        /* 全画面ビデオオーバーレイ */
+        #videoOverlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+        }
+        #awardVideo { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
 
-    <h1>DARTSLIVE Home<br>✨ 無限カウントアップ ✨</h1>
+    <h1>DARTSLIVE Home 連動<br>無限カウントアップ</h1>
 
-    <div class="score-display" id="totalScore">0</div>
+    <!-- 接続ボタン -->
+    <button class="btn" id="connectBtn">ボードに接続する</button>
 
-    <div class="stats">
-        <span id="dartsCount">0</span> 投目 （今回: <span id="lastHit">--</span>）
+    <div style="margin-top: 15px;">
+        <div class="score-display" id="totalScore">0</div>
     </div>
 
-    <button class="btn" id="connectBtn">ボードに接続する</button>
+    <!-- 現在のラウンドの3本履歴 -->
+    <div class="round-stats">
+        <div class="dart-slot" id="slot0">---</div>
+        <div class="dart-slot" id="slot1">---</div>
+        <div class="dart-slot" id="slot2">---</div>
+    </div>
+
+    <!-- スタッツ -->
+    <div class="stats-grid">
+        <div>総投数: <span id="totalDarts">0</span></div>
+        <div>ブル率: <span id="bullRate">0.0%</span></div>
+        <div>ブル数: <span id="bullCount">0</span></div>
+        <div>直近ヒット: <span id="lastHit">--</span></div>
+    </div>
+
+    <!-- アワード履歴 -->
+    <div class="award-counter">
+        <h3>AWARD COUNTER</h3>
+        <div class="award-row"><span>ONE BULL</span><span id="cnt_onebull">0</span></div>
+        <div class="award-row"><span>LOW TON</span><span id="cnt_lowton">0</span></div>
+        <div class="award-row"><span>HIGH TON</span><span id="cnt_highton">0</span></div>
+        <div class="award-row"><span>TON 80</span><span id="cnt_ton80">0</span></div>
+        <div class="award-row"><span>HAT TRICK</span><span id="cnt_hattrick">0</span></div>
+        <div class="award-row"><span>THREE IN A BED</span><span id="cnt_bed">0</span></div>
+        <div class="award-row"><span>WHITE HORSE</span><span id="cnt_whitehorse">0</span></div>
+        <div class="award-row"><span>THREE IN THE BLACK</span><span id="cnt_black">0</span></div>
+    </div>
 
     <div class="log" id="logConsole"></div>
 
+    <!-- ビデオ再生スクリーン -->
+    <div id="videoOverlay">
+        <video id="awardVideo" src="" preload="auto"></video>
+    </div>
+
     <script>
-        // サービスのUUID（大きな箱）はこれで確定
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
-
+        
+        // データ管理用
         let totalScore = 0;
-        let dartsCount = 0;
+        let totalDartsCount = 0;
+        let totalBullCount = 0;
+        let roundHits = []; 
+        let isVideoPlaying = false;
+        let hasRoundBull = false; 
 
+        // アワード獲得数
+        const awardCounts = {
+            onebull: 0, lowton: 0, highton: 0, ton80: 0,
+            hattrick: 0, bed: 0, whitehorse: 0, black: 0
+        };
+
+        // 動画マッピング（★修正：blackに変更完了）
+        const awardVideos = {
+            onebull: 'videos/onebull.mp4',
+            lowton: 'videos/lowton.mp4',
+            highton: 'videos/highton.mp4',
+            ton80: 'videos/ton80.mp4',
+            hattrick: 'videos/hattrick.mp4',
+            bed: 'videos/three-in-a-bed.mp4',
+            whitehorse: 'videos/white-horse.mp4',
+            black: 'videos/three-in-the-black.mp4'
+        };
+
+        // セグメント計算
         function calculateScore(id) {
-            if (id >= 1 && id <= 20) return { score: id, label: `S${id}` };
-            if (id >= 21 && id <= 40) return { score: id - 20, label: `S${id - 20}` };
-            if (id >= 41 && id <= 60) return { score: (id - 40) * 2, label: `D${id - 40}` };
-            if (id >= 61 && id <= 80) return { score: (id - 60) * 3, label: `T${id - 60}` };
-            if (id === 81) return { score: 50, label: 'Outer Bull' };
-            if (id === 82) return { score: 50, label: 'Inner Bull' };
-            return { score: 0, label: 'Unknown' };
+            if (id >= 1 && id <= 20)  return { score: id, label: `S${id}`, type: 'single', num: id };
+            if (id >= 21 && id <= 40) return { score: id - 20, label: `S${id - 20}`, type: 'single', num: id - 20 };
+            if (id >= 41 && id <= 60) return { score: (id - 40) * 2, label: `D${id - 40}`, type: 'double', num: id - 40 };
+            if (id >= 61 && id <= 80) return { score: (id - 60) * 3, label: `T${id - 60}`, type: 'triple', num: id - 60 };
+            if (id === 81) return { score: 50, label: 'BULL', type: 'bull', num: 25 };
+            if (id === 82) return { score: 50, label: 'D-BULL', type: 'inbull', num: 25 };
+            return { score: 0, label: 'MISSED', type: 'unknown', num: 0 };
         }
 
+        // 効果音再生
+        function playSound(type) {
+            let path = '';
+            if (type === 'single') path = 'sounds/single.mp3';
+            if (type === 'double') path = 'sounds/double.mp3';
+            if (type === 'triple') path = 'sounds/triple.mp3';
+            if (type === 'bull') path = 'sounds/bull.mp3';
+            if (type === 'inbull') path = 'sounds/inner-bull.mp3';
+            if (type === 'round-change') path = 'sounds/round-change.mp3';
+            if (type === 'poti') path = 'sounds/poti.mp3';
+
+            if (path) {
+                const audio = new Audio(path);
+                audio.play().catch(e => console.log(e));
+            }
+        }
+
+        // アワード動画再生
+        function playAwardVideo(awardKey) {
+            const overlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('awardVideo');
+            const path = awardVideos[awardKey];
+
+            if (!path) return;
+
+            awardCounts[awardKey]++;
+            document.getElementById(`cnt_${awardKey}`).innerText = awardCounts[awardKey];
+
+            video.src = path;
+            overlay.style.display = 'block';
+            isVideoPlaying = true;
+            video.currentTime = 0;
+            video.play().catch(e => console.log(e));
+
+            video.onended = () => { closeAwardVideo(); };
+        }
+
+        // 動画を強制終了して閉じる
+        function closeAwardVideo() {
+            const overlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('awardVideo');
+            video.pause();
+            overlay.style.display = 'none';
+            video.src = '';
+            isVideoPlaying = false;
+        }
+
+        // 3本終了時のアワード判定
+        function checkRoundAward(hits) {
+            const isAllInBull = hits.every(h => h.type === 'inbull');
+            const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
+            const isAllTriple = hits.every(h => h.type === 'triple');
+            const isAllDouble = hits.every(h => h.type === 'double');
+
+            if (isAllInBull) return 'black';
+            if (isAllBull) return 'hattrick';
+            if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
+            if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
+            if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
+
+            const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
+            if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
+            if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
+
+            return null;
+        }
+
+        // Bluetooth接続ロジック
         document.getElementById('connectBtn').addEventListener('click', async () => {
+            playSound('poti');
             addLog("デバイスを検索中...");
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     filters: [{ name: 'DARTSLIVE HOME' }],
                     optionalServices: [SERVICE_UUID]
                 });
-
-                addLog(`${device.name} に接続中...`);
+                addLog("接続中...");
                 const server = await device.gatt.connect();
-
-                addLog("サービスを取得中...");
                 const service = await server.getPrimaryService(SERVICE_UUID);
-
-                addLog("キャラクタリスティック（引き出し）を自動スキャン中...");
-                // 【変更点】サービス内のすべての引き出しを一度全取得する
                 const characteristics = await service.getCharacteristics();
                 
                 let targetCharacteristic = null;
-                
-                // ループで1つずつ中身をチェック
                 for (const c of characteristics) {
-                    addLog(`発見: ...${c.uuid.substring(0,8)} (Notify:${c.properties.notify})`);
-                    
-                    // Notify（データが飛んでくる設定）ができる引き出しを自動キープ
-                    if (c.properties.notify) {
-                        targetCharacteristic = c;
-                        break;
-                    }
+                    if (c.properties.notify) { targetCharacteristic = c; break; }
                 }
+                if (!targetCharacteristic) throw new Error("Notify対応の属性がありません。");
 
-                if (!targetCharacteristic) {
-                    throw new Error("Notify対応の引き出しが見つかりませんでした。");
-                }
-
-                addLog(`ターゲット決定: ...${targetCharacteristic.uuid.substring(0,8)}`);
-                
-                // 通知の開始
                 await targetCharacteristic.startNotifications();
                 targetCharacteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
-
-                addLog("接続成功！ダーツを投げてください。");
+                addLog("接続成功！");
                 document.getElementById('connectBtn').style.display = 'none';
 
             } catch (error) {
                 addLog(`エラー: ${error.message}`);
-                console.error(error);
             }
         });
 
+        // データ受信処理
         function handleDataChanged(event) {
             const data = event.target.value;
             
             if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
+                
+                // 動画再生中に次が入ったら即座に落とす
+                if (isVideoPlaying) {
+                    closeAwardVideo();
+                }
+
+                if (roundHits.length === 3) {
+                    roundHits = [];
+                    hasRoundBull = false;
+                    document.getElementById('slot0').innerText = '---';
+                    document.getElementById('slot1').innerText = '---';
+                    document.getElementById('slot2').innerText = '---';
+                }
+
                 const segmentId = data.getUint8(2);
                 const result = calculateScore(segmentId);
 
-                if (result.score > 0) {
+                if (result.score >= 0) {
                     totalScore += result.score;
-                    dartsCount += 1;
+                    totalDartsCount++;
+                    const isBullHit = (result.type === 'bull' || result.type === 'inbull');
+                    if (isBullHit) totalBullCount++;
+
+                    roundHits.push(result);
+                    const currentSlotIndex = roundHits.length - 1;
 
                     document.getElementById('totalScore').innerText = totalScore;
-                    document.getElementById('dartsCount').innerText = dartsCount;
+                    document.getElementById('totalDarts').innerText = totalDartsCount;
+                    document.getElementById('bullCount').innerText = totalBullCount;
+                    document.getElementById('bullRate').innerText = ((totalBullCount / totalDartsCount) * 100).toFixed(1) + '%';
+                    document.getElementById(`slot${currentSlotIndex}`).innerText = result.label;
                     document.getElementById('lastHit').innerText = `${result.label} (+${result.score})`;
 
-                    const scoreEl = document.getElementById('totalScore');
-                    scoreEl.classList.add('hit');
-                    setTimeout(() => scoreEl.classList.remove('hit'), 150);
+                    playSound(result.type);
+
+                    if (isBullHit && !hasRoundBull && roundHits.length < 3) {
+                        hasRoundBull = true;
+                        setTimeout(() => {
+                            if (!isVideoPlaying) playAwardVideo('onebull');
+                        }, 400); 
+                    }
+
+                    if (roundHits.length === 3) {
+                        const award = checkRoundAward(roundHits);
+                        
+                        setTimeout(() => {
+                            if (award) {
+                                playAwardVideo(award);
+                            } else {
+                                playSound('round-change');
+                            }
+                        }, 600); 
+                    }
                 }
             }
         }
