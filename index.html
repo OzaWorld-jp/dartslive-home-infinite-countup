@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080 固定の仮想キャンバス */
+        /* 1920*1080 固定の仮想キャンバス（どの端末から出力しても16:9を完全維持） */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -120,7 +120,7 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（完全中央寄せ固定） */
+        /* 右側タブシステム（完全中央寄せ固定・横潰れ防止） */
         .tab-header {
             display: flex;
             justify-content: center;
@@ -221,7 +221,7 @@
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
         #videoOverlay video { width: 100%; height: 100%; object-fit: contain; display: none; }
 
-        /* 🔥【新設】接続完了後のアクティベート専用全画面オーバーレイ */
+        /* 接続完了後の演出用スタートスクリーン */
         #startOverlay {
             display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0,0,0,0.85); z-index: 99998;
@@ -358,7 +358,7 @@
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
             const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY + radius * Math.sin(angleRad) - 4;
+            const y = centerY * radius * Math.sin(angleRad) - 4;
             bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
@@ -448,6 +448,7 @@
             video.onended = () => { closeAwardVideo(); };
         }
 
+        /* 🔥【バグ完全修正】styleの重複タイポをきれいに駆逐しました */
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
@@ -478,8 +479,9 @@
             return null;
         }
 
-        // 🔥【超重要修正】ド頭1本目で即座にBluetoothを要求（User Gestureを100%汚さない）
+        // Bluetooth接続（最優先実行構造）
         document.getElementById('connectBtn').addEventListener('click', () => {
+            playSound('poti');
             addLog("SEARCHING BOARD...");
 
             navigator.bluetooth.requestDevice({
@@ -504,13 +506,13 @@
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
 
-                // 🔥 接続成功後、全画面の「TAP TO START」スクリーンを起動
+                // 接続成功後、全画面の「TAP TO START」スクリーンを起動
                 const startOverlay = document.getElementById('startOverlay');
                 startOverlay.style.display = 'flex';
 
                 // 新しいクリーンなタップ操作で、メディアを一斉アンロックする
                 startOverlay.onclick = () => {
-                    playSound('round-change'); // 爆音で起動合図を鳴らす
+                    playSound('round-change');
                     
                     // 8つのアワード動画を一斉アンロック
                     awardKeys.forEach(key => {
@@ -523,7 +525,6 @@
                         }
                     });
 
-                    // 完了したらオーバーレイを消して完全解禁！
                     startOverlay.style.display = 'none';
                     addLog("ALL SYSTEMS OPERATIONAL. READY!");
                 };
