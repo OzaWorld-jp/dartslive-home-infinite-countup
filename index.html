@@ -88,7 +88,7 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥 【修正】メイン巨大スコア（マージンを自動にし、上下の完全な中間地点に配置） */
+        /* メイン巨大スコア */
         .huge-score {
             font-size: 28rem; 
             font-family: 'Impact', 'Arial Black', sans-serif;
@@ -97,7 +97,7 @@
             text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 40px 80px rgba(0, 0, 0, 0.7);
             letter-spacing: -6px;
             text-align: left;
-            margin: auto 0; /* 上下の残り余白を均等にして中央配置 */
+            margin: auto 0;
             padding-left: 10px;
         }
 
@@ -120,27 +120,31 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥 【修正】右側タブシステム（右端ではなく、右パネルの真ん中にきっちり設置） */
+        /* 🔥【修正】右側タブシステム（widthとwhite-spaceを指定して絶対に潰れないように修正） */
         .tab-header {
             display: flex;
             justify-content: center;
-            gap: 15px;
+            gap: 20px;
             position: absolute;
             top: -68px;
             left: 50%;
-            transform: translateX(-50%); /* X軸を50%戻して完全中央揃え */
+            transform: translateX(-50%);
+            width: max-content; /* 中身に合わせて自動で最大の幅を確保 */
+            white-space: nowrap; /* 親要素での折り返しを禁止 */
         }
         .tab-btn {
             background: rgba(0,0,0,0.4);
             border: none;
             color: #777;
-            padding: 12px 55px;
-            font-size: 1.8rem;
+            padding: 12px 60px;
+            font-size: 2rem;
             font-family: inherit;
             border-radius: 20px 20px 0 0;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 700;
+            white-space: nowrap; /* 🔥ボタン内の文字が縦に潰れるのを強制防御 */
+            flex-shrink: 0;      /* 縮小の圧力がかかっても絶対に縮まない */
         }
         .tab-btn.active {
             background: var(--bg-translucent);
@@ -151,11 +155,10 @@
             border-bottom: none;
         }
 
-        /* 🔥 【修正】隙間を詰めるため justify-content を center に変更 */
         .tab-content { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
         .tab-content.active { display: flex; }
 
-        /* ブル率表示エリア（ゲージをカンプに合わせてさらに拡大） */
+        /* ブル率表示エリア */
         .bull-rate-container {
             display: flex;
             align-items: center;
@@ -166,12 +169,12 @@
             margin: 0 auto;
         }
         
-        /* SVG円形ゲージ（サイズアップ） */
+        /* SVG円形ゲージ */
         .circle-gauge { width: 460px; height: 460px; transform: rotate(-90deg); }
         .circle-bg { stroke: rgba(0,0,0,0.2); }
         .circle-progress {
             stroke: url(#gauge-gradient);
-            stroke-dasharray: 1005.31; /* 2 * PI * 160 */
+            stroke-dasharray: 1005.31;
             stroke-dashoffset: 1005.31;
             stroke-linecap: round;
             transition: stroke-dashoffset 0.6s cubic-bezier(0.1, 0.8, 0.2, 1);
@@ -183,7 +186,7 @@
         .gauge-text .percent { font-size: 9rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
         .gauge-text .percent span { font-size: 3.8rem; font-weight: 400; }
 
-        /* 円形ゲージの左側に沿って弧状に並ぶレベルメーター（JS側で自動追従） */
+        /* 弧状レベルメーター */
         .level-meter-deco {
             position: absolute;
             width: 100%;
@@ -200,17 +203,17 @@
             transform-origin: center center;
         }
 
-        /* 🔥 【修正】BULL COUNT表示（隙間を詰めつつ、ドカンと大きく表示） */
+        /* BULL COUNT表示 */
         .bull-count-box { text-align: center; margin-top: 0px; }
         .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
         .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
 
-        /* 🔥 【修正】アワード数表示エリア（上下の隙間を完全に埋めるため高さいっぱいに均等配置） */
+        /* アワード数表示エリア */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            height: 100%; /* パネルの高さいっぱいに拡大 */
-            align-content: space-around; /* 上下の無駄なデッドスペースを埋める均等分散 */
+            height: 100%;
+            align-content: space-around;
             padding: 20px 0;
             box-sizing: border-box;
         }
@@ -338,11 +341,11 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 🔥 【修正】拡大した円形コンテナに合わせてイコライザーの弧の配置座標を再チューニング
+        // イコライザーの弧の配置座標
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
-        const radius = 248; // 拡大したゲージの外周にフィットする半径
-        const centerX = 250; // 500*500コンテナの中心点
+        const radius = 248; 
+        const centerX = 250; 
         const centerY = 250;
 
         for(let i=0; i<totalBars; i++) {
@@ -444,6 +447,7 @@
             video.onended = () => { closeAwardVideo(); };
         }
 
+        /* 🔥【修正】タイポ（.style.style.display）をきっちり修正 */
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
@@ -474,7 +478,7 @@
             return null;
         }
 
-        // Bluetooth接続（全動画一斉アンロック）
+        // Bluetooth接続
         document.getElementById('connectBtn').addEventListener('click', async () => {
             playSound('poti');
             
