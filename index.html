@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Premium Custom Interface</title>
+    <title>DARTSLIVE Home - Premium 1080p Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -120,31 +120,26 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【大幅修正】右側タブシステム（個別枠線を全撤廃し、包括フレーム構造にして白浮きを完全消滅） */
+        /* 🔥【修正】右側タブシステム（カンプ通りに完全にセパレートさせ、重なり白浮きを完全消滅） */
         .tab-header {
             display: flex;
             justify-content: center;
+            gap: 25px; /* カンプに合わせボタン同士を完全にセパレート */
             position: absolute;
-            top: -62px; /* 下部パネルの線とピッタリ密着させる調整 */
+            top: -65px;
             left: 50%;
             transform: translateX(-50%);
             width: max-content;
             white-space: nowrap;
-            background: rgba(0, 0, 0, 0.55);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-bottom: none;
-            border-radius: 20px 20px 0 0;
-            overflow: hidden;
-            padding: 2px 2px 0 2px;
         }
         .tab-btn {
-            background: transparent;
-            border: none;
+            background: rgba(0, 0, 0, 0.55);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             color: #666;
             padding: 12px 60px;
             font-size: 2rem;
             font-family: inherit;
-            border-radius: 18px 18px 0 0;
+            border-radius: 20px 20px 0 0;
             cursor: pointer;
             transition: all 0.2s;
             font-weight: 700;
@@ -156,6 +151,8 @@
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-bottom: none; /* 下のメインパネルと美しく融合 */
         }
 
         .tab-content { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
@@ -172,9 +169,27 @@
             margin: 0 auto;
         }
         
-        /* SVG円形ゲージ */
-        .circle-gauge { width: 460px; height: 460px; }
-        .circle-bg { stroke: rgba(0,0,0,0.2); }
+        /* 🔥【構造変更】SVGを廃止し、滑らかな360度コニックグラデーションのCSSメーターを採用 */
+        .gauge-track-css {
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border: 16px solid rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        .gauge-progress-css {
+            position: absolute;
+            width: 360px;
+            height: 360px;
+            border-radius: 50%;
+            background: transparent;
+            box-sizing: border-box;
+            /* マスクを使って幅16pxの完璧な円形ドーナツ状にくり抜く（後ろの黒スモークが透ける仕様） */
+            -webkit-mask: radial-gradient(transparent 164px, #000 165px);
+            mask: radial-gradient(transparent 164px, #000 165px);
+            transform: scaleX(-1) rotate(-90deg); /* 時計回りに綺麗に伸びるように軸を反転調整 */
+        }
 
         /* ゲージ中央のテキスト */
         .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
@@ -184,7 +199,7 @@
 
         /* 弧状レベルメーター */
         .level-meter-deco { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
-        .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; transition: background 0.3s, box-shadow 0.3s; }
+        .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; }
 
         /* BULL COUNT表示 */
         .bull-count-box { text-align: center; margin-top: 0px; }
@@ -266,14 +281,8 @@
                 <div class="bull-rate-container">
                     <div class="level-meter-deco" id="levelMeter"></div>
                     
-                    <svg class="circle-gauge" width="360" height="360" viewBox="0 0 360 360">
-                        <circle class="circle-bg" cx="180" cy="180" r="160" stroke-width="16" fill="none"/>
-                        
-                        <circle id="gaugeCircle1" cx="180" cy="180" r="160" stroke-width="16" fill="none" stroke="#0066ff" transform="rotate(-90 180 180)" stroke-dasharray="1005.31" stroke-dashoffset="1005.31" style="transition: stroke-dashoffset 0.4s ease;"/>
-                        <circle id="gaugeCircle2" cx="180" cy="180" r="160" stroke-width="16" fill="none" stroke="#d900ff" transform="rotate(0 180 180)" stroke-dasharray="1005.31" stroke-dashoffset="1005.31" style="transition: stroke-dashoffset 0.4s ease;"/>
-                        <circle id="gaugeCircle3" cx="180" cy="180" r="160" stroke-width="16" fill="none" stroke="#ff0000" transform="rotate(90 180 180)" stroke-dasharray="1005.31" stroke-dashoffset="1005.31" style="transition: stroke-dashoffset 0.4s ease;"/>
-                        <circle id="gaugeCircle4" cx="180" cy="180" r="160" stroke-width="16" fill="none" stroke="#ffea00" transform="rotate(180 180)" stroke-dasharray="1005.31" stroke-dashoffset="1005.31" style="transition: stroke-dashoffset 0.4s ease;"/>
-                    </svg>
+                    <div class="gauge-track-css"></div>
+                    <div class="gauge-progress-css" id="gaugeCircleCSS"></div>
                     
                     <div class="gauge-text">
                         <div class="label">BULL RATE</div>
@@ -374,49 +383,41 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
-        // 🔥【ロジック全面変更】4分割マルチリレー方式のUI更新処理
+        // 🔥【修正】コニックグラデーションのメーターを完全に狙い通りの色範囲で伸ばす動的制御
         function updateBullRateUI(rate) {
-            const totalLength = 1005.31; // 2 * PI * 160
-            const qLength = totalLength / 4; // 1クォーター分の長さ (251.33)
-
-            // 各クォーター（25%ずつ）の進捗値を1ブロック最大25として分配
-            const r1 = Math.min(25, Math.max(0, rate));
-            const r2 = Math.min(25, Math.max(0, rate - 25));
-            const r3 = Math.min(25, Math.max(0, rate - 50));
-            const r4 = Math.min(25, Math.max(0, rate - 75));
-
-            // 各クォーターのdashoffsetの算出
-            const offset1 = totalLength - (r1 / 25) * qLength;
-            const offset2 = totalLength - (r2 / 25) * qLength;
-            const offset3 = totalLength - (r3 / 25) * qLength;
-            const offset4 = totalLength - (r4 / 25) * qLength;
-
-            // 各セクターの円に値を適用（0の時は非表示にしてハミ出しを防御）
-            const c1 = document.getElementById('gaugeCircle1');
-            const c2 = document.getElementById('gaugeCircle2');
-            const c3 = document.getElementById('gaugeCircle3');
-            const c4 = document.getElementById('gaugeCircle4');
-
-            c1.style.strokeDashoffset = offset1; c1.style.display = r1 > 0 ? 'block' : 'none';
-            c2.style.strokeDashoffset = offset2; c2.style.display = r2 > 0 ? 'block' : 'none';
-            c3.style.strokeDashoffset = offset3; c3.style.display = r3 > 0 ? 'block' : 'none';
-            c4.style.strokeDashoffset = offset4; c4.style.display = r4 > 0 ? 'block' : 'none';
+            const gauge = document.getElementById('gaugeCircleCSS');
+            
+            // 0〜25%で青、25〜50%でピンク、50〜75%で赤、75〜100%で黄色
+            // 固定位置のグラデーション情報を用意し、進捗％（rate）以降を transparent でマスクする
+            let gradientStr = 'transparent';
+            if (rate > 0) {
+                if (rate <= 25) {
+                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, transparent ${rate}%)`;
+                } else if (rate <= 50) {
+                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, transparent ${rate}%)`;
+                } else if (rate <= 75) {
+                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, #ffea00 75%, transparent ${rate}%)`;
+                } else {
+                    gradientStr = `conic-gradient(#0066ff 0%, #d900ff 25%, #ff0000 50%, #ffea00 75%, #ffea00 ${rate}%, transparent ${rate}%)`;
+                }
+            }
+            gauge.style.background = gradientStr;
 
             // 中央テキスト更新
             const intPart = Math.floor(rate);
             const decPart = (rate - intPart).toFixed(2).substring(1);
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            // 🔥 弧状レベルメーターも「青 ➔ ピンク ➔ 赤 ➔ 黄色」に完全連動発光
+            // 弧状レベルメーターも完全に同じ色配置（比率）に連動して美しくシンクロ発光
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
                 if(idx < activeBarsCount) {
                     const ratio = idx / bars.length;
-                    let barColor = '#0066ff'; // 0〜25%：青
-                    if (ratio >= 0.25) barColor = '#d900ff'; // 25〜50%：ピンク
-                    if (ratio >= 0.50) barColor = '#ff0000'; // 50〜75%：赤
-                    if (ratio >= 0.75) barColor = '#ffea00'; // 75〜100%：黄色
+                    let barColor = '#0066ff'; // 0〜25%エリア
+                    if (ratio >= 0.25) barColor = '#d900ff'; // 25〜50%エリア
+                    if (ratio >= 0.50) barColor = '#ff0000'; // 50〜75%エリア
+                    if (ratio >= 0.75) barColor = '#ffea00'; // 75〜100%エリア
                     
                     bar.style.background = barColor;
                     bar.style.boxShadow = `0 0 12px ${barColor}`;
@@ -600,7 +601,6 @@
 
                     playSound(result.type);
 
-                    // 🎯 3投終了した瞬間にアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
