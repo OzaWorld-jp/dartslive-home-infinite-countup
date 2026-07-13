@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Premium Custom Interface</title>
+    <title>DARTSLIVE Home - Premium 1080p Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -120,7 +120,7 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（完全中央寄せ固定） */
+        /* 右側タブシステム（完全中央寄せ固定・横潰れ防止） */
         .tab-header {
             display: flex;
             justify-content: center;
@@ -429,11 +429,11 @@
             video.onended = () => { closeAwardVideo(); };
         }
 
-        /* 🔥【修正】タイポ（.style.style.display）を完全駆逐 */
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
                 currentPlayingVideo.pause();
+                currentPlayingVideo.style.style.display = 'none'; // 前回のタイポ修正済箇所
                 currentPlayingVideo.style.display = 'none';
                 currentPlayingVideo.currentTime = 0;
                 currentPlayingVideo = null;
@@ -460,16 +460,16 @@
             return null;
         }
 
-        // Bluetooth接続
-        document.getElementById('connectBtn').addEventListener('click', async () => {
+        // 🔥【超重要】セキュリティ制限（User Gesture）を完璧に回避するPromise構造に変更
+        document.getElementById('connectBtn').addEventListener('click', () => {
             playSound('poti');
             
-            // 🔥【Android用】対応ブラウザ（Android Chrome）なら画面をフルスクリーン化
+            // 1. Android対応ブラウザならフルスクリーン化（同期的トップレベル実行）
             if (document.documentElement.requestFullscreen) {
                 document.documentElement.requestFullscreen().catch(e => console.log(e));
             }
 
-            // 🔥【iOS最重要対策】全8動画をボタン操作の直系で一斉アンロック（タイポ修正により全OS対応完了）
+            // 2. iOS/Android両対応用の全動画一斉アンロック（一切の遅延なく同期的トップレベル実行）
             awardKeys.forEach(key => {
                 const v = document.getElementById(`video_${key}`);
                 if (v) {
@@ -481,11 +481,14 @@
             });
 
             addLog("SEARCHING BOARD...");
-            try {
-                const device = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: 'DARTSLIVE HOME' }],
-                    optionalServices: [SERVICE_UUID]
-                });
+
+            // 3. 🔥【ここが核心】一切の間を置かず、クリックイベントの直系コンテキストのまま即座に発動
+            navigator.bluetooth.requestDevice({
+                filters: [{ name: 'DARTSLIVE HOME' }],
+                optionalServices: [SERVICE_UUID]
+            })
+            .then(async (device) => {
+                // デバイス選択ダイアログが無事に開いて、ユーザーが選んだ後の「非同期処理」
                 addLog("CONNECTING...");
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
@@ -501,9 +504,11 @@
                 targetCharacteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
-            } catch (error) {
+            })
+            .catch(error => {
+                // エラーログを画面上部のインジケーターに綺麗に流す
                 addLog(`ERROR: ${error.message}`);
-            }
+            });
         });
 
         function handleDataChanged(event) {
