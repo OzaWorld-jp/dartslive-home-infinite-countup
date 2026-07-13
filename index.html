@@ -10,7 +10,7 @@
     <style>
         :root {
             --primary-color: #00adb5;
-            --bg-translucent: rgba(255, 255, 255, 0.12); /* カンプの白っぽく美しい透過を再現 */
+            --bg-translucent: rgba(255, 255, 255, 0.12); /* カンプの美しい透過 */
             --panel-bg: rgba(0, 0, 0, 0.6);
         }
 
@@ -40,8 +40,8 @@
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
-            padding: 90px 80px 80px 80px; /* カンプに合わせた外周余白 */
-            gap: 80px; /* 左右カラムの間隔を最適化 */
+            padding: 90px 80px 80px 80px;
+            gap: 80px;
         }
 
         /* 左カラム：スコア・ラウンド・履歴 */
@@ -53,13 +53,13 @@
             height: 100%;
         }
 
-        /* 右カラム：スタッツ・アワード（カンプ準拠の透過パネル） */
+        /* 右カラム：スタッツ・アワード（透過パネル） */
         .right-column {
             flex: 0.85;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
-            border-radius: 40px; /* 角丸をより滑らかに */
+            border-radius: 40px;
             padding: 60px;
             display: flex;
             flex-direction: column;
@@ -76,7 +76,7 @@
             padding: 15px 70px;
             font-size: 3.5rem;
             font-weight: 700;
-            font-family: 'Impact', 'Arial Black', sans-serif; /* カンプの極太フォント */
+            font-family: 'Impact', 'Arial Black', sans-serif;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -88,16 +88,17 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥 メイン巨大スコア（カンプ通りの圧倒的なサイズと強いドロップシャドウ） */
+        /* 🔥 【修正】メイン巨大スコア（マージンを自動にし、上下の完全な中間地点に配置） */
         .huge-score {
-            font-size: 26rem; 
-            font-family: 'Impact', 'Arial Black', sans-serif; /* 潰れそうなほど太い数字 */
+            font-size: 28rem; 
+            font-family: 'Impact', 'Arial Black', sans-serif;
             font-weight: 900;
             line-height: 0.8;
             text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 40px 80px rgba(0, 0, 0, 0.7);
             letter-spacing: -6px;
             text-align: left;
-            margin-top: 20px;
+            margin: auto 0; /* 上下の残り余白を均等にして中央配置 */
+            padding-left: 10px;
         }
 
         /* 3本履歴カプセル */
@@ -119,20 +120,21 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 右側タブシステム（カンプ通りのフォントサイズと位置） */
+        /* 🔥 【修正】右側タブシステム（右端ではなく、右パネルの真ん中にきっちり設置） */
         .tab-header {
             display: flex;
-            justify-content: flex-end;
+            justify-content: center;
             gap: 15px;
             position: absolute;
             top: -68px;
-            right: 0;
+            left: 50%;
+            transform: translateX(-50%); /* X軸を50%戻して完全中央揃え */
         }
         .tab-btn {
             background: rgba(0,0,0,0.4);
             border: none;
             color: #777;
-            padding: 12px 45px;
+            padding: 12px 55px;
             font-size: 1.8rem;
             font-family: inherit;
             border-radius: 20px 20px 0 0;
@@ -149,21 +151,23 @@
             border-bottom: none;
         }
 
-        .tab-content { display: none; flex-direction: column; height: 100%; justify-content: space-between; }
+        /* 🔥 【修正】隙間を詰めるため justify-content を center に変更 */
+        .tab-content { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
         .tab-content.active { display: flex; }
 
-        /* ブル率表示エリア（カンプに合わせて拡大） */
+        /* ブル率表示エリア（ゲージをカンプに合わせてさらに拡大） */
         .bull-rate-container {
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
-            margin-top: 30px;
-            height: 420px;
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
         }
         
-        /* SVG円形ゲージ（直径を大幅に大きく変更） */
-        .circle-gauge { transform: rotate(-90deg); }
+        /* SVG円形ゲージ（サイズアップ） */
+        .circle-gauge { width: 460px; height: 460px; transform: rotate(-90deg); }
         .circle-bg { stroke: rgba(0,0,0,0.2); }
         .circle-progress {
             stroke: url(#gauge-gradient);
@@ -175,11 +179,11 @@
 
         /* ゲージ中央のテキスト */
         .gauge-text { position: absolute; text-align: center; background: transparent; }
-        .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
-        .gauge-text .percent { font-size: 7.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        .gauge-text .percent span { font-size: 3.2rem; font-weight: 400; }
+        .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
+        .gauge-text .percent { font-size: 9rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .gauge-text .percent span { font-size: 3.8rem; font-weight: 400; }
 
-        /* 🔥【カンプ完全再現】円形ゲージの左側に沿って弧状に並ぶレベルメーター */
+        /* 円形ゲージの左側に沿って弧状に並ぶレベルメーター（JS側で自動追従） */
         .level-meter-deco {
             position: absolute;
             width: 100%;
@@ -189,29 +193,30 @@
         }
         .level-bar {
             position: absolute;
-            width: 28px;
-            height: 7px;
+            width: 32px;
+            height: 8px;
             background: rgba(255,255,255,0.08);
             border-radius: 2px;
             transform-origin: center center;
         }
 
-        /* BULL COUNT表示（サイズ大幅アップ） */
-        .bull-count-box { text-align: center; margin-bottom: 20px; }
-        .bull-count-box .label { font-size: 2.2rem; letter-spacing: 6px; color: #aaa; margin-bottom: 5px; font-weight: 700; }
-        .bull-count-box .count { font-size: 11rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        /* 🔥 【修正】BULL COUNT表示（隙間を詰めつつ、ドカンと大きく表示） */
+        .bull-count-box { text-align: center; margin-top: 0px; }
+        .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
+        .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
 
-        /* アワード数表示エリア（グリッドの間隔とサイズ感をカンプにシンクロ） */
+        /* 🔥 【修正】アワード数表示エリア（上下の隙間を完全に埋めるため高さいっぱいに均等配置） */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            row-gap: 50px;
-            column-gap: 40px;
-            margin: auto 0;
+            height: 100%; /* パネルの高さいっぱいに拡大 */
+            align-content: space-around; /* 上下の無駄なデッドスペースを埋める均等分散 */
+            padding: 20px 0;
+            box-sizing: border-box;
         }
         .award-item { text-align: center; }
-        .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 2px; margin-bottom: 2px; font-weight: 700; }
-        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .award-item .label { font-size: 1.8rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700; }
+        .award-item .count { font-size: 7rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
 
         /* 接続ボタン＆ログ */
         .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
@@ -262,7 +267,7 @@
                 <div class="bull-rate-container">
                     <div class="level-meter-deco" id="levelMeter"></div>
                     
-                    <svg class="circle-gauge" width="380" height="380" viewBox="0 0 360 360">
+                    <svg class="circle-gauge" width="360" height="360" viewBox="0 0 360 360">
                         <defs>
                             <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#0052d4" />
@@ -333,30 +338,28 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 🔥【カンプ完全再現】イコライザー風バーを円形ゲージの左側に沿って綺麗な弧状に自動配置
+        // 🔥 【修正】拡大した円形コンテナに合わせてイコライザーの弧の配置座標を再チューニング
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
-        const radius = 195; // 円形ゲージの少し外側に配置
-        const centerX = 190; // コンテナの中心
-        const centerY = 210;
+        const radius = 248; // 拡大したゲージの外周にフィットする半径
+        const centerX = 250; // 500*500コンテナの中心点
+        const centerY = 250;
 
         for(let i=0; i<totalBars; i++) {
             const bar = document.createElement('div');
             bar.className = 'level-bar';
             
-            // 角度の計算（ゲージの左側：110度〜250度にかけて扇状に並べる）
             const startAngle = 110;
             const endAngle = 250;
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
 
-            // 位置（X, Y）の計算
-            const x = centerX + radius * Math.cos(angleRad) - 14; // つまみ幅の半分を引く
-            const y = centerY + radius * Math.sin(angleRad) - 3.5;
+            const x = centerX + radius * Math.cos(angleRad) - 16;
+            const y = centerY + radius * Math.sin(angleRad) - 4;
 
             bar.style.left = `${x}px`;
             bar.style.top = `${y}px`;
-            bar.style.transform = `rotate(${angleDeg}deg)`; // バー自体も円の方向に向ける
+            bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
 
@@ -380,14 +383,12 @@
         // ゲージ＆メーター更新
         function updateBullRateUI(rate) {
             const circle = document.getElementById('gaugeCircle');
-            circle.style.strokeDashoffset = 1005.31 - (rate / 100) * 1005.31; // 外周 1005.31 に変更
+            circle.style.strokeDashoffset = 1005.31 - (rate / 100) * 1005.31;
 
             const intPart = Math.floor(rate);
             const decPart = (rate - intPart).toFixed(2).substring(1);
-            // 🔥 小数部の後ろに「%」が綺麗に入るように修正
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            // 弧状レベルメーターの連動発光
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
@@ -447,7 +448,7 @@
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
                 currentPlayingVideo.pause();
-                currentPlayingVideo.style.style.display = 'none';
+                currentPlayingVideo.style.display = 'none';
                 currentPlayingVideo.currentTime = 0;
                 currentPlayingVideo = null;
             }
