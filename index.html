@@ -3,136 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DARTSLIVE Home - 無限カウントアップ完全版</title>
+    <title>DARTSLIVE Home - Premium Custom Interface</title>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-color: #00adb5;
+            --bg-translucent: rgba(255, 255, 255, 0.07); /* 右側エリアの透過座布団 */
+            --panel-bg: rgba(0, 0, 0, 0.5);
+        }
+
         body {
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Oswald', 'Helvetica Neue', Arial, sans-serif;
             background-color: #121212;
+            background-image: url('bg.png'); /* あなたの用意する背景画像 */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: #ffffff;
-            text-align: center;
-            padding: 20px;
             margin: 0;
-        }
-        h1 { color: #00adb5; font-size: 1.8rem; margin: 10px 0; }
-        
-        /* メインスコア */
-        .score-display {
-            font-size: 7rem;
-            font-weight: bold;
-            color: #eeeeee;
-            background: #222831;
-            padding: 15px;
-            border-radius: 20px;
-            display: inline-block;
-            min-width: 280px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 15px;
-        }
-        
-        /* 3本ずつのラウンド表示 */
-        .round-stats {
+            padding: 0;
             display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+            box-sizing: border-box;
+        }
+
+        /* 縦向き（portrait）の時だけ強制表示する警告スクリーン */
+        #orientation-alert {
+            display: none;
+        }
+
+        @media (orientation: portrait) {
+            #orientation-alert {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                position: fixed;
+                top: 0; left: 0; width: 100vw; height: 100vh;
+                background: #121212;
+                color: #ffffff;
+                z-index: 100000;
+                font-size: 1.5rem;
+                letter-spacing: 1px;
+            }
+            .main-container, .header-controls {
+                display: none !important;
+            }
+        }
+
+        /* 全体コンテナ（16:9の2カラム構成） */
+        .main-container {
+            display: flex;
+            width: 95vw;
+            max-width: 1280px;
+            height: 85vh;
+            max-height: 720px;
+            gap: 30px;
+        }
+
+        /* 左カラム：スコア・ラウンド・履歴 */
+        .left-column {
+            flex: 1.3;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        /* 右カラム：スタッツ・アワード */
+        .right-column {
+            flex: 0.8;
+            background: var(--bg-translucent);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+        }
+
+        /* 上部ラウンド表示 */
+        .round-badge {
+            background: var(--panel-bg);
+            border-radius: 50px;
+            padding: 10px 40px;
+            font-size: 2rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
             justify-content: center;
             gap: 15px;
+            letter-spacing: 2px;
+            align-self: flex-start;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .round-badge .infinity { font-size: 2.5rem; line-height: 0; }
+        .round-badge .label { font-size: 1.2rem; color: #888; font-weight: 400; margin-left: 10px; }
+
+        /* メイン巨大スコア */
+        .huge-score {
+            font-size: 11rem;
+            font-weight: 700;
+            line-height: 1;
+            margin: auto 0;
+            text-shadow: 0 0 30px rgba(0, 0, 0, 0.6), 0 10px 20px rgba(0,0,0,0.5);
+            letter-spacing: -2px;
+            text-align: left;
+            padding-left: 10px;
+        }
+
+        /* 3本履歴カプセル */
+        .history-capsule {
+            background: var(--panel-bg);
+            border-radius: 50px;
+            padding: 15px 40px;
+            display: flex;
+            justify-content: flex-start;
+            gap: 40px;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #eee;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        .history-capsule div { min-width: 80px; text-align: left; }
+        .history-capsule .separator { color: #555; font-weight: 400; min-width: auto; }
+
+        /* 右側タブシステム */
+        .tab-header {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            position: absolute;
+            top: -45px;
+            right: 0;
+        }
+        .tab-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #888;
+            padding: 8px 25px;
+            font-size: 1.1rem;
+            font-family: inherit;
+            border-radius: 12px 12px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab-btn.active {
+            background: var(--bg-translucent);
+            backdrop-filter: blur(10px);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: none;
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            height: 100%;
+            justify-content: center;
+        }
+        .tab-content.active { display: flex; }
+
+        /* ブル率表示エリア */
+        .bull-rate-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
             margin-bottom: 20px;
         }
-        .dart-slot {
-            background: #393e46;
-            padding: 10px 20px;
-            border-radius: 10px;
-            font-size: 1.5rem;
-            min-width: 60px;
+        
+        /* SVG円形ゲージ */
+        .circle-gauge { transform: rotate(-90deg); }
+        .circle-bg { stroke: rgba(255,255,255,0.05); }
+        .circle-progress {
+            stroke: url(#gauge-gradient);
+            stroke-dasharray: 565.48;
+            stroke-dashoffset: 565.48;
+            stroke-linecap: round;
+            transition: stroke-dashoffset 0.5s ease;
         }
 
-        /* スタッツ表示 */
-        .stats-grid {
+        /* ゲージ中央のテキスト */
+        .gauge-text { position: absolute; text-align: center; }
+        .gauge-text .label { font-size: 1rem; color: #888; letter-spacing: 2px; }
+        .gauge-text .percent { font-size: 4.5rem; font-weight: 700; line-height: 1.1; }
+        .gauge-text .percent span { font-size: 2rem; font-weight: 400; }
+
+        /* 左側のレベルメーター風装飾 */
+        .level-meter-deco {
+            position: absolute;
+            left: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+            transform: rotate(180deg);
+        }
+        .level-bar { width: 15px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 1px; }
+
+        /* BULL COUNT表示 */
+        .bull-count-box { text-align: center; margin-top: auto; }
+        .bull-count-box .label { font-size: 1.3rem; letter-spacing: 4px; color: #ccc; margin-bottom: 5px; }
+        .bull-count-box .count { font-size: 5.5rem; font-weight: 700; line-height: 1; }
+
+        /* アワード数表示エリア */
+        .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            max-width: 400px;
-            margin: 0 auto 20px;
-            gap: 10px;
-            font-size: 1.2rem;
-            background: #222831;
-            padding: 15px;
-            border-radius: 15px;
+            row-gap: 25px;
+            column-gap: 20px;
+            padding: 10px 0;
         }
+        .award-item { text-align: center; }
+        .award-item .label { font-size: 0.95rem; color: #aaa; letter-spacing: 1px; margin-bottom: 2px; font-weight: 400; }
+        .award-item .count { font-size: 2.8rem; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* アワードカウンター */
-        .award-counter {
-            max-width: 400px;
-            margin: 0 auto 30px;
-            background: #1a1f29;
-            padding: 15px;
-            border-radius: 15px;
-            text-align: left;
+        /* 接続ボタン＆ログ */
+        .header-controls { position: absolute; top: 15px; left: 20px; display: flex; align-items: center; gap: 15px; z-index: 10; }
+        .btn-connect {
+            background: #00adb5; border: none; color: white; padding: 8px 20px;
+            font-family: inherit; font-size: 1rem; font-weight: 700; border-radius: 20px; cursor: pointer;
         }
-        .award-counter h3 { margin-top: 0; color: #00adb5; border-bottom: 1px solid #393e46; padding-bottom: 5px; }
-        .award-row { display: flex; justify-content: space-between; margin-bottom: 5px; font-size: 1rem; }
-
-        .btn {
-            background-color: #00adb5; color: white; border: none; padding: 15px 40px;
-            font-size: 1.2rem; font-weight: bold; border-radius: 30px; cursor: pointer;
-        }
-        .log { max-width: 400px; margin: 20px auto 0; text-align: left; color: #666; font-size: 0.8rem; }
+        .dev-log { color: #555; font-size: 0.8rem; font-family: monospace; }
 
         /* 全画面ビデオオーバーレイ */
-        #videoOverlay {
-            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.95); z-index: 9999;
-        }
+        #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 9999; }
         #awardVideo { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
 
-    <h1>DARTSLIVE Home 連動<br>無限カウントアップ</h1>
-
-    <!-- 接続ボタン -->
-    <button class="btn" id="connectBtn">ボードに接続する</button>
-
-    <div style="margin-top: 15px;">
-        <div class="score-display" id="totalScore">0</div>
+    <div id="orientation-alert">
+        <div style="font-size: 3rem; margin-bottom: 20px;">🔄</div>
+        <p>画面を横向きにしてご利用ください</p>
     </div>
 
-    <!-- 現在のラウンドの3本履歴 -->
-    <div class="round-stats">
-        <div class="dart-slot" id="slot0">---</div>
-        <div class="dart-slot" id="slot1">---</div>
-        <div class="dart-slot" id="slot2">---</div>
+    <div class="header-controls">
+        <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
+        <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
-    <!-- スタッツ -->
-    <div class="stats-grid">
-        <div>総投数: <span id="totalDarts">0</span></div>
-        <div>ブル率: <span id="bullRate">0.0%</span></div>
-        <div>ブル数: <span id="bullCount">0</span></div>
-        <div>直近ヒット: <span id="lastHit">--</span></div>
+    <div class="main-container">
+        
+        <div class="left-column">
+            <div class="round-badge">
+                <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
+            </div>
+
+            <div class="huge-score" id="totalScore">0</div>
+
+            <div class="history-capsule">
+                <div id="slot0">---</div>
+                <div class="separator">|</div>
+                <div id="slot1">---</div>
+                <div class="separator">|</div>
+                <div id="slot2">---</div>
+            </div>
+        </div>
+
+        <div class="right-column">
+            <div class="tab-header">
+                <button class="tab-btn active" id="btnTabBull">ブル率</button>
+                <button class="tab-btn" id="btnTabAward">アワード数</button>
+            </div>
+
+            <div class="tab-content active" id="contentBull">
+                <div class="bull-rate-container">
+                    <div class="level-meter-deco" id="levelMeter"></div>
+                    <svg class="circle-gauge" width="220" height="220" viewBox="0 0 200 200">
+                        <defs>
+                            <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="#0052d4" />
+                                <stop offset="50%" stop-color="#4364f7" />
+                                <stop offset="100%" stop-color="#6fb1fc" />
+                            </linearGradient>
+                        </defs>
+                        <circle class="circle-bg" cx="100" cy="100" r="90" stroke-width="10" fill="none"/>
+                        <circle class="circle-progress" id="gaugeCircle" cx="100" cy="100" r="90" stroke-width="10" fill="none"/>
+                    </svg>
+                    <div class="gauge-text">
+                        <div class="label">BULL RATE</div>
+                        <div class="percent" id="bullRate">0<span>.00%</span></div>
+                    </div>
+                </div>
+                <div class="bull-count-box">
+                    <div class="label">BULL COUNT</div>
+                    <div class="count" id="bullCount">0</div>
+                </div>
+            </div>
+
+            <div class="tab-content" id="contentAward">
+                <div class="award-grid">
+                    <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
+                    <div class="award-item"><div class="label">LOW TON</div><div class="count" id="cnt_lowton">0</div></div>
+                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count" id="cnt_hattrick">0</div></div>
+                    <div class="award-item"><div class="label">HIGH TON</div><div class="count" id="cnt_highton">0</div></div>
+                    <div class="award-item"><div class="label">TON 80</div><div class="count" id="cnt_ton80">0</div></div>
+                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count" id="cnt_whitehorse">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count" id="cnt_bed">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count" id="cnt_black">0</div></div>
+                </div>
+            </div>
+
+        </div>
     </div>
 
-    <!-- アワード履歴 -->
-    <div class="award-counter">
-        <h3>AWARD COUNTER</h3>
-        <div class="award-row"><span>ONE BULL</span><span id="cnt_onebull">0</span></div>
-        <div class="award-row"><span>LOW TON</span><span id="cnt_lowton">0</span></div>
-        <div class="award-row"><span>HIGH TON</span><span id="cnt_highton">0</span></div>
-        <div class="award-row"><span>TON 80</span><span id="cnt_ton80">0</span></div>
-        <div class="award-row"><span>HAT TRICK</span><span id="cnt_hattrick">0</span></div>
-        <div class="award-row"><span>THREE IN A BED</span><span id="cnt_bed">0</span></div>
-        <div class="award-row"><span>WHITE HORSE</span><span id="cnt_whitehorse">0</span></div>
-        <div class="award-row"><span>THREE IN THE BLACK</span><span id="cnt_black">0</span></div>
-    </div>
-
-    <div class="log" id="logConsole"></div>
-
-    <!-- ビデオ再生スクリーン -->
     <div id="videoOverlay">
-        <video id="awardVideo" src="" preload="auto"></video>
+        <video id="awardVideo" src="" preload="auto" playsinline webkit-playsinline></video>
     </div>
 
     <script>
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         
-        // データ管理用
         let totalScore = 0;
         let totalDartsCount = 0;
         let totalBullCount = 0;
@@ -140,25 +327,61 @@
         let isVideoPlaying = false;
         let hasRoundBull = false; 
 
-        // アワード獲得数
-        const awardCounts = {
-            onebull: 0, lowton: 0, highton: 0, ton80: 0,
-            hattrick: 0, bed: 0, whitehorse: 0, black: 0
-        };
-
-        // 動画マッピング（★修正：blackに変更完了）
+        const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
         const awardVideos = {
-            onebull: 'videos/onebull.mp4',
-            lowton: 'videos/lowton.mp4',
-            highton: 'videos/highton.mp4',
-            ton80: 'videos/ton80.mp4',
-            hattrick: 'videos/hattrick.mp4',
-            bed: 'videos/three-in-a-bed.mp4',
-            whitehorse: 'videos/white-horse.mp4',
-            black: 'videos/three-in-the-black.mp4'
+            onebull: 'videos/onebull.mp4', lowton: 'videos/lowton.mp4', highton: 'videos/highton.mp4', ton80: 'videos/ton80.mp4',
+            hattrick: 'videos/hattrick.mp4', bed: 'videos/three-in-a-bed.mp4', whitehorse: 'videos/white-horse.mp4', black: 'videos/three-in-the-black.mp4'
         };
 
-        // セグメント計算
+        // レベルメーター装飾の生成
+        const levelMeter = document.getElementById('levelMeter');
+        for(let i=0; i<16; i++) {
+            const bar = document.createElement('div');
+            bar.className = 'level-bar';
+            levelMeter.appendChild(bar);
+        }
+
+        // タブ切り替えロジック
+        const btnTabBull = document.getElementById('btnTabBull');
+        const btnTabAward = document.getElementById('btnTabAward');
+        const contentBull = document.getElementById('contentBull');
+        const contentAward = document.getElementById('contentAward');
+
+        btnTabBull.addEventListener('click', () => {
+            playSound('poti');
+            btnTabBull.classList.add('active'); btnTabAward.classList.remove('active');
+            contentBull.classList.add('active'); contentAward.classList.remove('active');
+        });
+        btnTabAward.addEventListener('click', () => {
+            playSound('poti');
+            btnTabAward.classList.add('active'); btnTabBull.classList.remove('active');
+            contentAward.classList.add('active'); contentBull.classList.remove('active');
+        });
+
+        // 円形ゲージ＆メーター更新
+        function updateBullRateUI(rate) {
+            const circle = document.getElementById('gaugeCircle');
+            const circumference = 565.48;
+            const offset = circumference - (rate / 100) * circumference;
+            circle.style.strokeDashoffset = offset;
+
+            const intPart = Math.floor(rate);
+            const decPart = (rate - intPart).toFixed(2).substring(1);
+            document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}</span>`;
+
+            const bars = document.querySelectorAll('.level-bar');
+            const activeBarsCount = Math.ceil((rate / 100) * bars.length);
+            bars.forEach((bar, idx) => {
+                if(idx < activeBarsCount) {
+                    bar.style.background = 'linear-gradient(90deg, #00adb5, #6fb1fc)';
+                    bar.style.boxShadow = '0 0 8px #00adb5';
+                } else {
+                    bar.style.background = 'rgba(255,255,255,0.1)';
+                    bar.style.boxShadow = 'none';
+                }
+            });
+        }
+
         function calculateScore(id) {
             if (id >= 1 && id <= 20)  return { score: id, label: `S${id}`, type: 'single', num: id };
             if (id >= 21 && id <= 40) return { score: id - 20, label: `S${id - 20}`, type: 'single', num: id - 20 };
@@ -169,7 +392,6 @@
             return { score: 0, label: 'MISSED', type: 'unknown', num: 0 };
         }
 
-        // 効果音再生
         function playSound(type) {
             let path = '';
             if (type === 'single') path = 'sounds/single.mp3';
@@ -180,13 +402,9 @@
             if (type === 'round-change') path = 'sounds/round-change.mp3';
             if (type === 'poti') path = 'sounds/poti.mp3';
 
-            if (path) {
-                const audio = new Audio(path);
-                audio.play().catch(e => console.log(e));
-            }
+            if (path) { new Audio(path).play().catch(e => console.log(e)); }
         }
 
-        // アワード動画再生
         function playAwardVideo(awardKey) {
             const overlay = document.getElementById('videoOverlay');
             const video = document.getElementById('awardVideo');
@@ -197,26 +415,17 @@
             awardCounts[awardKey]++;
             document.getElementById(`cnt_${awardKey}`).innerText = awardCounts[awardKey];
 
-            video.src = path;
-            overlay.style.display = 'block';
-            isVideoPlaying = true;
-            video.currentTime = 0;
-            video.play().catch(e => console.log(e));
-
+            video.src = path; overlay.style.display = 'block'; isVideoPlaying = true;
+            video.currentTime = 0; video.play().catch(e => console.log(e));
             video.onended = () => { closeAwardVideo(); };
         }
 
-        // 動画を強制終了して閉じる
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             const video = document.getElementById('awardVideo');
-            video.pause();
-            overlay.style.display = 'none';
-            video.src = '';
-            isVideoPlaying = false;
+            video.pause(); overlay.style.display = 'none'; video.src = ''; isVideoPlaying = false;
         }
 
-        // 3本終了時のアワード判定
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
@@ -232,20 +441,27 @@
             const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
-
             return null;
         }
 
-        // Bluetooth接続ロジック
+        // Bluetooth（★アンロック処理を追加して自動再生制限を突破）
         document.getElementById('connectBtn').addEventListener('click', async () => {
             playSound('poti');
-            addLog("デバイスを検索中...");
+            
+            // ボタンを押した瞬間に動画要素を一度だけ再生＆即停止させてブラウザの制限を解除
+            const video = document.getElementById('awardVideo');
+            video.play().then(() => {
+                video.pause();
+                video.currentTime = 0;
+            }).catch(e => console.log("Video active deferred:", e));
+
+            addLog("SEARCHING BOARD...");
             try {
                 const device = await navigator.bluetooth.requestDevice({
                     filters: [{ name: 'DARTSLIVE HOME' }],
                     optionalServices: [SERVICE_UUID]
                 });
-                addLog("接続中...");
+                addLog("CONNECTING...");
                 const server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 const characteristics = await service.getCharacteristics();
@@ -254,32 +470,24 @@
                 for (const c of characteristics) {
                     if (c.properties.notify) { targetCharacteristic = c; break; }
                 }
-                if (!targetCharacteristic) throw new Error("Notify対応の属性がありません。");
+                if (!targetCharacteristic) throw new Error("NO NOTIFY CHARACTERISTIC");
 
                 await targetCharacteristic.startNotifications();
                 targetCharacteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
-                addLog("接続成功！");
+                addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
-
             } catch (error) {
-                addLog(`エラー: ${error.message}`);
+                addLog(`ERROR: ${error.message}`);
             }
         });
 
-        // データ受信処理
         function handleDataChanged(event) {
             const data = event.target.value;
-            
             if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
-                
-                // 動画再生中に次が入ったら即座に落とす
-                if (isVideoPlaying) {
-                    closeAwardVideo();
-                }
+                if (isVideoPlaying) { closeAwardVideo(); }
 
                 if (roundHits.length === 3) {
-                    roundHits = [];
-                    hasRoundBull = false;
+                    roundHits = []; hasRoundBull = false;
                     document.getElementById('slot0').innerText = '---';
                     document.getElementById('slot1').innerText = '---';
                     document.getElementById('slot2').innerText = '---';
@@ -298,40 +506,31 @@
                     const currentSlotIndex = roundHits.length - 1;
 
                     document.getElementById('totalScore').innerText = totalScore;
-                    document.getElementById('totalDarts').innerText = totalDartsCount;
                     document.getElementById('bullCount').innerText = totalBullCount;
-                    document.getElementById('bullRate').innerText = ((totalBullCount / totalDartsCount) * 100).toFixed(1) + '%';
                     document.getElementById(`slot${currentSlotIndex}`).innerText = result.label;
-                    document.getElementById('lastHit').innerText = `${result.label} (+${result.score})`;
+                    document.getElementById('currentRoundNum').innerText = Math.ceil(totalDartsCount / 3);
+
+                    const currentRate = (totalBullCount / totalDartsCount) * 100;
+                    updateBullRateUI(currentRate);
 
                     playSound(result.type);
 
                     if (isBullHit && !hasRoundBull && roundHits.length < 3) {
                         hasRoundBull = true;
-                        setTimeout(() => {
-                            if (!isVideoPlaying) playAwardVideo('onebull');
-                        }, 400); 
+                        setTimeout(() => { if (!isVideoPlaying) playAwardVideo('onebull'); }, 400); 
                     }
 
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
-                        
                         setTimeout(() => {
-                            if (award) {
-                                playAwardVideo(award);
-                            } else {
-                                playSound('round-change');
-                            }
+                            if (award) { playAwardVideo(award); } else { playSound('round-change'); }
                         }, 600); 
                     }
                 }
             }
         }
 
-        function addLog(text) {
-            const consoleEl = document.getElementById('logConsole');
-            consoleEl.innerHTML = text + "<br>" + consoleEl.innerHTML;
-        }
+        function addLog(text) { document.getElementById('logConsole').innerText = text; }
     </script>
 </body>
 </html>
