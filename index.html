@@ -27,35 +27,10 @@
             align-items: center;
             justify-content: center;
             min-height: 100vh;
-            overflow: hidden;
             box-sizing: border-box;
         }
 
-        /* 縦向き（portrait）の時だけ強制表示する警告スクリーン */
-        #orientation-alert {
-            display: none;
-        }
-
-        @media (orientation: portrait) {
-            #orientation-alert {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                position: fixed;
-                top: 0; left: 0; width: 100vw; height: 100vh;
-                background: #121212;
-                color: #ffffff;
-                z-index: 100000;
-                font-size: 1.5rem;
-                letter-spacing: 1px;
-            }
-            .main-container, .header-controls {
-                display: none !important;
-            }
-        }
-
-        /* 全体コンテナ（16:9の2カラム構成） */
+        /* 全体コンテナ（基本は横画面用の2カラム） */
         .main-container {
             display: flex;
             width: 95vw;
@@ -63,6 +38,31 @@
             height: 85vh;
             max-height: 720px;
             gap: 30px;
+            transition: all 0.3s ease;
+        }
+
+        /* 縦画面（スマホ縦持ち）の時は上下レイアウトに自動切替 */
+        @media (orientation: portrait) {
+            body {
+                overflow-y: auto;
+                padding: 80px 0 20px 0; /* ヘッダーボタンの余白確保 */
+            }
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                max-height: none;
+                gap: 50px;
+            }
+            .left-column {
+                gap: 20px;
+            }
+            .right-column {
+                height: 500px; /* 縦画面時の右パネルの高さ固定 */
+            }
+            .huge-score {
+                font-size: 8rem !important; /* 縦画面用に少し縮小 */
+                margin: 20px 0 !important;
+            }
         }
 
         /* 左カラム：スコア・ラウンド・履歴 */
@@ -238,11 +238,6 @@
 </head>
 <body>
 
-    <div id="orientation-alert">
-        <div style="font-size: 3rem; margin-bottom: 20px;">🔄</div>
-        <p>画面を横向きにしてご利用ください</p>
-    </div>
-
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
@@ -341,7 +336,7 @@
             levelMeter.appendChild(bar);
         }
 
-        // タブ切り替えロジック
+        // タブ切り替え
         const btnTabBull = document.getElementById('btnTabBull');
         const btnTabAward = document.getElementById('btnTabAward');
         const contentBull = document.getElementById('contentBull');
@@ -358,7 +353,7 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
-        // 円形ゲージ＆メーター更新
+        // ゲージ＆メーター更新
         function updateBullRateUI(rate) {
             const circle = document.getElementById('gaugeCircle');
             const circumference = 565.48;
@@ -444,11 +439,10 @@
             return null;
         }
 
-        // Bluetooth（★アンロック処理を追加して自動再生制限を突破）
+        // Bluetooth接続（動画アンロック付き）
         document.getElementById('connectBtn').addEventListener('click', async () => {
             playSound('poti');
             
-            // ボタンを押した瞬間に動画要素を一度だけ再生＆即停止させてブラウザの制限を解除
             const video = document.getElementById('awardVideo');
             video.play().then(() => {
                 video.pause();
