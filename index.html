@@ -459,7 +459,7 @@
             isVideoPlaying = false;
         }
 
-        // 🔥【修正】3投終了時の一括アワード判定（ワンブルの優先順位を最下位に設定）
+        // 3投終了時の一括アワード判定（ワンブルの優先順位を最下位に設定）
         function checkRoundAward(hits) {
             const isAllInBull = hits.every(h => h.type === 'inbull');
             const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
@@ -478,31 +478,15 @@
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
 
-            // 3. 上記のどれにも該当せず、3本の中にブルが1本以上含まれる場合に「ONE BULL」
+            // 3. 上記のどれにも該当せず、3本の中にブルが1本以上含まれる場合に初めて「ONE BULL」
             const hasAnyBull = hits.some(h => h.type === 'bull' || h.type === 'inbull');
             if (hasAnyBull) return 'onebull';
 
             return null;
         }
 
-        // Bluetooth接続
+        // 🔥【超重要】最優先でダイアログを開くクリーン構造に再復元（デグレード完全解消）
         document.getElementById('connectBtn').addEventListener('click', () => {
-            playSound('poti');
-            
-            if (document.documentElement.requestFullscreen) {
-                document.documentElement.requestFullscreen().catch(e => console.log(e));
-            }
-
-            awardKeys.forEach(key => {
-                const v = document.getElementById(`video_${key}`);
-                if (v) {
-                    v.play().then(() => {
-                        v.pause();
-                        v.currentTime = 0;
-                    }).catch(e => console.log(`${key} unlock error:`, e));
-                }
-            });
-
             addLog("SEARCHING BOARD...");
 
             navigator.bluetooth.requestDevice({
@@ -527,12 +511,20 @@
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
 
+                // 接続成功後、全画面の「TAP TO START」スクリーンを起動
                 const startOverlay = document.getElementById('startOverlay');
                 startOverlay.style.display = 'flex';
 
+                // 🔥 ユーザーの「2回目のタップ」を起点にして、フルスクリーンや動画ロック解除を一斉に安全発動
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
+                    // Android対応ブラウザならフルスクリーン化
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(e => console.log(e));
+                    }
+
+                    // 8つのアワード動画を一斉アンロック
                     awardKeys.forEach(key => {
                         const v = document.getElementById(`video_${key}`);
                         if (v) {
@@ -584,10 +576,10 @@
                     const currentRate = (totalBullCount / totalDartsCount) * 100;
                     updateBullRateUI(currentRate);
 
-                    // 1投ごとの通常ヒット音を鳴らす（★フライングONE BULL判定は削除しました）
+                    // 1投ごとの通常ヒット音を鳴らす（フライングワンブルは完全撤廃）
                     playSound(result.type);
 
-                    // 🎯 3投終了した瞬間に、すべての条件を精査してアワードを1つだけ再生
+                    // 🎯 3投終了した瞬間に、すべての条件を精査して最上位のアワードを1つだけ再生
                     if (roundHits.length === 3) {
                         const award = checkRoundAward(roundHits);
                         setTimeout(() => {
