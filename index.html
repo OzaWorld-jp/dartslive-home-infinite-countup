@@ -10,8 +10,8 @@
     <style>
         :root {
             --primary-color: #00adb5;
-            --bg-translucent: rgba(255, 255, 255, 0.07);
-            --panel-bg: rgba(0, 0, 0, 0.5);
+            --bg-translucent: rgba(255, 255, 255, 0.12); /* カンプの白っぽく美しい透過を再現 */
+            --panel-bg: rgba(0, 0, 0, 0.6);
         }
 
         body {
@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1920*1080の仮想キャンバス */
+        /* 1920*1080 固定の仮想キャンバス */
         #app-scaler {
             width: 1920px;
             height: 1080px;
@@ -40,10 +40,11 @@
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
-            padding: 80px 60px 60px 60px;
-            gap: 50px;
+            padding: 90px 80px 80px 80px; /* カンプに合わせた外周余白 */
+            gap: 80px; /* 左右カラムの間隔を最適化 */
         }
 
+        /* 左カラム：スコア・ラウンド・履歴 */
         .left-column {
             flex: 1.3;
             display: flex;
@@ -52,117 +53,176 @@
             height: 100%;
         }
 
+        /* 右カラム：スタッツ・アワード（カンプ準拠の透過パネル） */
         .right-column {
-            flex: 0.8;
+            flex: 0.85;
             background: var(--bg-translucent);
-            backdrop-filter: blur(15px);
-            -webkit-backdrop-filter: blur(15px);
-            border-radius: 35px;
-            padding: 50px;
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 40px; /* 角丸をより滑らかに */
+            padding: 60px;
             display: flex;
             flex-direction: column;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             position: relative;
             height: 100%;
             box-sizing: border-box;
         }
 
+        /* 上部ラウンド表示 */
         .round-badge {
             background: var(--panel-bg);
-            border-radius: 80px;
-            padding: 15px 60px;
-            font-size: 3rem;
+            border-radius: 100px;
+            padding: 15px 70px;
+            font-size: 3.5rem;
             font-weight: 700;
+            font-family: 'Impact', 'Arial Black', sans-serif; /* カンプの極太フォント */
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 20px;
-            letter-spacing: 3px;
+            letter-spacing: 2px;
             align-self: flex-start;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
         }
-        .round-badge .infinity { font-size: 3.8rem; line-height: 0; }
-        .round-badge .label { font-size: 1.8rem; color: #888; font-weight: 400; margin-left: 15px; }
+        .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
+        .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
+        /* 🔥 メイン巨大スコア（カンプ通りの圧倒的なサイズと強いドロップシャドウ） */
         .huge-score {
-            font-size: 19rem;
-            font-weight: 700;
-            line-height: 0.9;
-            text-shadow: 0 0 50px rgba(0, 0, 0, 0.7), 0 20px 40px rgba(0,0,0,0.6);
-            letter-spacing: -5px;
+            font-size: 26rem; 
+            font-family: 'Impact', 'Arial Black', sans-serif; /* 潰れそうなほど太い数字 */
+            font-weight: 900;
+            line-height: 0.8;
+            text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85), 0 40px 80px rgba(0, 0, 0, 0.7);
+            letter-spacing: -6px;
             text-align: left;
-            margin-top: 40px;
+            margin-top: 20px;
         }
 
+        /* 3本履歴カプセル */
         .history-capsule {
             background: var(--panel-bg);
-            border-radius: 80px;
-            padding: 25px 60px;
+            border-radius: 100px;
+            padding: 25px 70px;
             display: flex;
             justify-content: flex-start;
-            gap: 60px;
-            font-size: 2.8rem;
+            gap: 50px;
+            font-size: 3.2rem;
+            font-family: 'Impact', 'Arial Black', sans-serif;
             font-weight: 700;
             color: #eee;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.5);
             margin-top: auto;
+            align-self: flex-start;
         }
-        .history-capsule div { min-width: 140px; text-align: left; }
-        .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; }
+        .history-capsule div { min-width: 160px; text-align: left; }
+        .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
+        /* 右側タブシステム（カンプ通りのフォントサイズと位置） */
         .tab-header {
             display: flex;
             justify-content: flex-end;
             gap: 15px;
             position: absolute;
-            top: -65px;
+            top: -68px;
             right: 0;
         }
         .tab-btn {
-            background: rgba(255,255,255,0.05); border: none; color: #666; padding: 12px 40px;
-            font-size: 1.6rem; font-family: inherit; border-radius: 18px 18px 0 0; cursor: pointer; transition: all 0.2s; font-weight: 700;
+            background: rgba(0,0,0,0.4);
+            border: none;
+            color: #777;
+            padding: 12px 45px;
+            font-size: 1.8rem;
+            font-family: inherit;
+            border-radius: 20px 20px 0 0;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 700;
         }
         .tab-btn.active {
-            background: var(--bg-translucent); backdrop-filter: blur(15px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.1); border-bottom: none;
+            background: var(--bg-translucent);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-bottom: none;
         }
 
         .tab-content { display: none; flex-direction: column; height: 100%; justify-content: space-between; }
         .tab-content.active { display: flex; }
 
-        .bull-rate-container { display: flex; align-items: center; justify-content: center; position: relative; margin-top: 40px; }
+        /* ブル率表示エリア（カンプに合わせて拡大） */
+        .bull-rate-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin-top: 30px;
+            height: 420px;
+        }
+        
+        /* SVG円形ゲージ（直径を大幅に大きく変更） */
         .circle-gauge { transform: rotate(-90deg); }
-        .circle-bg { stroke: rgba(255,255,255,0.03); }
+        .circle-bg { stroke: rgba(0,0,0,0.2); }
         .circle-progress {
-            stroke: url(#gauge-gradient); stroke-dasharray: 753.98; stroke-dashoffset: 753.98; stroke-linecap: round;
+            stroke: url(#gauge-gradient);
+            stroke-dasharray: 1005.31; /* 2 * PI * 160 */
+            stroke-dashoffset: 1005.31;
+            stroke-linecap: round;
             transition: stroke-dashoffset 0.6s cubic-bezier(0.1, 0.8, 0.2, 1);
         }
 
+        /* ゲージ中央のテキスト */
         .gauge-text { position: absolute; text-align: center; background: transparent; }
-        .gauge-text .label { font-size: 1.4rem; color: #888; letter-spacing: 3px; margin-bottom: 5px; }
-        .gauge-text .percent { font-size: 6.5rem; font-weight: 700; line-height: 1; }
-        .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
+        .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
+        .gauge-text .percent { font-size: 7.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        .gauge-text .percent span { font-size: 3.2rem; font-weight: 400; }
 
-        .level-meter-deco { position: absolute; left: 0px; display: flex; flex-direction: column; gap: 5px; transform: rotate(180deg); }
-        .level-bar { width: 24px; height: 6px; background: rgba(255,255,255,0.08); border-radius: 2px; }
+        /* 🔥【カンプ完全再現】円形ゲージの左側に沿って弧状に並ぶレベルメーター */
+        .level-meter-deco {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0; left: 0;
+            pointer-events: none;
+        }
+        .level-bar {
+            position: absolute;
+            width: 28px;
+            height: 7px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 2px;
+            transform-origin: center center;
+        }
 
+        /* BULL COUNT表示（サイズ大幅アップ） */
         .bull-count-box { text-align: center; margin-bottom: 20px; }
-        .bull-count-box .label { font-size: 2rem; letter-spacing: 6px; color: #bbb; margin-bottom: 10px; }
-        .bull-count-box .count { font-size: 8rem; font-weight: 700; line-height: 1; }
+        .bull-count-box .label { font-size: 2.2rem; letter-spacing: 6px; color: #aaa; margin-bottom: 5px; font-weight: 700; }
+        .bull-count-box .count { font-size: 11rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
 
-        .award-grid { display: grid; grid-template-columns: 1fr 1fr; row-gap: 45px; column-gap: 30px; margin: auto 0; }
+        /* アワード数表示エリア（グリッドの間隔とサイズ感をカンプにシンクロ） */
+        .award-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            row-gap: 50px;
+            column-gap: 40px;
+            margin: auto 0;
+        }
         .award-item { text-align: center; }
-        .award-item .label { font-size: 1.3rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; }
-        .award-item .count { font-size: 4.5rem; font-weight: 700; color: #fff; line-height: 1; }
+        .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 2px; margin-bottom: 2px; font-weight: 700; }
+        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
 
-        .header-controls { position: absolute; top: 20px; left: 30px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
+        /* 接続ボタン＆ログ */
+        .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
         .btn-connect {
-            background: #00adb5; border: none; color: white; padding: 12px 30px;
-            font-family: inherit; font-size: 1.3rem; font-weight: 700; border-radius: 30px; cursor: pointer;
+            background: #00adb5; border: none; color: white; padding: 12px 35px;
+            font-family: inherit; font-size: 1.4rem; font-weight: 700; border-radius: 30px; cursor: pointer;
             box-shadow: 0 5px 15px rgba(0,173,181,0.4);
         }
-        .dev-log { color: #666; font-size: 1.1rem; font-family: monospace; }
+        .dev-log { color: #666; font-size: 1.2rem; font-family: monospace; }
 
-        /* 🔥 全画面ビデオオーバーレイ */
+        /* 全画面ビデオオーバーレイ */
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
         #videoOverlay video { width: 100%; height: 100%; object-fit: contain; display: none; }
     </style>
@@ -175,11 +235,14 @@
     </div>
 
     <div id="app-scaler">
+        
         <div class="left-column">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
             </div>
+
             <div class="huge-score" id="totalScore">0</div>
+
             <div class="history-capsule">
                 <div id="slot0">---</div>
                 <div class="separator">|</div>
@@ -198,7 +261,8 @@
             <div class="tab-content active" id="contentBull">
                 <div class="bull-rate-container">
                     <div class="level-meter-deco" id="levelMeter"></div>
-                    <svg class="circle-gauge" width="280" height="280" viewBox="0 0 260 260">
+                    
+                    <svg class="circle-gauge" width="380" height="380" viewBox="0 0 360 360">
                         <defs>
                             <linearGradient id="gauge-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
                                 <stop offset="0%" stop-color="#0052d4" />
@@ -206,8 +270,8 @@
                                 <stop offset="100%" stop-color="#6fb1fc" />
                             </linearGradient>
                         </defs>
-                        <circle class="circle-bg" cx="130" cy="130" r="120" stroke-width="12" fill="none"/>
-                        <circle class="circle-progress" id="gaugeCircle" cx="130" cy="130" r="120" stroke-width="12" fill="none"/>
+                        <circle class="circle-bg" cx="180" cy="180" r="160" stroke-width="16" fill="none"/>
+                        <circle class="circle-progress" id="gaugeCircle" cx="180" cy="180" r="160" stroke-width="16" fill="none"/>
                     </svg>
                     <div class="gauge-text">
                         <div class="label">BULL RATE</div>
@@ -232,6 +296,7 @@
                     <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count" id="cnt_black">0</div></div>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -256,7 +321,7 @@
         let roundHits = []; 
         let isVideoPlaying = false;
         let hasRoundBull = false; 
-        let currentPlayingVideo = null; // 現在再生中の動画要素を記憶
+        let currentPlayingVideo = null;
 
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
 
@@ -268,13 +333,34 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
+        // 🔥【カンプ完全再現】イコライザー風バーを円形ゲージの左側に沿って綺麗な弧状に自動配置
         const levelMeter = document.getElementById('levelMeter');
-        for(let i=0; i<16; i++) {
+        const totalBars = 18;
+        const radius = 195; // 円形ゲージの少し外側に配置
+        const centerX = 190; // コンテナの中心
+        const centerY = 210;
+
+        for(let i=0; i<totalBars; i++) {
             const bar = document.createElement('div');
             bar.className = 'level-bar';
+            
+            // 角度の計算（ゲージの左側：110度〜250度にかけて扇状に並べる）
+            const startAngle = 110;
+            const endAngle = 250;
+            const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
+            const angleRad = (angleDeg * Math.PI) / 180;
+
+            // 位置（X, Y）の計算
+            const x = centerX + radius * Math.cos(angleRad) - 14; // つまみ幅の半分を引く
+            const y = centerY + radius * Math.sin(angleRad) - 3.5;
+
+            bar.style.left = `${x}px`;
+            bar.style.top = `${y}px`;
+            bar.style.transform = `rotate(${angleDeg}deg)`; // バー自体も円の方向に向ける
             levelMeter.appendChild(bar);
         }
 
+        // タブ切り替え
         const btnTabBull = document.getElementById('btnTabBull');
         const btnTabAward = document.getElementById('btnTabAward');
         const contentBull = document.getElementById('contentBull');
@@ -291,14 +377,17 @@
             contentAward.classList.add('active'); contentBull.classList.remove('active');
         });
 
+        // ゲージ＆メーター更新
         function updateBullRateUI(rate) {
             const circle = document.getElementById('gaugeCircle');
-            circle.style.strokeDashoffset = 753.98 - (rate / 100) * 753.98;
+            circle.style.strokeDashoffset = 1005.31 - (rate / 100) * 1005.31; // 外周 1005.31 に変更
 
             const intPart = Math.floor(rate);
             const decPart = (rate - intPart).toFixed(2).substring(1);
-            document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}</span>`;
+            // 🔥 小数部の後ろに「%」が綺麗に入るように修正
+            document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
+            // 弧状レベルメーターの連動発光
             const bars = document.querySelectorAll('.level-bar');
             const activeBarsCount = Math.ceil((rate / 100) * bars.length);
             bars.forEach((bar, idx) => {
@@ -335,7 +424,6 @@
             if (path) { new Audio(path).play().catch(e => console.log(e)); }
         }
 
-        // 🔥 【修正】動画要素のsrc差し替えをやめ、該当する要素をそのまま表示して再生
         function playAwardVideo(awardKey) {
             const overlay = document.getElementById('videoOverlay');
             const video = document.getElementById(`video_${awardKey}`);
@@ -359,7 +447,7 @@
             const overlay = document.getElementById('videoOverlay');
             if (currentPlayingVideo) {
                 currentPlayingVideo.pause();
-                currentPlayingVideo.style.display = 'none';
+                currentPlayingVideo.style.style.display = 'none';
                 currentPlayingVideo.currentTime = 0;
                 currentPlayingVideo = null;
             }
@@ -385,11 +473,10 @@
             return null;
         }
 
-        // Bluetooth接続（★全動画一斉アンロック処理）
+        // Bluetooth接続（全動画一斉アンロック）
         document.getElementById('connectBtn').addEventListener('click', async () => {
             playSound('poti');
             
-            // 🔥 【超重要】ボタンを押した瞬間に、HTMLにある8個の動画をすべて同時に一瞬再生してiOSのロックを破る
             awardKeys.forEach(key => {
                 const v = document.getElementById(`video_${key}`);
                 if (v) {
