@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>無限カウントアップ - DARTSLIVE Home</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #121212;
+            color: #ffffff;
+            text-align: center;
+            padding: 40px 20px;
+            margin: 0;
+        }
+        h1 { color: #00adb5; font-size: 2rem; margin-bottom: 30px; }
+        .score-display {
+            font-size: 8rem;
+            font-weight: bold;
+            color: #393e46;
+            background: #222831;
+            padding: 20px;
+            border-radius: 20px;
+            display: inline-block;
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+            transition: color 0.1s ease;
+        }
+        .score-display.hit { color: #00adb5; }
+        .stats { font-size: 1.5rem; color: #eeeeee; margin-bottom: 40px; }
+        .btn {
+            background-color: #00adb5;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            border-radius: 30px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,173,181,0.4);
+            transition: transform 0.2s, background-color 0.2s;
+        }
+        .btn:hover { background-color: #008c92; transform: translateY(-2px); }
+        .btn:active { transform: translateY(1px); }
+        .log { max-width: 400px; margin: 30px auto 0; text-align: left; color: #888; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+
+    <h1>DARTSLIVE Home<br>✨ 無限カウントアップ ✨</h1>
+
+    <div class="score-display" id="totalScore">0</div>
+
+    <div class="stats">
+        <span id="dartsCount">0</span> 投目 （今回: <span id="lastHit">--</span>）
+    </div>
+
+    <button class="btn" id="connectBtn">ボードに接続する</button>
+
+    <div class="log" id="logConsole"></div>
+
+    <script>
+        // 先ほど解析したUUIDを定義
+        const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e'; // Nordic UART Service
+        const TX_CHARACTERISTIC_UUID = '6e400003-b5a3-f393-e0a9-e50e24dcca9e'; // Notify用
+
+        let totalScore = 0;
+        let dartsCount = 0;
+
+        // セグメントIDから点数・倍率・ラベルを計算する関数
+        function calculateScore(id) {
+            if (id >= 1 && id <= 20) return { score: id, label: `S${id}` };
+            if (id >= 21 && id <= 40) return { score: id - 20, label: `S${id - 20}` };
+            if (id >= 41 && id <= 60) return { score: (id - 40) * 2, label: `D${id - 40}` };
+            if (id >= 61 && id <= 80) return { score: (id - 60) * 3, label: `T${id - 60}` };
+            if (id === 81) return { score: 50, label: 'Outer Bull' };
+            if (id === 82) return { score: 50, label: 'Inner Bull' };
+            return { score: 0, label: 'Unknown' };
+        }
+
+        // 接続処理
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            addLog("デバイスを検索中...");
+            try {
+                // 1. デバイスの要求（名前が一致するもの）
+                const device = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: 'DARTSLIVE HOME' }],
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                addLog(`${device.name} に接続中...`);
+                const server = await device.gatt.connect();
+
+                // 2. サービスの取得
+                const service = await server.getPrimaryService(SERVICE_UUID);
+
+                // 3. キャラクタリスティックの取得
+                const characteristic = await service.getCharacteristic(TX_CHARACTERISTIC_UUID);
+
+                // 4. Notify（通知）の開始
+                await characteristic.startNotifications();
+                characteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
+
+                addLog("接続成功！ダーツを投げてください。");
+                document.getElementById('connectBtn').style.display = 'none'; // ボタンを隠す
+
+            } catch (error) {
+                addLog(`エラー: ${error.message}`);
+                console.error(error);
+            }
+        });
+
+        // データ受信時の処理
+        function handleDataChanged(event) {
+            const data = event.target.value; // DataView型で取得
+            
+            // バイト配列に変換 (A1-03-... のチェック)
+            if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
+                const segmentId = data.getUint8(2); // 3バイト目を取得
+                const result = calculateScore(segmentId);
+
+                if (result.score > 0) {
+                    totalScore += result.score;
+                    dartsCount += 1;
+
+                    // UIの更新
+                    document.getElementById('totalScore').innerText = totalScore;
+                    document.getElementById('dartsCount').innerText = dartsCount;
+                    document.getElementById('lastHit').innerText = `${result.label} (+${result.score})`;
+
+                    // ヒット時に数字を一瞬光らせる演出
+                    const scoreEl = document.getElementById('totalScore');
+                    scoreEl.classList.add('hit');
+                    setTimeout(() => scoreEl.classList.remove('hit'), 150);
+                }
+            }
+        }
+
+        function addLog(text) {
+            const consoleEl = document.getElementById('logConsole');
+            consoleEl.innerHTML = text + "<br>" + consoleEl.innerHTML;
+        }
+    </script>
+</body>
+</html>
