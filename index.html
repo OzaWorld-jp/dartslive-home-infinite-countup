@@ -133,7 +133,8 @@
             margin-top: auto;
             align-self: flex-start;
         }
-        .history-capsule div { min-width: 160px; text-align: left; }
+        /* 🎯【修正③】枠内をレフト寄せから「完全センター中央揃え」に調整 */
+        .history-capsule div { min-width: 160px; text-align: center; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
         /* 右側タブシステム（PCでの右側はみ出しを防ぐため、左寄せ位置とボタン横幅を再調整） */
@@ -402,6 +403,9 @@
         let totalOuterBullCount = 0;
         let totalInnerBullCount = 0;
 
+        let logTimeout = null;
+        let headerTimeout = null;
+
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
         const awardVideos = {
             onebull: 'videos/onebull.mp4', lowton: 'videos/lowton.mp4', highton: 'videos/highton.mp4', ton80: 'videos/ton80.mp4',
@@ -470,7 +474,15 @@
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
-                    row.innerHTML = `<span class="r-num">R${roundScores[i].num}</span><span class="r-val">${roundScores[i].score}</span>`;
+                    // 🎯【修正①】スコア履歴タブの点数に応じて文字色を動的に変更
+                    let colorStyle = '';
+                    const s = roundScores[i].score;
+                    if (s >= 100 && s <= 150) {
+                        colorStyle = 'color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.4);'; // 濃いオレンジ
+                    } else if (s >= 151 && s <= 180) {
+                        colorStyle = 'color: #ffea00; text-shadow: 0 0 10px rgba(255,234,0,0.4);'; // 黄色
+                    }
+                    row.innerHTML = `<span class="r-num">R${roundScores[i].num}</span><span class="r-val" style="${colorStyle}">${roundScores[i].score}</span>`;
                 } else {
                     row.innerHTML = `<span class="r-num">--</span><span class="r-val">---</span>`;
                 }
@@ -629,11 +641,9 @@
             isVideoPlaying = false;
         }
 
-        // 🔥【超重要バグ修正】空の配列（0本Change）のときに、JavaScriptのeveryがtrue（ Vacuous truth ）を返してしまう仕様への鉄壁のガードを追加
         function checkRoundAward(hits) {
-            if (hits.length === 0) return null; // 🎯 1本も刺さっていないときはアワード判定を絶対スキップ！
+            if (hits.length === 0) return null; 
 
-            // 🎯【本数制限ガード】3本きっちり刺さっているときのみ成立する最高位アワード（3本未満Change時の誤爆を完全防御）
             if (hits.length === 3) {
                 const isAllInBull = hits.every(h => h.type === 'inbull');
                 const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
@@ -647,7 +657,6 @@
                 if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
             }
 
-            // 🎯 3本未満（1〜2本でChangeボタン押し）でも合計値・単発で成立するアワード
             const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
@@ -693,15 +702,6 @@
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    setTimeout(() => {
-                        const controlsHeader = document.querySelector('.header-controls');
-                        if (controlsHeader) {
-                            controlsHeader.style.transition = 'opacity 1s ease';
-                            controlsHeader.style.opacity = '0';
-                            setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
-                        }
-                    }, 5000);
-
                     const v = document.getElementById('awardVideo');
                     if (v) {
                         v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
@@ -712,7 +712,6 @@
                     }
 
                     startOverlay.style.display = 'none';
-                    addLog("ALL SYSTEMS OPERATIONAL. READY!");
                 };
             })
             .catch(error => {
@@ -830,7 +829,43 @@
             }
         }
 
-        function addLog(text) { document.getElementById('logConsole').innerText = text; }
+        // 🎯【修正②】エラーや接続状況など、すべてのログテキスト表示を5秒後にフェードアウト消去する関数
+        function addLog(text) {
+            const consoleLog = document.getElementById('logConsole');
+            const controlsHeader = document.querySelector('.header-controls');
+            
+            // ログ更新時に不透明度と表示をリセット
+            consoleLog.style.transition = 'none';
+            consoleLog.style.opacity = '1';
+            if (controlsHeader) {
+                controlsHeader.style.transition = 'none';
+                controlsHeader.style.opacity = '1';
+                controlsHeader.style.display = 'flex';
+            }
+
+            consoleLog.innerText = text;
+
+            // 既存のタイマーを全解除してリセット
+            if (logTimeout) clearTimeout(logTimeout);
+            if (headerTimeout) clearTimeout(headerTimeout);
+
+            // 5秒経過後に文字をフェードアウトさせる
+            logTimeout = setTimeout(() => {
+                consoleLog.style.transition = 'opacity 1s ease';
+                consoleLog.style.opacity = '0';
+            }, 5000);
+
+            // 接続成功確定時のみ、コントロールバーごと外枠を綺麗に消去
+            if (text === "CONNECTED." || text.includes("READY")) {
+                headerTimeout = setTimeout(() => {
+                    if (controlsHeader) {
+                        controlsHeader.style.transition = 'opacity 1s ease';
+                        controlsHeader.style.opacity = '0';
+                        setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
+                    }
+                }, 5000);
+            }
+        }
     </script>
 </body>
 </html>
