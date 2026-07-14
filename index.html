@@ -133,7 +133,7 @@
             margin-top: auto;
             align-self: flex-start;
         }
-        /* 🎯【修正③】枠内をレフト寄せから「完全センター中央揃え」に調整 */
+        /* 🎯【前回の修正分】枠内をレフト寄せから「完全センター中央揃え」に調整 */
         .history-capsule div { min-width: 160px; text-align: center; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
@@ -196,9 +196,11 @@
             margin: 0 auto;
         }
         
-        /* 12時起点コニックメーター */
+        /* 🔥【丸のズレ修正】top/leftを明示的に指定して配置を完全固定。JSの計算軸（250px）と100%シンクロ */
         .gauge-track-css {
             position: absolute;
+            top: 30px;
+            left: 30px;
             width: 440px;
             height: 440px;
             border: 16px solid rgba(255, 255, 255, 0.04);
@@ -207,6 +209,8 @@
         }
         .gauge-progress-css {
             position: absolute;
+            top: 30px;
+            left: 30px;
             width: 440px;
             height: 440px;
             border-radius: 50%;
@@ -434,7 +438,7 @@
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
             const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY * radius * Math.sin(angleRad) - 4;
+            const y = centerY + radius * Math.sin(angleRad) - 4;
             bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
@@ -474,7 +478,7 @@
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
-                    // 🎯【修正①】スコア履歴タブの点数に応じて文字色を動的に変更
+                    // 🎯【前回の修正分】スコア履歴タブの点数に応じて文字色を動的に変更
                     let colorStyle = '';
                     const s = roundScores[i].score;
                     if (s >= 100 && s <= 150) {
@@ -829,12 +833,11 @@
             }
         }
 
-        // 🎯【修正②】エラーや接続状況など、すべてのログテキスト表示を5秒後にフェードアウト消去する関数
+        // 🎯【前回の修正分】エラーや接続状況など、すべてのログテキスト表示を5秒後にフェードアウト消去する関数
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
             
-            // ログ更新時に不透明度と表示をリセット
             consoleLog.style.transition = 'none';
             consoleLog.style.opacity = '1';
             if (controlsHeader) {
@@ -845,17 +848,14 @@
 
             consoleLog.innerText = text;
 
-            // 既存のタイマーを全解除してリセット
             if (logTimeout) clearTimeout(logTimeout);
             if (headerTimeout) clearTimeout(headerTimeout);
 
-            // 5秒経過後に文字をフェードアウトさせる
             logTimeout = setTimeout(() => {
                 consoleLog.style.transition = 'opacity 1s ease';
                 consoleLog.style.opacity = '0';
             }, 5000);
 
-            // 接続成功確定時のみ、コントロールバーごと外枠を綺麗に消去
             if (text === "CONNECTED." || text.includes("READY")) {
                 headerTimeout = setTimeout(() => {
                     if (controlsHeader) {
