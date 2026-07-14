@@ -133,7 +133,7 @@
             margin-top: auto;
             align-self: flex-start;
         }
-        /* 🎯【修正③】枠内をレフト寄せから「完全センター中央揃え」に調整 */
+        /* 枠内を完全センター中央揃えに調整 */
         .history-capsule div { min-width: 160px; text-align: center; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
@@ -199,6 +199,8 @@
         /* 12時起点コニックメーター */
         .gauge-track-css {
             position: absolute;
+            top: 30px;
+            left: 30px;
             width: 440px;
             height: 440px;
             border: 16px solid rgba(255, 255, 255, 0.04);
@@ -207,6 +209,8 @@
         }
         .gauge-progress-css {
             position: absolute;
+            top: 30px;
+            left: 30px;
             width: 440px;
             height: 440px;
             border-radius: 50%;
@@ -243,10 +247,6 @@
             text-shadow: 0 10px 20px rgba(0,0,0,0.5); 
         }
         .gauge-text .percent span { font-size: 3.5rem; font-weight: 400; }
-
-        /* 弧状レベルメーター */
-        .level-meter-deco { position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; }
-        .level-bar { position: absolute; width: 32px; height: 8px; background: rgba(255,255,255,0.08); border-radius: 2px; transform-origin: center center; }
 
         /* BULL COUNT表示 */
         .bull-count-box { text-align: center; margin-top: 0px; }
@@ -337,7 +337,6 @@
 
             <div class="tab-content active" id="contentBull">
                 <div class="bull-rate-container">
-                    <div class="level-meter-deco" id="levelMeter"></div>
                     <div class="gauge-track-css"></div>
                     <div class="gauge-progress-css" id="gaugeCircleCSS"></div>
                     <div class="gauge-dot" id="gaugeDot"></div>
@@ -420,24 +419,7 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 拡大サークルに合わせたレベルメーターの配置半径自動拡張（272px）
-        const levelMeter = document.getElementById('levelMeter');
-        const totalBars = 18;
-        const radius = 272; 
-        const centerX = 250; 
-        const centerY = 250;
-
-        for(let i=0; i<totalBars; i++) {
-            const bar = document.createElement('div');
-            bar.className = 'level-bar';
-            const startAngle = 110; const endAngle = 250;
-            const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
-            const angleRad = (angleDeg * Math.PI) / 180;
-            const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY * radius * Math.sin(angleRad) - 4;
-            bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
-            levelMeter.appendChild(bar);
-        }
+        // 弧状レベルメーターの生成処理（JavaScriptループ）を完全に撤廃
 
         // タブ切り替え
         const btnTabBull = document.getElementById('btnTabBull');
@@ -474,7 +456,7 @@
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
-                    // 🎯【修正①】スコア履歴タブの点数に応じて文字色を動的に変更
+                    // スコア履歴タブの点数に応じて文字色を動的に変更
                     let colorStyle = '';
                     const s = roundScores[i].score;
                     if (s >= 100 && s <= 150) {
@@ -566,22 +548,7 @@
             const intPart = Math.floor(rate); const decPart = (rate - intPart).toFixed(2).substring(1);
             document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
 
-            const bars = document.querySelectorAll('.level-bar');
-            const activeBarsCount = Math.ceil((rate / 100) * bars.length);
-            bars.forEach((bar, idx) => {
-                if(idx < activeBarsCount) {
-                    const ratio = idx / bars.length;
-                    let barColor = '#0044ff';
-                    if (ratio >= 0.25) barColor = '#9900ff';
-                    if (ratio >= 0.50) barColor = '#ff007f';
-                    if (ratio >= 0.75) barColor = '#ff0000';
-                    bar.style.background = barColor;
-                    bar.style.boxShadow = `0 0 12px ${barColor}`;
-                } else {
-                    bar.style.background = 'rgba(255,255,255,0.08)';
-                    bar.style.boxShadow = 'none';
-                }
-            });
+            // レベルメーターの連動発光処理（JavaScriptループ）を完全に撤廃
         }
 
         function calculateScore(id) {
@@ -712,6 +679,7 @@
                     }
 
                     startOverlay.style.display = 'none';
+                    addLog("ALL SYSTEMS OPERATIONAL. READY!");
                 };
             })
             .catch(error => {
@@ -829,12 +797,11 @@
             }
         }
 
-        // 🎯【修正②】エラーや接続状況など、すべてのログテキスト表示を5秒後にフェードアウト消去する関数
+        // すべてのログテキスト表示を5秒後にフェードアウト消去する関数
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
             
-            // ログ更新時に不透明度と表示をリセット
             consoleLog.style.transition = 'none';
             consoleLog.style.opacity = '1';
             if (controlsHeader) {
@@ -845,17 +812,14 @@
 
             consoleLog.innerText = text;
 
-            // 既存のタイマーを全解除してリセット
             if (logTimeout) clearTimeout(logTimeout);
             if (headerTimeout) clearTimeout(headerTimeout);
 
-            // 5秒経過後に文字をフェードアウトさせる
             logTimeout = setTimeout(() => {
                 consoleLog.style.transition = 'opacity 1s ease';
                 consoleLog.style.opacity = '0';
             }, 5000);
 
-            // 接続成功確定時のみ、コントロールバーごと外枠を綺麗に消去
             if (text === "CONNECTED." || text.includes("READY")) {
                 headerTimeout = setTimeout(() => {
                     if (controlsHeader) {
