@@ -89,7 +89,7 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】経過時間タイマー（白色・細め・等幅フォント指定でガタつきを完全防御、中間地点へ固定） */
+        /* 経過時間タイマー（白色・細め・等幅フォント指定でガタつきを完全防御、中間地点へ固定） */
         .top-timer {
             position: absolute;
             top: 98px;
@@ -99,7 +99,7 @@
             font-family: 'Oswald', sans-serif;
             font-variant-numeric: tabular-nums; /* 数字の横幅を等幅に固定して左右の微振動をシャットアウト */
             letter-spacing: 2px;
-            color: #ffffff; /* 白色に変更 */
+            color: #ffffff; /* 白色 */
             text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
             z-index: 10;
         }
@@ -136,12 +136,12 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】右側タブシステム（PCでの右側はみ出しを防ぐため、左寄せ位置とボタン横幅を再調整） */
+        /* 右側タブシステム（パネルの左上に完全固定・一体化） */
         .tab-header {
             display: flex;
             position: absolute;
             bottom: 100%;
-            left: 35px; /* 50pxから35pxへ少し左にシフト */
+            left: 35px;
             margin-bottom: -1px;
             z-index: 10;
         }
@@ -150,7 +150,7 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
             border-bottom: none;
             color: #666;
-            padding: 12px 42px; /* 横パディングを55pxから42pxへ縮小し、3つ並んでもパネル内に完全格納 */
+            padding: 12px 42px; /* 横パディングを縮小し、3つ並んでもパネル内に完全格納 */
             font-size: 2rem;
             font-family: inherit;
             border-radius: 20px 20px 0 0;
@@ -374,11 +374,6 @@
         <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
 
-    <div id="startOverlay">
-        <div class="msg-main">TAP TO START</div>
-        <div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div>
-    </div>
-
     <script>
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         const awardKeys = ['onebull', 'lowton', 'highton', 'ton80', 'hattrick', 'bed', 'whitehorse', 'black'];
@@ -409,7 +404,7 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 拡大サークルに合わせたレベルメーターの配置半径自動拡張（272px）
+        // レベルメーターの配置半径自動拡張（272px）
         const levelMeter = document.getElementById('levelMeter');
         const totalBars = 18;
         const radius = 272; 
@@ -611,6 +606,7 @@
             video.onended = () => { closeAwardVideo(); };
         }
 
+        // 終了時にパージしてメモリ解放
         function closeAwardVideo() {
             const overlay = document.getElementById('videoOverlay');
             const video = document.getElementById('awardVideo');
@@ -673,30 +669,26 @@
                 addLog("CONNECTED.");
                 document.getElementById('connectBtn').style.display = 'none';
 
-                const startOverlay = document.getElementById('startOverlay');
-                startOverlay.style.display = 'flex';
-
-                startOverlay.onclick = () => {
-                    playSound('round-change');
-                    
-                    // 🔥【修正】5秒後に文字だけでなくコントロールコンソールエリア全体を完全消去（フェード消去➔完全none化）
-                    setTimeout(() => {
-                        const controlsHeader = document.querySelector('.header-controls');
-                        if (controlsHeader) {
-                            controlsHeader.style.transition = 'opacity 1s ease';
-                            controlsHeader.style.opacity = '0';
-                            setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
-                        }
-                    }, 5000);
-
-                    const v = document.getElementById('awardVideo');
-                    if (v) {
-                        v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
+                // 🔥【改善】TAP TO STARTは表示させず、接続成功時にダイレクトにバックグラウンドの動画・ログ制御を始動
+                playSound('round-change');
+                
+                // 5秒後にコントロールヘッダーエリア全体を完全フェードアウト・消去
+                setTimeout(() => {
+                    const controlsHeader = document.querySelector('.header-controls');
+                    if (controlsHeader) {
+                        controlsHeader.style.transition = 'opacity 1s ease';
+                        controlsHeader.style.opacity = '0';
+                        setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
                     }
+                }, 5000);
 
-                    startOverlay.style.display = 'none';
-                    addLog("ALL SYSTEMS OPERATIONAL. READY!");
-                };
+                // ビデオリソースの事前アンロック（このクリック権限が生きている間に解放）
+                const v = document.getElementById('awardVideo');
+                if (v) {
+                    v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
+                }
+
+                addLog("ALL SYSTEMS OPERATIONAL. READY!");
             })
             .catch(error => {
                 addLog(`ERROR: ${error.message}`);
