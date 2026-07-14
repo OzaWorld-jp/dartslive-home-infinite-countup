@@ -399,7 +399,6 @@
         let totalSeconds = 0;       
         let roundScores = [];       
 
-        // 🔥【機能追加②】INNER / OUTER 独立集計用ステート
         let totalOuterBullCount = 0;
         let totalInnerBullCount = 0;
 
@@ -431,7 +430,7 @@
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
             const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY + radius * Math.sin(angleRad) - 4;
+            const y = centerY * radius * Math.sin(angleRad) - 4;
             bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
@@ -630,18 +629,25 @@
             isVideoPlaying = false;
         }
 
+        // 🔥【超重要バグ修正】空の配列（0本Change）のときに、JavaScriptのeveryがtrue（ Vacuous truth ）を返してしまう仕様への鉄壁のガードを追加
         function checkRoundAward(hits) {
-            const isAllInBull = hits.every(h => h.type === 'inbull');
-            const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
-            const isAllTriple = hits.every(h => h.type === 'triple');
-            const isAllDouble = hits.every(h => h.type === 'double');
+            if (hits.length === 0) return null; // 🎯 1本も刺さっていないときはアワード判定を絶対スキップ！
 
-            if (isAllInBull) return 'black';
-            if (isAllBull) return 'hattrick';
-            if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
-            if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
-            if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
+            // 🎯【本数制限ガード】3本きっちり刺さっているときのみ成立する最高位アワード（3本未満Change時の誤爆を完全防御）
+            if (hits.length === 3) {
+                const isAllInBull = hits.every(h => h.type === 'inbull');
+                const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
+                const isAllTriple = hits.every(h => h.type === 'triple');
+                const isAllDouble = hits.every(h => h.type === 'double');
 
+                if (isAllInBull) return 'black';
+                if (isAllBull) return 'hattrick';
+                if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
+                if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
+                if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
+            }
+
+            // 🎯 3本未満（1〜2本でChangeボタン押し）でも合計値・単発で成立するアワード
             const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
             if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
             if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
@@ -687,7 +693,6 @@
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    // 5秒後にコントロールコンソールエリア全体を完全消去（フェード消去➔完全none化）
                     setTimeout(() => {
                         const controlsHeader = document.querySelector('.header-controls');
                         if (controlsHeader) {
@@ -702,7 +707,6 @@
                         v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
                     }
 
-                    // Android対応ブラウザならフルスクリーン化
                     if (document.documentElement.requestFullscreen) {
                         document.documentElement.requestFullscreen().catch(e => console.log(e));
                     }
@@ -725,15 +729,13 @@
 
                 const segmentId = data.getUint8(2);
 
-                // 🔥【機能追加①】Changeボタン（0x54）が押された瞬間の割り込み処理
+                // Changeボタン（0x54）が押された瞬間の割り込み処理
                 if (segmentId === 0x54) {
-                    isRoundLock = true; // 即座にチャタリング防止ロックをON
+                    isRoundLock = true; 
                     
-                    // そこまでに刺さった合計スコアを履歴タブへリレー登録
                     const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
                     recordRoundScore(roundTotal);
 
-                    // 3本未満でもその時点の中身でアワード判定を実行
                     const award = checkRoundAward(roundHits);
                     setTimeout(() => {
                         if (award) { 
@@ -743,14 +745,12 @@
                         }
                     }, 600); 
 
-                    // 未投分をスキップして通算ダーツ数を綺麗に次の3の倍数へ切り上げる
                     if (totalDartsCount % 3 !== 0) {
                         totalDartsCount = Math.ceil(totalDartsCount / 3) * 3;
                     } else if (roundHits.length === 0) {
-                        totalDartsCount += 3; // 1本も投げずに押した場合は丸ごと1R分進める
+                        totalDartsCount += 3; 
                     }
 
-                    // 6秒のインターバル経過後に次ラウンドの準備を完全完了させる
                     setTimeout(() => {
                         isRoundLock = false;
                         roundHits = [];
@@ -760,7 +760,7 @@
                         document.getElementById('currentRoundNum').innerText = (totalDartsCount / 3) + 1;
                     }, 6000);
                     
-                    return; // 通常の投球処理へ進ませずここで終了
+                    return; 
                 }
 
                 if (roundHits.length === 3) {
@@ -780,7 +780,6 @@
                     totalScore += result.score;
                     totalDartsCount++;
                     
-                    // 🔥【機能追加②】BULLのヒット時に INNER / OUTER を厳密に仕分け
                     const isBullHit = (result.type === 'bull' || result.type === 'inbull');
                     if (isBullHit) {
                         totalBullCount++;
@@ -796,7 +795,6 @@
 
                     document.getElementById('totalScore').innerText = totalScore;
                     
-                    // 表示の更新
                     document.getElementById('bullCount').innerText = totalBullCount;
                     document.getElementById('innerBullCount').innerText = totalInnerBullCount;
                     document.getElementById('outerBullCount').innerText = totalOuterBullCount;
