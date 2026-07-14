@@ -89,7 +89,7 @@
         .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
         .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】経過時間タイマー（白色・細め・等幅フォント指定でガタつきを完全防御、中間地点へ固定） */
+        /* 経過時間タイマー（白色・細め・等幅フォント指定でガタつきを完全防御、中間地点へ固定） */
         .top-timer {
             position: absolute;
             top: 98px;
@@ -136,7 +136,7 @@
         .history-capsule div { min-width: 160px; text-align: left; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【修正】右側タブシステム（PCでの右側はみ出しを防ぐため、左寄せ位置とボタン横幅を再調整） */
+        /* 右側タブシステム（PCでの右側はみ出しを防ぐため、左寄せ位置とボタン横幅を再調整） */
         .tab-header {
             display: flex;
             position: absolute;
@@ -348,6 +348,10 @@
                 <div class="bull-count-box">
                     <div class="label">BULL COUNT</div>
                     <div class="count" id="bullCount">0</div>
+                    <div class="bull-sub-counts" style="display: flex; justify-content: center; gap: 40px; font-size: 2.2rem; color: #aaa; font-weight: 700; margin-top: -10px;">
+                        <div>INNER: <span id="innerBullCount" style="color: #fff; font-family: 'Impact', sans-serif; font-size: 3rem;">0</span></div>
+                        <div>OUTER: <span id="outerBullCount" style="color: #fff; font-family: 'Impact', sans-serif; font-size: 3rem;">0</span></div>
+                    </div>
                 </div>
             </div>
 
@@ -395,6 +399,10 @@
         let totalSeconds = 0;       
         let roundScores = [];       
 
+        // 🔥【機能追加②】INNER / OUTER 独立集計用ステート
+        let totalOuterBullCount = 0;
+        let totalInnerBullCount = 0;
+
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
         const awardVideos = {
             onebull: 'videos/onebull.mp4', lowton: 'videos/lowton.mp4', highton: 'videos/highton.mp4', ton80: 'videos/ton80.mp4',
@@ -423,7 +431,7 @@
             const angleDeg = startAngle + ((endAngle - startAngle) / (totalBars - 1)) * i;
             const angleRad = (angleDeg * Math.PI) / 180;
             const x = centerX + radius * Math.cos(angleRad) - 16;
-            const y = centerY * radius * Math.sin(angleRad) - 4;
+            const y = centerY + radius * Math.sin(angleRad) - 4;
             bar.style.left = `${x}px`; bar.style.top = `${y}px`; bar.style.transform = `rotate(${angleDeg}deg)`;
             levelMeter.appendChild(bar);
         }
@@ -679,7 +687,7 @@
                 startOverlay.onclick = () => {
                     playSound('round-change');
                     
-                    // 🔥【修正】5秒後に文字だけでなくコントロールコンソールエリア全体を完全消去（フェード消去➔完全none化）
+                    // 5秒後にコントロールコンソールエリア全体を完全消去（フェード消去➔完全none化）
                     setTimeout(() => {
                         const controlsHeader = document.querySelector('.header-controls');
                         if (controlsHeader) {
@@ -692,6 +700,11 @@
                     const v = document.getElementById('awardVideo');
                     if (v) {
                         v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
+                    }
+
+                    // Android対応ブラウザならフルスクリーン化
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(e => console.log(e));
                     }
 
                     startOverlay.style.display = 'none';
@@ -710,6 +723,46 @@
             if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
                 if (isVideoPlaying) { closeAwardVideo(); }
 
+                const segmentId = data.getUint8(2);
+
+                // 🔥【機能追加①】Changeボタン（0x54）が押された瞬間の割り込み処理
+                if (segmentId === 0x54) {
+                    isRoundLock = true; // 即座にチャタリング防止ロックをON
+                    
+                    // そこまでに刺さった合計スコアを履歴タブへリレー登録
+                    const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
+                    recordRoundScore(roundTotal);
+
+                    // 3本未満でもその時点の中身でアワード判定を実行
+                    const award = checkRoundAward(roundHits);
+                    setTimeout(() => {
+                        if (award) { 
+                            playAwardVideo(award); 
+                        } else { 
+                            playSound('round-change'); 
+                        }
+                    }, 600); 
+
+                    // 未投分をスキップして通算ダーツ数を綺麗に次の3の倍数へ切り上げる
+                    if (totalDartsCount % 3 !== 0) {
+                        totalDartsCount = Math.ceil(totalDartsCount / 3) * 3;
+                    } else if (roundHits.length === 0) {
+                        totalDartsCount += 3; // 1本も投げずに押した場合は丸ごと1R分進める
+                    }
+
+                    // 6秒のインターバル経過後に次ラウンドの準備を完全完了させる
+                    setTimeout(() => {
+                        isRoundLock = false;
+                        roundHits = [];
+                        document.getElementById('slot0').innerText = '---';
+                        document.getElementById('slot1').innerText = '---';
+                        document.getElementById('slot2').innerText = '---';
+                        document.getElementById('currentRoundNum').innerText = (totalDartsCount / 3) + 1;
+                    }, 6000);
+                    
+                    return; // 通常の投球処理へ進ませずここで終了
+                }
+
                 if (roundHits.length === 3) {
                     roundHits = [];
                     document.getElementById('slot0').innerText = '---';
@@ -717,7 +770,6 @@
                     document.getElementById('slot2').innerText = '---';
                 }
 
-                const segmentId = data.getUint8(2);
                 const result = calculateScore(segmentId);
 
                 if (result.score >= 0) {
@@ -727,14 +779,28 @@
 
                     totalScore += result.score;
                     totalDartsCount++;
+                    
+                    // 🔥【機能追加②】BULLのヒット時に INNER / OUTER を厳密に仕分け
                     const isBullHit = (result.type === 'bull' || result.type === 'inbull');
-                    if (isBullHit) totalBullCount++;
+                    if (isBullHit) {
+                        totalBullCount++;
+                        if (result.type === 'inbull') {
+                            totalInnerBullCount++;
+                        } else {
+                            totalOuterBullCount++;
+                        }
+                    }
 
                     roundHits.push(result);
                     const currentSlotIndex = roundHits.length - 1;
 
                     document.getElementById('totalScore').innerText = totalScore;
+                    
+                    // 表示の更新
                     document.getElementById('bullCount').innerText = totalBullCount;
+                    document.getElementById('innerBullCount').innerText = totalInnerBullCount;
+                    document.getElementById('outerBullCount').innerText = totalOuterBullCount;
+                    
                     document.getElementById(`slot${currentSlotIndex}`).innerText = result.label;
                     document.getElementById('currentRoundNum').innerText = Math.ceil(totalDartsCount / 3);
 
