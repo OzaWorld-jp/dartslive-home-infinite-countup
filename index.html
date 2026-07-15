@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Hybrid Stream Overlay</title>
+    <title>DARTSLIVE Home - Premium Hybrid Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
             --primary-color: #00adb5;
-            --bg-translucent: rgba(255, 255, 255, 0.12);
+            --bg-translucent: rgba(255, 255, 255, 0.12); /* カンプの美しい透過 */
             --panel-bg: rgba(0, 0, 0, 0.6);
         }
 
@@ -29,143 +29,142 @@
         }
 
         /* ==========================================================================
-           1. 共通パーツ＆コントロールスタイル
+           【最重要】表示切り替え（画面が縦長(portrait)になったら一瞬で縦型UIへスイッチ）
            ========================================================================== */
-        .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
-        .btn-connect {
-            background: #00adb5; border: none; color: white; padding: 12px 35px;
-            font-family: inherit; font-size: 1.4rem; font-weight: 700; border-radius: 30px; cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,173,181,0.4);
+        #app-scaler-l { display: flex; } /* デフォルト（横長画面）は横型UIを表示 */
+        #app-scaler-p { display: none; }
+
+        @media (orientation: portrait) or (max-aspect-ratio: 1/1) {
+            #app-scaler-l { display: none !important; }
+            #app-scaler-p { display: flex !important; }
         }
-        .dev-log { color: #666; font-size: 1.2rem; font-family: monospace; }
-        #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
-        #awardVideo { width: 100%; height: 100%; object-fit: contain; }
-        #startOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.8); z-index: 999999; flex-direction: column; justify-content: center; align-items: center; color: #fff; cursor: pointer; }
-        #startOverlay .msg-main { font-size: 5rem; font-weight: 700; font-family: 'Impact'; }
-        #startOverlay .msg-sub { font-size: 1.6rem; color: #aaa; margin-top: 10px; }
 
         /* ==========================================================================
-           2. 横型（Landscape）レイアウト専用スタイル
+           A. 横型（Landscape）専用スタイル（完全独立隔離）
            ========================================================================== */
-        #app-scaler-landscape {
+        #app-scaler-l {
             width: 1920px;
             height: 1080px;
             background-image: url('bg.png');
             background-size: cover;
             background-position: center;
             color: #ffffff;
-            display: flex; /* デフォルトは横型を表示 */
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
             padding: 90px 80px 80px 80px;
             gap: 80px;
         }
-        #app-scaler-landscape .left-column { flex: 1.3; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        #app-scaler-landscape .right-column { flex: 0.85; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 40px; padding: 60px; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.15); position: relative; height: 100%; box-sizing: border-box; z-index: 5; }
-        #app-scaler-landscape .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 15px 70px; font-size: 3.5rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; justify-content: center; gap: 20px; letter-spacing: 2px; align-self: flex-start; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        #app-scaler-landscape .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
-        #app-scaler-landscape .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
-        #app-scaler-landscape .top-timer { position: absolute; top: 98px; left: 780px; font-size: 4.2rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); z-index: 10; }
-        #app-scaler-landscape .huge-score { font-size: 28rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 0.8; text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85); letter-spacing: -6px; text-align: left; margin: auto 0; padding-left: 10px; }
-        #app-scaler-landscape .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 25px 70px; display: flex; justify-content: flex-start; gap: 50px; font-size: 3.2rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 15px 40px rgba(0,0,0,0.5); margin-top: auto; align-self: flex-start; }
-        #app-scaler-landscape .history-capsule div { min-width: 160px; text-align: center; }
-        #app-scaler-landscape .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
-        #app-scaler-landscape .tab-header { display: flex; position: absolute; bottom: 100%; left: 35px; margin-bottom: -1px; z-index: 10; }
-        #app-scaler-landscape .tab-btn { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.15); border-bottom: none; color: #666; padding: 12px 42px; font-size: 2rem; font-family: inherit; border-radius: 20px 20px 0 0; cursor: pointer; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-right: -1px; z-index: 1; transition: all 0.15s ease; }
-        #app-scaler-landscape .tab-btn.active { background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.22); border-bottom: none; z-index: 12; }
-        #app-scaler-landscape .gauge-track-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border: 16px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
-        #app-scaler-landscape .gauge-progress-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 203px, #000 204px); mask: radial-gradient(transparent 203px, #000 204px); }
-        #app-scaler-landscape .gauge-dot { position: absolute; width: 26px; height: 26px; background: #ffffff; border: 5px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 15px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-13px, -13px); pointer-events: none; }
-        #app-scaler-landscape .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
-        #app-scaler-landscape .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
-        #app-scaler-landscape .gauge-text .percent { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 10px 20px rgba(0,0,0,0.5); }
-        #app-scaler-landscape .gauge-text .percent span { font-size: 3.5rem; font-weight: 400; }
-        #app-scaler-landscape .bull-count-box { text-align: center; margin-top: 0px; }
-        #app-scaler-landscape .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
-        #app-scaler-landscape .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; text-shadow: 0 15px 30px rgba(0,0,0,0.5); }
+        #app-scaler-l .left-column { flex: 1.3; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
+        #app-scaler-l .right-column { flex: 0.85; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 40px; padding: 60px; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.15); position: relative; height: 100%; box-sizing: border-box; z-index: 5; }
+        #app-scaler-l .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 15px 70px; font-size: 3.5rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; justify-content: center; gap: 20px; letter-spacing: 2px; align-self: flex-start; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
+        #app-scaler-l .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
+        #app-scaler-l .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
+        #app-scaler-l .top-timer { position: absolute; top: 98px; left: 780px; font-size: 4.2rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); z-index: 10; }
+        #app-scaler-l .huge-score { font-size: 28rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 0.8; text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85); letter-spacing: -6px; text-align: left; margin: auto 0; padding-left: 10px; }
+        #app-scaler-l .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 25px 70px; display: flex; justify-content: flex-start; gap: 50px; font-size: 3.2rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 15px 40px rgba(0,0,0,0.5); margin-top: auto; align-self: flex-start; }
+        #app-scaler-l .history-capsule div { min-width: 160px; text-align: center; }
+        #app-scaler-l .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
+        #app-scaler-l .tab-header { display: flex; position: absolute; bottom: 100%; left: 35px; margin-bottom: -1px; z-index: 10; }
+        #app-scaler-l .tab-btn { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.15); border-bottom: none; color: #666; padding: 12px 42px; font-size: 2rem; font-family: inherit; border-radius: 20px 20px 0 0; cursor: pointer; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-right: -1px; z-index: 1; transition: all 0.15s ease; }
+        #app-scaler-l .tab-btn.active { background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.22); border-bottom: none; z-index: 12; }
+        #app-scaler-l #contentBull, #app-scaler-l #contentAward, #app-scaler-l #contentScore { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
+        #app-scaler-l #contentBull.active, #app-scaler-l #contentAward.active, #app-scaler-l #contentScore.active { display: flex; }
+        #app-scaler-l .bull-rate-container { display: flex; align-items: center; justify-content: center; position: relative; width: 500px; height: 500px; margin: 0 auto; }
+        #app-scaler-l .gauge-track-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border: 16px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
+        #app-scaler-l .gauge-progress-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 203px, #000 204px); mask: radial-gradient(transparent 203px, #000 204px); }
+        #app-scaler-l .gauge-dot { position: absolute; width: 26px; height: 26px; background: #ffffff; border: 5px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 15px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-13px, -13px); pointer-events: none; }
+        #app-scaler-l .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
+        #app-scaler-l .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
+        #app-scaler-l .gauge-text .percent { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
+        #app-scaler-l .gauge-text .percent span { font-size: 3.5rem; font-weight: 400; }
+        #app-scaler-l .bull-count-box { text-align: center; margin-top: 0px; }
+        #app-scaler-l .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
+        #app-scaler-l .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
+        #app-scaler-l .award-grid { display: grid; grid-template-columns: 1fr 1fr; height: 100%; align-content: space-around; padding: 20px 0; box-sizing: border-box; }
+        #app-scaler-l .award-item { text-align: center; }
+        #app-scaler-l .award-item .label { font-size: 1.8rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700; }
+        #app-scaler-l .award-item .count { font-size: 7rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        #app-scaler-l .score-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(12, 1fr); grid-auto-flow: column; height: 100%; padding: 10px 0; box-sizing: border-box; font-size: 2.4rem; font-weight: 700; }
+        #app-scaler-l .score-row { display: flex; justify-content: space-between; padding: 0 40px; align-items: center; color: #fff; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
+        #app-scaler-l .score-row .r-num { color: #888; font-weight: 400; font-family: inherit; }
+        #app-scaler-l .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
 
         /* ==========================================================================
-           3. 縦型（Portrait）レイアウト専用スタイル
+           B. 縦型（Portrait）専用スタイル（完全独立隔離・はみ出しを物理遮断）
            ========================================================================== */
-        #app-scaler-portrait {
+        #app-scaler-p {
             width: 1080px;
             height: 1920px;
             background-image: url('bg.png');
             background-size: cover;
             background-position: center;
             color: #ffffff;
-            display: none; /* 初期は非表示 */
-            flex-direction: column;
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
             padding: 60px 40px;
             gap: 40px;
         }
-        #app-scaler-portrait .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        #app-scaler-portrait .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-portrait .round-badge .infinity { font-size: 4rem; line-height: 0; }
-        #app-scaler-portrait .round-badge .label { font-size: 1.8rem; color: #aaa; font-weight: 400; font-family: 'Oswald', sans-serif; }
-        #app-scaler-portrait .top-timer { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-portrait .score-panel { background: var(--panel-bg); border-radius: 30px; width: 100%; height: 280px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
-        #app-scaler-portrait .huge-score { font-size: 24rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 1; text-shadow: 0 15px 40px rgba(0, 0, 0, 0.85); letter-spacing: -4px; }
-        #app-scaler-portrait .history-row { display: flex; justify-content: center; width: 100%; }
-        #app-scaler-portrait .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 20px 60px; display: flex; gap: 40px; font-size: 3rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-portrait .history-capsule div { min-width: 130px; text-align: center; }
-        #app-scaler-portrait .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
-        #app-scaler-portrait .bottom-stats-container { display: flex; width: 100%; gap: 30px; height: 700px; }
-        #app-scaler-portrait .left-stats-panel { flex: 1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 30px 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        #app-scaler-portrait .bull-rate-container { position: relative; width: 440px; height: 400px; }
-        #app-scaler-portrait .gauge-track-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border: 14px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
-        #app-scaler-portrait .gauge-progress-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 165px, #000 166px); mask: radial-gradient(transparent 165px, #000 166px); }
-        #app-scaler-portrait .gauge-dot { position: absolute; width: 22px; height: 22px; background: #ffffff; border: 4px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 12px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-11px, -11px); pointer-events: none; }
-        #app-scaler-portrait .gauge-text { position: absolute; top: 135px; left: 0; width: 100%; text-align: center; }
-        #app-scaler-portrait .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
-        #app-scaler-portrait .gauge-text .percent { font-size: 6.5rem; font-family: 'Impact', sans-serif; line-height: 1; }
-        #app-scaler-portrait .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
-        #app-scaler-portrait .bull-count-box { text-align: center; width: 100%; }
-        #app-scaler-portrait .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
-        #app-scaler-portrait .bull-count-box .count { font-size: 9rem; font-family: 'Impact', sans-serif; line-height: 1; margin-bottom: 5px; }
-        #app-scaler-portrait .right-awards-panel { flex: 1.1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 40px 20px; box-sizing: border-box; }
-        #app-scaler-portrait .award-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 20px; }
-        #app-scaler-portrait .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
-        #app-scaler-portrait .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        #app-scaler-portrait .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; color: #fff; line-height: 1; }
-        #app-scaler-portrait .camera-mount-placeholder { width: 100%; flex: 1; background: rgba(0, 0, 0, 0.4); border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.3); font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
-        #app-scaler-portrait .camera-mount-placeholder span { font-size: 1.4rem; font-weight: 400; color: rgba(255, 255, 255, 0.15); margin-top: 5px; }
+        #app-scaler-p .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        #app-scaler-p .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #app-scaler-p .round-badge .infinity { font-size: 4rem; line-height: 0; }
+        #app-scaler-p .round-badge .label { font-size: 1.8rem; color: #aaa; font-weight: 400; margin-left: 5px; font-family: 'Oswald', sans-serif; }
+        #app-scaler-p .top-timer { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #app-scaler-p .score-panel { background: var(--panel-bg); border-radius: 30px; width: 100%; height: 280px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
+        #app-scaler-p .huge-score { font-size: 24rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 1; text-shadow: 0 15px 40px rgba(0, 0, 0, 0.85); letter-spacing: -4px; }
+        #app-scaler-p .history-row { display: flex; justify-content: center; width: 100%; }
+        #app-scaler-p .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 20px 60px; display: flex; gap: 40px; font-size: 3rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #app-scaler-p .history-capsule div { min-width: 130px; text-align: center; }
+        #app-scaler-p .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
+        #app-scaler-p .bottom-stats-container { display: flex; width: 100%; gap: 30px; height: 700px; }
+        #app-scaler-p .left-stats-panel { flex: 1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 30px 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box; }
+        #app-scaler-p .bull-rate-container { position: relative; width: 440px; height: 400px; }
+        #app-scaler-p .gauge-track-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border: 14px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
+        #app-scaler-p .gauge-progress-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 165px, #000 166px); mask: radial-gradient(transparent 165px, #000 166px); }
+        #app-scaler-p .gauge-dot { position: absolute; width: 22px; height: 22px; background: #ffffff; border: 4px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 12px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-11px, -11px); pointer-events: none; }
+        #app-scaler-p .gauge-text { position: absolute; top: 135px; left: 0; width: 100%; text-align: center; }
+        #app-scaler-p .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
+        #app-scaler-p .gauge-text .percent { font-size: 6.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
+        #app-scaler-p .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
+        #app-scaler-p .bull-count-box { text-align: center; width: 100%; }
+        #app-scaler-p .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
+        #app-scaler-p .bull-count-box .count { font-size: 9rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+        #app-scaler-p .right-awards-panel { flex: 1.1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 40px 20px; box-sizing: border-box; }
+        #app-scaler-p .award-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 20px; }
+        #app-scaler-p .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        #app-scaler-p .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
+        #app-scaler-p .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        #app-scaler-p .camera-mount-placeholder { width: 100%; flex: 1; background: rgba(0, 0, 0, 0.4); border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.3); font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
+        #app-scaler-p .camera-mount-placeholder span { font-size: 1.4rem; font-weight: 400; color: rgba(255, 255, 255, 0.15); margin-top: 5px; }
 
         /* ==========================================================================
-           4. レスプンシブ・スイッチ（画面比率が縦長になった瞬間、縦型UIに自動スイッチ）
+           C. グローバル常駐コントロール用スタイル
            ========================================================================== */
-        @media (orientation: portrait) {
-            #app-scaler-landscape { display: none !important; }
-            #app-scaler-portrait { display: flex !important; }
-        }
+        .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
+        .btn-connect { background: #00adb5; border: none; color: white; padding: 12px 35px; font-family: inherit; font-size: 1.4rem; font-weight: 700; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,173,181,0.4); }
     </style>
 </head>
 <body>
 
-    <!-- 共通接続ヘッダー -->
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
-    <!-- ─── モードA：横型プレミアムフォーマット ─── -->
-    <div id="app-scaler-landscape">
-        <div class="top-timer game-timer-val" style="display:none;">00:00:00</div>
+    <div id="app-scaler-l">
+        <div class="top-timer common-timer-txt">00:00:00</div>
         <div class="left-column">
             <div class="round-badge">
-                <span class="current-round-val">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
+                <span class="common-round-txt">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
             </div>
-            <div class="huge-score total-score-val">0</div>
+            <div class="huge-score common-score-txt">0</div>
             <div class="history-capsule">
-                <div class="slot-0-val">---</div>
+                <div class="common-slot0-txt">---</div>
                 <div class="separator">|</div>
-                <div class="slot-1-val">---</div>
+                <div class="common-slot1-txt">---</div>
                 <div class="separator">|</div>
-                <div class="slot-2-val">---</div>
+                <div class="common-slot2-txt">---</div>
             </div>
         </div>
         <div class="right-column">
@@ -179,49 +178,48 @@
                     <div class="gauge-track-css"></div>
                     <div class="gauge-progress-css" id="gaugeCircleCSS_l"></div>
                     <div class="gauge-dot" id="gaugeDot_l"></div>
-                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent bull-rate-txt">0<span>.00%</span></div></div>
+                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent common-rate-txt">0<span>.00%</span></div></div>
                 </div>
                 <div class="bull-count-box">
                     <div class="label">BULL COUNT</div>
-                    <div class="count bull-count-val">0</div>
+                    <div class="count common-bull-txt">0</div>
                     <div style="display: flex; justify-content: center; gap: 40px; font-size: 2.2rem; color: #aaa; font-weight: 700; margin-top: -10px;">
-                        <div>INNER: <span class="inner-bull-val" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
-                        <div>OUTER: <span class="outer-bull-val" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
+                        <div>INNER: <span class="common-inner-txt" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
+                        <div>OUTER: <span class="common-outer-txt" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
                     </div>
                 </div>
             </div>
             <div class="tab-content" id="contentAward">
                 <div class="award-grid">
-                    <div class="award-item"><div class="label">ONE BULL</div><div class="count cnt-onebull">0</div></div>
-                    <div class="award-item"><div class="label">LOW TON</div><div class="count cnt-lowton">0</div></div>
-                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count cnt-hattrick">0</div></div>
-                    <div class="award-item"><div class="label">HIGH TON</div><div class="count cnt-highton">0</div></div>
-                    <div class="award-item"><div class="label">TON 80</div><div class="count cnt-ton80">0</div></div>
-                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count cnt-whitehorse">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count cnt-bed">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count cnt-black">0</div></div>
+                    <div class="award-item"><div class="label">ONE BULL</div><div class="count common-cnt-onebull">0</div></div>
+                    <div class="award-item"><div class="label">LOW TON</div><div class="count common-cnt-lowton">0</div></div>
+                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count common-cnt-hattrick">0</div></div>
+                    <div class="award-item"><div class="label">HIGH TON</div><div class="count common-cnt-highton">0</div></div>
+                    <div class="award-item"><div class="label">TON 80</div><div class="count common-cnt-ton80">0</div></div>
+                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count common-cnt-whitehorse">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count common-cnt-bed">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count common-cnt-black">0</div></div>
                 </div>
             </div>
             <div class="tab-content" id="contentScore"><div class="score-grid" id="scoreGrid"></div></div>
         </div>
     </div>
 
-    <!-- ─── モードB：縦型配信用フォーマット ─── -->
-    <div id="app-scaler-portrait">
+    <div id="app-scaler-p">
         <div class="top-row">
             <div class="round-badge">
-                <span class="current-round-val">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
+                <span class="common-round-txt">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
             </div>
-            <div class="top-timer game-timer-val" style="display:none;">00:00:00</div>
+            <div class="top-timer common-timer-txt">00:00:00</div>
         </div>
-        <div class="score-panel"><div class="huge-score total-score-val">0</div></div>
+        <div class="score-panel"><div class="huge-score common-score-txt">0</div></div>
         <div class="history-row">
             <div class="history-capsule">
-                <div class="slot-0-val">---</div>
+                <div class="common-slot0-txt">---</div>
                 <div class="separator">|</div>
-                <div class="slot-1-val">---</div>
+                <div class="common-slot1-txt">---</div>
                 <div class="separator">|</div>
-                <div class="slot-2-val">---</div>
+                <div class="common-slot2-txt">---</div>
             </div>
         </div>
         <div class="bottom-stats-container">
@@ -230,34 +228,33 @@
                     <div class="gauge-track-css"></div>
                     <div class="gauge-progress-css" id="gaugeCircleCSS_p"></div>
                     <div class="gauge-dot" id="gaugeDot_p"></div>
-                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent bull-rate-txt">0<span>.00%</span></div></div>
+                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent common-rate-txt">0<span>.00%</span></div></div>
                 </div>
                 <div class="bull-count-box">
                     <div class="label">BULL COUNT</div>
-                    <div class="count bull-count-val">0</div>
+                    <div class="count common-bull-txt">0</div>
                     <div style="display: flex; justify-content: center; gap: 30px; font-size: 1.8rem; color: #aaa; font-weight: 700;">
-                        <div>INNER: <span class="inner-bull-val" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
-                        <div>OUTER: <span class="outer-bull-val" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
+                        <div>INNER: <span class="common-inner-txt" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
+                        <div>OUTER: <span class="common-outer-txt" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
                     </div>
                 </div>
             </div>
             <div class="right-awards-panel">
                 <div class="award-grid">
-                    <div class="award-item"><div class="label">ONE BULL</div><div class="count cnt-onebull">0</div></div>
-                    <div class="award-item"><div class="label">LOW TON</div><div class="count cnt-lowton">0</div></div>
-                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count cnt-hattrick">0</div></div>
-                    <div class="award-item"><div class="label">HIGH TON</div><div class="count cnt-highton">0</div></div>
-                    <div class="award-item"><div class="label">TON 80</div><div class="count cnt-ton80">0</div></div>
-                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count cnt-whitehorse">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count cnt-bed">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count cnt-black">0</div></div>
+                    <div class="award-item"><div class="label">ONE BULL</div><div class="count common-cnt-onebull">0</div></div>
+                    <div class="award-item"><div class="label">LOW TON</div><div class="count " class="count common-cnt-lowton">0</div></div>
+                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count common-cnt-hattrick">0</div></div>
+                    <div class="award-item"><div class="label">HIGH TON</div><div class="count common-cnt-highton">0</div></div>
+                    <div class="award-item"><div class="label">TON 80</div><div class="count common-cnt-ton80">0</div></div>
+                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count common-cnt-whitehorse">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count common-cnt-bed">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count common-cnt-black">0</div></div>
                 </div>
             </div>
         </div>
         <div class="camera-mount-placeholder">DARTBOARD CAMERA LAYER<span>PLACE OBS VIDEO CAPTURE SOURCE HERE</span></div>
     </div>
 
-    <!-- ビデオオーバーレイ ＆ スタートスクリーン -->
     <div id="videoOverlay"><video id="awardVideo" preload="none" playsinline webkit-playsinline></video></div>
     <div id="startOverlay"><div class="msg-main">TAP TO START</div><div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div></div>
 
@@ -277,16 +274,20 @@
             hattrick: 'videos/hattrick.mp4', bed: 'videos/three-in-a-bed.mp4', whitehorse: 'videos/white-horse.mp4', black: 'videos/three-in-the-black.mp4'
         };
 
+        // 🎯 縦型・横型それぞれのアスペクト比スケーラーを完全分離計算
         function resizeApp() {
+            const scalerL = document.getElementById('app-scaler-l');
             const scaleL = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-            document.getElementById('app-scaler-landscape').style.transform = `scale(${scaleL})`;
+            if (scalerL) scalerL.style.transform = `scale(${scaleL})`;
+
+            const scalerP = document.getElementById('app-scaler-p');
             const scaleP = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
-            document.getElementById('app-scaler-portrait').style.transform = `scale(${scaleP})`;
+            if (scalerP) scalerP.style.transform = `scale(${scaleP})`;
         }
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // タブ制御（横長時のみ有効）
+        // タブ切り替え（横型モード用）
         const btnTabBull = document.getElementById('btnTabBull'); const btnTabAward = document.getElementById('btnTabAward'); const btnTabScore = document.getElementById('btnTabScore');
         const contentBull = document.getElementById('contentBull'); const contentAward = document.getElementById('contentAward'); const contentScore = document.getElementById('contentScore');
         function switchTab(activeBtn, activeContent) {
@@ -308,6 +309,7 @@
 
         function renderScoreGrid() {
             const grid = document.getElementById('scoreGrid');
+            if (!grid) return;
             grid.innerHTML = '';
             for (let i = 0; i < 24; i++) {
                 const row = document.createElement('div');
@@ -315,7 +317,7 @@
                 if (roundScores[i]) {
                     let colorStyle = ''; const s = roundScores[i].score;
                     if (s >= 100 && s <= 150) colorStyle = 'color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.4);';
-                    if (s >= 151 && s <= 180) colorStyle = 'color: #ffea00; text-shadow: 0 0 10px rgba(255,234,0,0.4);';
+                    else if (s >= 151 && s <= 180) colorStyle = 'color: #ffea00; text-shadow: 0 0 10px rgba(255,234,0,0.4);';
                     row.innerHTML = `<span class="r-num">R${roundScores[i].num}</span><span class="r-val" style="${colorStyle}">${roundScores[i].score}</span>`;
                 } else {
                     row.innerHTML = `<span class="r-num">--</span><span class="r-val">---</span>`;
@@ -327,13 +329,13 @@
 
         function startGameTimer() {
             if (timerInterval) return;
-            document.querySelectorAll('.game-timer-val').forEach(el => el.style.display = 'block');
+            document.querySelectorAll('.common-timer-txt').forEach(el => el.style.display = 'block');
             timerInterval = setInterval(() => {
                 totalSeconds++;
                 const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
                 const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
                 const secs = String(totalSeconds % 60).padStart(2, '0');
-                document.querySelectorAll('.game-timer-val').forEach(el => el.innerText = `${hrs}:${mins}:${secs}`);
+                document.querySelectorAll('.common-timer-txt').forEach(el => el.innerText = `${hrs}:${mins}:${secs}`);
             }, 1000);
         }
 
@@ -346,10 +348,10 @@
             return `rgb(${Math.round(lower.r + (upper.r - lower.r) * factor)},${Math.round(lower.g + (upper.g - lower.g) * factor)},${Math.round(lower.b + (upper.b - lower.b) * factor)})`;
         }
 
-        // 🔥 横型（440px/212r）と縦型（360px/173r）の両方のサークルゲージをミリ単位で完全同期更新
+        // 🎯 横型（440px）と縦型（360px）の別々の軌道を持つ進捗ピンを完全シンクロ制御
         function updateBullRateUI(rate) {
             const intPart = Math.floor(rate); const decPart = (rate - intPart).toFixed(2).substring(1);
-            document.querySelectorAll('.bull-rate-txt').forEach(el => el.innerHTML = `${intPart}<span>${decPart}%</span>`);
+            document.querySelectorAll('.common-rate-txt').forEach(el => el.innerHTML = `${intPart}<span>${decPart}%</span>`);
             
             let gradientStr = 'transparent';
             if (rate > 0) {
@@ -360,15 +362,18 @@
                 else gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
             }
             
+            // 横型ゲージ
             const gaugeL = document.getElementById('gaugeCircleCSS_l'); const dotL = document.getElementById('gaugeDot_l');
-            if(gaugeL) gaugeL.style.background = gradientStr;
-            if(dotL) {
+            if (gaugeL) gaugeL.style.background = gradientStr;
+            if (dotL) {
                 if (rate > 0) { dotL.style.display = 'block'; const angle = ((rate * 3.6) - 90) * Math.PI / 180; dotL.style.left = `${250 + 212 * Math.cos(angle)}px`; dotL.style.top = `${250 + 212 * Math.sin(angle)}px`; } 
                 else dotL.style.display = 'none';
             }
+            
+            // 縦型ゲージ
             const gaugeP = document.getElementById('gaugeCircleCSS_p'); const dotP = document.getElementById('gaugeDot_p');
-            if(gaugeP) gaugeP.style.background = gradientStr;
-            if(dotP) {
+            if (gaugeP) gaugeP.style.background = gradientStr;
+            if (dotP) {
                 if (rate > 0) { dotP.style.display = 'block'; const angle = ((rate * 3.6) - 90) * Math.PI / 180; dotP.style.left = `${220 + 173 * Math.cos(angle)}px`; dotP.style.top = `${200 + 173 * Math.sin(angle)}px`; } 
                 else dotP.style.display = 'none';
             }
@@ -393,9 +398,10 @@
         function playAwardVideo(awardKey) {
             const overlay = document.getElementById('videoOverlay'); const video = document.getElementById('awardVideo');
             if (!awardVideos[awardKey]) return;
-            awardCounts[awardKey]++; document.querySelectorAll(`.cnt-${awardKey}`).forEach(el => el.innerText = awardCounts[awardKey]);
+            awardCounts[awardKey]++; document.querySelectorAll(`.common-cnt-${awardKey}`).forEach(el => el.innerText = awardCounts[awardKey]);
+            
             video.src = awardVideos[awardKey]; overlay.style.display = 'block'; currentPlayingVideo = video; isVideoPlaying = true; video.currentTime = 0;
-            video.play().catch(e => { console.log(e); closeAwardVideo(); });
+            video.play().catch(e => { console.log("Play blocked:", e); closeAwardVideo(); });
             video.onended = () => { closeAwardVideo(); };
         }
 
@@ -418,7 +424,7 @@
             return null;
         }
 
-        // Bluetooth接続（通信強化探索フィルター版）
+        // Bluetooth接続（通信強化マルチ探索フィルター版）
         document.getElementById('connectBtn').addEventListener('click', () => {
             addLog("SEARCHING BOARD...");
             navigator.bluetooth.requestDevice({
@@ -447,7 +453,7 @@
                 if (isVideoPlaying) { closeAwardVideo(); }
                 const segmentId = data.getUint8(2);
 
-                // Changeボタン（0x54）の割り込み処理
+                // Changeボタン（0x54）割り込み処理
                 if (segmentId === 0x54) {
                     isRoundLock = true;
                     recordRoundScore(roundHits.reduce((sum, h) => sum + h.score, 0));
@@ -457,15 +463,15 @@
                     else if (roundHits.length === 0) totalDartsCount += 3;
                     setTimeout(() => {
                         isRoundLock = false; roundHits = [];
-                        document.querySelectorAll('.slot-0-val, .slot-1-val, .slot-2-val').forEach(el => el.innerText = '---');
-                        document.querySelectorAll('.current-round-val').forEach(el => el.innerText = (totalDartsCount / 3) + 1);
+                        document.querySelectorAll('.common-slot0-txt, .common-slot1-txt, .common-slot2-txt').forEach(el => el.innerText = '---');
+                        document.querySelectorAll('.common-round-txt').forEach(el => el.innerText = (totalDartsCount / 3) + 1);
                     }, 6000);
                     return;
                 }
 
                 if (roundHits.length === 3) {
                     roundHits = [];
-                    document.querySelectorAll('.slot-0-val, .slot-1-val, .slot-2-val').forEach(el => el.innerText = '---');
+                    document.querySelectorAll('.common-slot0-txt, .common-slot1-txt, .common-slot2-txt').forEach(el => el.innerText = '---');
                 }
 
                 const result = calculateScore(segmentId);
@@ -481,13 +487,13 @@
                     roundHits.push(result);
                     const slotIdx = roundHits.length - 1;
 
-                    // クラス指定による「横・縦UI」の同時一括同期レンダリング
-                    document.querySelectorAll('.total-score-val').forEach(el => el.innerText = totalScore);
-                    document.querySelectorAll('.bull-count-val').forEach(el => el.innerText = totalBullCount);
-                    document.querySelectorAll('.inner-bull-val').forEach(el => el.innerText = totalInnerBullCount);
-                    document.querySelectorAll('.outer-bull-val').forEach(el => el.innerText = totalOuterBullCount);
-                    document.querySelectorAll(`.slot-${slotIdx}-val`).forEach(el => el.innerText = result.label);
-                    document.querySelectorAll('.current-round-val').forEach(el => el.innerText = Math.ceil(totalDartsCount / 3));
+                    // クラス指定（querySelectorAll）による、隠れている画面も含めた一括同期同期
+                    document.querySelectorAll('.common-score-txt').forEach(el => el.innerText = totalScore);
+                    document.querySelectorAll('.common-bull-txt').forEach(el => el.innerText = totalBullCount);
+                    document.querySelectorAll('.common-inner-txt').forEach(el => el.innerText = totalInnerBullCount);
+                    document.querySelectorAll('.common-outer-txt').forEach(el => el.innerText = totalOuterBullCount);
+                    document.querySelectorAll(`.common-slot${slotIdx}-txt`).forEach(el => el.innerText = result.label);
+                    document.querySelectorAll('.common-round-txt').forEach(el => el.innerText = Math.ceil(totalDartsCount / 3));
 
                     updateBullRateUI((totalBullCount / totalDartsCount) * 100);
                     playSound(result.type);
