@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Premium Hybrid Interface</title>
+    <title>DARTSLIVE Home - Vertical Premium Overlay</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -28,121 +28,275 @@
             box-sizing: border-box;
         }
 
-        /* ==========================================================================
-           【最重要】表示切り替え（画面が縦長(portrait)になったら一瞬で縦型UIへスイッチ）
-           ========================================================================== */
-        #app-scaler-l { display: flex; } /* デフォルト（横長画面）は横型UIを表示 */
-        #app-scaler-p { display: none; }
-
-        @media (orientation: portrait) or (max-aspect-ratio: 1/1) {
-            #app-scaler-l { display: none !important; }
-            #app-scaler-p { display: flex !important; }
-        }
-
-        /* ==========================================================================
-           A. 横型（Landscape）専用スタイル（完全独立隔離）
-           ========================================================================== */
-        #app-scaler-l {
-            width: 1920px;
-            height: 1080px;
-            background-image: url('bg.png');
-            background-size: cover;
-            background-position: center;
-            color: #ffffff;
-            position: absolute;
-            transform-origin: center center;
-            box-sizing: border-box;
-            padding: 90px 80px 80px 80px;
-            gap: 80px;
-        }
-        #app-scaler-l .left-column { flex: 1.3; display: flex; flex-direction: column; justify-content: space-between; height: 100%; }
-        #app-scaler-l .right-column { flex: 0.85; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 40px; padding: 60px; display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.15); position: relative; height: 100%; box-sizing: border-box; z-index: 5; }
-        #app-scaler-l .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 15px 70px; font-size: 3.5rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; justify-content: center; gap: 20px; letter-spacing: 2px; align-self: flex-start; box-shadow: 0 15px 40px rgba(0,0,0,0.5); }
-        #app-scaler-l .round-badge .infinity { font-size: 4.5rem; line-height: 0; }
-        #app-scaler-l .round-badge .label { font-size: 2.2rem; color: #aaa; font-weight: 400; margin-left: 15px; font-family: 'Oswald', sans-serif; }
-        #app-scaler-l .top-timer { position: absolute; top: 98px; left: 780px; font-size: 4.2rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; text-shadow: 0 4px 15px rgba(0, 0, 0, 0.6); z-index: 10; }
-        #app-scaler-l .huge-score { font-size: 28rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 0.8; text-shadow: 0 20px 50px rgba(0, 0, 0, 0.85); letter-spacing: -6px; text-align: left; margin: auto 0; padding-left: 10px; }
-        #app-scaler-l .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 25px 70px; display: flex; justify-content: flex-start; gap: 50px; font-size: 3.2rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 15px 40px rgba(0,0,0,0.5); margin-top: auto; align-self: flex-start; }
-        #app-scaler-l .history-capsule div { min-width: 160px; text-align: center; }
-        #app-scaler-l .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
-        #app-scaler-l .tab-header { display: flex; position: absolute; bottom: 100%; left: 35px; margin-bottom: -1px; z-index: 10; }
-        #app-scaler-l .tab-btn { background: rgba(0, 0, 0, 0.6); border: 1px solid rgba(255, 255, 255, 0.15); border-bottom: none; color: #666; padding: 12px 42px; font-size: 2rem; font-family: inherit; border-radius: 20px 20px 0 0; cursor: pointer; font-weight: 700; white-space: nowrap; flex-shrink: 0; margin-right: -1px; z-index: 1; transition: all 0.15s ease; }
-        #app-scaler-l .tab-btn.active { background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); color: #fff; border: 1px solid rgba(255, 255, 255, 0.22); border-bottom: none; z-index: 12; }
-        #app-scaler-l #contentBull, #app-scaler-l #contentAward, #app-scaler-l #contentScore { display: none; flex-direction: column; height: 100%; justify-content: center; gap: 10px; }
-        #app-scaler-l #contentBull.active, #app-scaler-l #contentAward.active, #app-scaler-l #contentScore.active { display: flex; }
-        #app-scaler-l .bull-rate-container { display: flex; align-items: center; justify-content: center; position: relative; width: 500px; height: 500px; margin: 0 auto; }
-        #app-scaler-l .gauge-track-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border: 16px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
-        #app-scaler-l .gauge-progress-css { position: absolute; top: 30px; left: 30px; width: 440px; height: 440px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 203px, #000 204px); mask: radial-gradient(transparent 203px, #000 204px); }
-        #app-scaler-l .gauge-dot { position: absolute; width: 26px; height: 26px; background: #ffffff; border: 5px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 15px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-13px, -13px); pointer-events: none; }
-        #app-scaler-l .gauge-text { position: absolute; text-align: center; background: transparent; z-index: 10; }
-        #app-scaler-l .gauge-text .label { font-size: 2rem; color: #aaa; letter-spacing: 4px; margin-bottom: 5px; font-weight: 700; }
-        #app-scaler-l .gauge-text .percent { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
-        #app-scaler-l .gauge-text .percent span { font-size: 3.5rem; font-weight: 400; }
-        #app-scaler-l .bull-count-box { text-align: center; margin-top: 0px; }
-        #app-scaler-l .bull-count-box .label { font-size: 2.5rem; letter-spacing: 6px; color: #aaa; margin-bottom: 0px; font-weight: 700; }
-        #app-scaler-l .bull-count-box .count { font-size: 13rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
-        #app-scaler-l .award-grid { display: grid; grid-template-columns: 1fr 1fr; height: 100%; align-content: space-around; padding: 20px 0; box-sizing: border-box; }
-        #app-scaler-l .award-item { text-align: center; }
-        #app-scaler-l .award-item .label { font-size: 1.8rem; color: #999; letter-spacing: 2px; margin-bottom: 5px; font-weight: 700; }
-        #app-scaler-l .award-item .count { font-size: 7rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
-        #app-scaler-l .score-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(12, 1fr); grid-auto-flow: column; height: 100%; padding: 10px 0; box-sizing: border-box; font-size: 2.4rem; font-weight: 700; }
-        #app-scaler-l .score-row { display: flex; justify-content: space-between; padding: 0 40px; align-items: center; color: #fff; border-bottom: 1px solid rgba(255, 255, 255, 0.03); }
-        #app-scaler-l .score-row .r-num { color: #888; font-weight: 400; font-family: inherit; }
-        #app-scaler-l .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-
-        /* ==========================================================================
-           B. 縦型（Portrait）専用スタイル（完全独立隔離・はみ出しを物理遮断）
-           ========================================================================== */
-        #app-scaler-p {
+        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信画面・OBSに完全シンクロ） */
+        #app-scaler {
             width: 1080px;
             height: 1920px;
             background-image: url('bg.png');
             background-size: cover;
             background-position: center;
             color: #ffffff;
+            display: flex;
+            flex-direction: column;
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
             padding: 60px 40px;
-            gap: 40px;
+            gap: 35px;
         }
-        #app-scaler-p .top-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        #app-scaler-p .round-badge { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 700; font-family: 'Impact', sans-serif; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-p .round-badge .infinity { font-size: 4rem; line-height: 0; }
-        #app-scaler-p .round-badge .label { font-size: 1.8rem; color: #aaa; font-weight: 400; margin-left: 5px; font-family: 'Oswald', sans-serif; }
-        #app-scaler-p .top-timer { background: var(--panel-bg); border-radius: 100px; padding: 10px 50px; font-size: 3rem; font-weight: 400; font-family: 'Oswald', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; color: #ffffff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-p .score-panel { background: var(--panel-bg); border-radius: 30px; width: 100%; height: 280px; display: flex; align-items: center; justify-content: center; box-shadow: 0 15px 40px rgba(0,0,0,0.6); border: 1px solid rgba(255, 255, 255, 0.05); }
-        #app-scaler-p .huge-score { font-size: 24rem; font-family: 'Impact', sans-serif; font-weight: 900; line-height: 1; text-shadow: 0 15px 40px rgba(0, 0, 0, 0.85); letter-spacing: -4px; }
-        #app-scaler-p .history-row { display: flex; justify-content: center; width: 100%; }
-        #app-scaler-p .history-capsule { background: var(--panel-bg); border-radius: 100px; padding: 20px 60px; display: flex; gap: 40px; font-size: 3rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #eee; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        #app-scaler-p .history-capsule div { min-width: 130px; text-align: center; }
-        #app-scaler-p .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
-        #app-scaler-p .bottom-stats-container { display: flex; width: 100%; gap: 30px; height: 700px; }
-        #app-scaler-p .left-stats-panel { flex: 1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 30px 20px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; box-sizing: border-box; }
-        #app-scaler-p .bull-rate-container { position: relative; width: 440px; height: 400px; }
-        #app-scaler-p .gauge-track-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border: 14px solid rgba(255, 255, 255, 0.04); border-radius: 50%; box-sizing: border-box; }
-        #app-scaler-p .gauge-progress-css { position: absolute; top: 20px; left: 40px; width: 360px; height: 360px; border-radius: 50%; background: transparent; box-sizing: border-box; -webkit-mask: radial-gradient(transparent 165px, #000 166px); mask: radial-gradient(transparent 165px, #000 166px); }
-        #app-scaler-p .gauge-dot { position: absolute; width: 22px; height: 22px; background: #ffffff; border: 4px solid #0044ff; border-radius: 50%; box-sizing: border-box; box-shadow: 0 0 12px rgba(255,255,255,0.8); display: none; z-index: 100; transform: translate(-11px, -11px); pointer-events: none; }
-        #app-scaler-p .gauge-text { position: absolute; top: 135px; left: 0; width: 100%; text-align: center; }
-        #app-scaler-p .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
-        #app-scaler-p .gauge-text .percent { font-size: 6.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
-        #app-scaler-p .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
-        #app-scaler-p .bull-count-box { text-align: center; width: 100%; }
-        #app-scaler-p .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
-        #app-scaler-p .bull-count-box .count { font-size: 9rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
-        #app-scaler-p .right-awards-panel { flex: 1.1; background: var(--bg-translucent); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border-radius: 35px; border: 1px solid rgba(255, 255, 255, 0.15); padding: 40px 20px; box-sizing: border-box; }
-        #app-scaler-p .award-grid { display: grid; grid-template-columns: 1fr 1fr; grid-template-rows: repeat(4, 1fr); height: 100%; gap: 20px; }
-        #app-scaler-p .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
-        #app-scaler-p .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        #app-scaler-p .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
-        #app-scaler-p .camera-mount-placeholder { width: 100%; flex: 1; background: rgba(0, 0, 0, 0.4); border: 2px dashed rgba(255, 255, 255, 0.2); border-radius: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: rgba(255, 255, 255, 0.3); font-size: 2.2rem; font-weight: 700; letter-spacing: 2px; box-shadow: inset 0 0 50px rgba(0,0,0,0.8); }
-        #app-scaler-p .camera-mount-placeholder span { font-size: 1.4rem; font-weight: 400; color: rgba(255, 255, 255, 0.15); margin-top: 5px; }
 
-        /* ==========================================================================
-           C. グローバル常駐コントロール用スタイル
-           ========================================================================== */
-        .header-controls { position: absolute; top: 25px; left: 35px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
-        .btn-connect { background: #00adb5; border: none; color: white; padding: 12px 35px; font-family: inherit; font-size: 1.4rem; font-weight: 700; border-radius: 30px; cursor: pointer; box-shadow: 0 5px 15px rgba(0,173,181,0.4); }
+        /* 最上部：ラウンド数 ＆ タイマーの並列行 */
+        .top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+        }
+
+        .round-badge {
+            background: var(--panel-bg);
+            border-radius: 100px;
+            padding: 10px 50px;
+            font-size: 3rem;
+            font-weight: 700;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .round-badge .infinity { font-size: 4rem; line-height: 0; }
+        .round-badge .label { font-size: 1.8rem; color: #aaa; font-weight: 400; margin-left: 5px; font-family: 'Oswald', sans-serif; }
+
+        .top-timer {
+            background: var(--panel-bg);
+            border-radius: 100px;
+            padding: 10px 50px;
+            font-size: 3rem;
+            font-weight: 400;
+            font-family: 'Oswald', sans-serif;
+            font-variant-numeric: tabular-nums; /* タイマーの数字の横幅を固定してガタつきを完全防御 */
+            letter-spacing: 2px;
+            color: #ffffff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* スコア表示パネル */
+        .score-panel {
+            background: var(--panel-bg);
+            border-radius: 30px;
+            width: 100%;
+            height: 260px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .huge-score {
+            font-size: 24rem; 
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-weight: 900;
+            line-height: 1;
+            text-shadow: 0 15px 40px rgba(0, 0, 0, 0.85);
+            letter-spacing: -4px;
+        }
+
+        /* 3本ヒット履歴カプセル（完全中央寄せ） */
+        .history-row {
+            display: flex;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .history-capsule {
+            background: var(--panel-bg);
+            border-radius: 100px;
+            padding: 20px 60px;
+            display: flex;
+            gap: 40px;
+            font-size: 3rem;
+            font-family: 'Impact', 'Arial Black', sans-serif;
+            font-weight: 700;
+            color: #eee;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+        .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
+        .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
+
+        /* 同時表示スタッツコンテナ（左右2カラム） */
+        .bottom-stats-container {
+            display: flex;
+            width: 100%;
+            gap: 30px;
+            height: 500px;
+        }
+
+        /* 左スタッツ：ブル率＆カウント詳細 */
+        .left-stats-panel {
+            flex: 1;
+            background: var(--bg-translucent);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 20px 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .bull-rate-container {
+            position: relative;
+            width: 400px;
+            height: 340px;
+        }
+
+        /* 🎯【ポインタズレ完全修正】絶対座標を明示的に指定して配置を完全固定。JSの計算軸（X:200, Y:170）と100%シンクロさせます */
+        .gauge-track-css {
+            position: absolute;
+            top: 10px;
+            left: 40px;
+            width: 320px;
+            height: 320px;
+            border: 14px solid rgba(255, 255, 255, 0.04);
+            border-radius: 50%;
+            box-sizing: border-box;
+        }
+        .gauge-progress-css {
+            position: absolute;
+            top: 10px;
+            left: 40px;
+            width: 320px;
+            height: 320px;
+            border-radius: 50%;
+            background: transparent;
+            box-sizing: border-box;
+            -webkit-mask: radial-gradient(transparent 145px, #000 146px);
+            mask: radial-gradient(transparent 165px, #000 166px);
+        }
+
+        .gauge-dot {
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            background: #ffffff;
+            border: 4px solid #0044ff;
+            border-radius: 50%;
+            box-sizing: border-box;
+            box-shadow: 0 0 12px rgba(255,255,255,0.8);
+            display: none;
+            z-index: 100;
+            transform: translate(-11px, -11px);
+            pointer-events: none;
+        }
+
+        .gauge-text {
+            position: absolute;
+            top: 110px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+        }
+        .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
+        .gauge-text .percent { font-size: 6.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
+        .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
+
+        .bull-count-box { text-align: center; width: 100%; }
+        .bull-count-box .label { font-size: 1.8rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
+        .bull-count-box .count { font-size: 7.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+
+        /* 右スタッツ：アワード一覧（1画面常時露出） */
+        .right-awards-panel {
+            flex: 1.1;
+            background: var(--bg-translucent);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 30px 15px;
+            box-sizing: border-box;
+        }
+
+        .award-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(4, 1fr);
+            height: 100%;
+            gap: 15px;
+        }
+        .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
+        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+
+        /* 中下段：独立した24Rスコア履歴パネル（はみ出しバグを物理ガードで根絶） */
+        .score-history-panel {
+            background: var(--bg-translucent);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border-radius: 35px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            width: 100%;
+            height: 360px;
+            padding: 20px 0;
+            box-sizing: border-box;
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: repeat(12, 1fr);
+            grid-auto-flow: column;
+            height: 100%;
+            box-sizing: border-box;
+            font-size: 2.2rem;
+            font-weight: 700;
+        }
+        .score-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 50px;
+            align-items: center;
+            color: #fff;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        .score-row .r-num { color: #777; font-weight: 400; font-family: inherit; }
+        .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
+
+        /* 最下部：実機カメラ映像配置用の透過マウントスペース */
+        .camera-mount-placeholder {
+            width: 100%;
+            flex: 1;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px dashed rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.25);
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: 2px;
+            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        }
+        .camera-mount-placeholder span { font-size: 1.4rem; font-weight: 400; color: rgba(255, 255, 255, 0.1); margin-top: 5px; }
+
+        /* 接続コントロールバー（5秒消去対応） */
+        .header-controls { position: absolute; top: 15px; left: 40px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
+        .btn-connect {
+            background: #00adb5; border: none; color: white; padding: 10px 30px;
+            font-family: inherit; font-size: 1.2rem; font-weight: 700; border-radius: 30px; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,173,181,0.4);
+        }
+        .dev-log { color: #555; font-size: 1.1rem; font-family: monospace; }
+
+        /* 全画面ビデオオーバーレイ */
+        #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
+        #awardVideo { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
@@ -152,121 +306,105 @@
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
-    <div id="app-scaler-l">
-        <div class="top-timer common-timer-txt">00:00:00</div>
-        <div class="left-column">
-            <div class="round-badge">
-                <span class="common-round-txt">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
-            </div>
-            <div class="huge-score common-score-txt">0</div>
-            <div class="history-capsule">
-                <div class="common-slot0-txt">---</div>
-                <div class="separator">|</div>
-                <div class="common-slot1-txt">---</div>
-                <div class="separator">|</div>
-                <div class="common-slot2-txt">---</div>
-            </div>
-        </div>
-        <div class="right-column">
-            <div class="tab-header">
-                <button class="tab-btn active" id="btnTabBull">ブル率</button>
-                <button class="tab-btn" id="btnTabAward">アワード数</button>
-                <button class="tab-btn" id="btnTabScore">スコア</button>
-            </div>
-            <div class="tab-content active" id="contentBull">
-                <div class="bull-rate-container">
-                    <div class="gauge-track-css"></div>
-                    <div class="gauge-progress-css" id="gaugeCircleCSS_l"></div>
-                    <div class="gauge-dot" id="gaugeDot_l"></div>
-                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent common-rate-txt">0<span>.00%</span></div></div>
-                </div>
-                <div class="bull-count-box">
-                    <div class="label">BULL COUNT</div>
-                    <div class="count common-bull-txt">0</div>
-                    <div style="display: flex; justify-content: center; gap: 40px; font-size: 2.2rem; color: #aaa; font-weight: 700; margin-top: -10px;">
-                        <div>INNER: <span class="common-inner-txt" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
-                        <div>OUTER: <span class="common-outer-txt" style="color: #fff; font-family: 'Impact'; font-size: 3rem;">0</span></div>
-                    </div>
-                </div>
-            </div>
-            <div class="tab-content" id="contentAward">
-                <div class="award-grid">
-                    <div class="award-item"><div class="label">ONE BULL</div><div class="count common-cnt-onebull">0</div></div>
-                    <div class="award-item"><div class="label">LOW TON</div><div class="count common-cnt-lowton">0</div></div>
-                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count common-cnt-hattrick">0</div></div>
-                    <div class="award-item"><div class="label">HIGH TON</div><div class="count common-cnt-highton">0</div></div>
-                    <div class="award-item"><div class="label">TON 80</div><div class="count common-cnt-ton80">0</div></div>
-                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count common-cnt-whitehorse">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count common-cnt-bed">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count common-cnt-black">0</div></div>
-                </div>
-            </div>
-            <div class="tab-content" id="contentScore"><div class="score-grid" id="scoreGrid"></div></div>
-        </div>
-    </div>
-
-    <div id="app-scaler-p">
+    <div id="app-scaler">
+        
         <div class="top-row">
             <div class="round-badge">
-                <span class="common-round-txt">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
+                <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
             </div>
-            <div class="top-timer common-timer-txt">00:00:00</div>
+            <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
         </div>
-        <div class="score-panel"><div class="huge-score common-score-txt">0</div></div>
+
+        <div class="score-panel">
+            <div class="huge-score" id="totalScore">0</div>
+        </div>
+
         <div class="history-row">
             <div class="history-capsule">
-                <div class="common-slot0-txt">---</div>
+                <div id="slot0">---</div>
                 <div class="separator">|</div>
-                <div class="common-slot1-txt">---</div>
+                <div id="slot1">---</div>
                 <div class="separator">|</div>
-                <div class="common-slot2-txt">---</div>
+                <div id="slot2">---</div>
             </div>
         </div>
+
         <div class="bottom-stats-container">
+            
             <div class="left-stats-panel">
                 <div class="bull-rate-container">
                     <div class="gauge-track-css"></div>
-                    <div class="gauge-progress-css" id="gaugeCircleCSS_p"></div>
-                    <div class="gauge-dot" id="gaugeDot_p"></div>
-                    <div class="gauge-text"><div class="label">BULL RATE</div><div class="percent common-rate-txt">0<span>.00%</span></div></div>
+                    <div class="gauge-progress-css" id="gaugeCircleCSS"></div>
+                    <div class="gauge-dot" id="gaugeDot"></div>
+                    <div class="gauge-text">
+                        <div class="label">BULL RATE</div>
+                        <div class="percent" id="bullRate">0<span>.00%</span></div>
+                    </div>
                 </div>
                 <div class="bull-count-box">
                     <div class="label">BULL COUNT</div>
-                    <div class="count common-bull-txt">0</div>
+                    <div class="count" id="bullCount">0</div>
                     <div style="display: flex; justify-content: center; gap: 30px; font-size: 1.8rem; color: #aaa; font-weight: 700;">
-                        <div>INNER: <span class="common-inner-txt" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
-                        <div>OUTER: <span class="common-outer-txt" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
+                        <div>INNER: <span id="innerBullCount" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
+                        <div>OUTER: <span id="outerBullCount" style="color: #fff; font-family: 'Impact'; font-size: 2.4rem;">0</span></div>
                     </div>
                 </div>
             </div>
+
             <div class="right-awards-panel">
                 <div class="award-grid">
-                    <div class="award-item"><div class="label">ONE BULL</div><div class="count common-cnt-onebull">0</div></div>
-                    <div class="award-item"><div class="label">LOW TON</div><div class="count " class="count common-cnt-lowton">0</div></div>
-                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count common-cnt-hattrick">0</div></div>
-                    <div class="award-item"><div class="label">HIGH TON</div><div class="count common-cnt-highton">0</div></div>
-                    <div class="award-item"><div class="label">TON 80</div><div class="count common-cnt-ton80">0</div></div>
-                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count common-cnt-whitehorse">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count common-cnt-bed">0</div></div>
-                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count common-cnt-black">0</div></div>
+                    <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
+                    <div class="award-item"><div class="label">LOW TON</div><div class="count" id="cnt_lowton">0</div></div>
+                    <div class="award-item"><div class="label">HAT TRICK</div><div class="count" id="cnt_hattrick">0</div></div>
+                    <div class="award-item"><div class="label">HIGH TON</div><div class="count" id="cnt_highton">0</div></div>
+                    <div class="award-item"><div class="label">TON 80</div><div class="count" id="cnt_ton80">0</div></div>
+                    <div class="award-item"><div class="label">WHITE HORSE</div><div class="count" id="cnt_whitehorse">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN A BED</div><div class="count" id="cnt_bed">0</div></div>
+                    <div class="award-item"><div class="label">THREE IN THE BLACK</div><div class="count" id="cnt_black">0</div></div>
                 </div>
             </div>
         </div>
-        <div class="camera-mount-placeholder">DARTBOARD CAMERA LAYER<span>PLACE OBS VIDEO CAPTURE SOURCE HERE</span></div>
+
+        <div class="score-history-panel">
+            <div class="score-grid" id="scoreGrid"></div>
+        </div>
+
+        <div class="camera-mount-placeholder">
+            DARTBOARD CAMERA LAYER
+            <span>PLACE OBS VIDEO CAPTURE SOURCE HERE</span>
+        </div>
     </div>
 
-    <div id="videoOverlay"><video id="awardVideo" preload="none" playsinline webkit-playsinline></video></div>
-    <div id="startOverlay"><div class="msg-main">TAP TO START</div><div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div></div>
+    <div id="videoOverlay">
+        <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
+    </div>
+
+    <div id="startOverlay">
+        <div class="msg-main">TAP TO START</div>
+        <div class="msg-sub">BOARD CONNECTED. TAP TO UNLOCK SYSTEM MEDIA.</div>
+    </div>
 
     <script>
         const SERVICE_UUID = '6e400001-b5a3-f393-e0a9-e50e24dcca9e';
         const awardKeys = ['onebull', 'lowton', 'highton', 'ton80', 'hattrick', 'bed', 'whitehorse', 'black'];
         
-        let totalScore = 0; let totalDartsCount = 0; let totalBullCount = 0; let roundHits = []; 
-        let isVideoPlaying = false; let currentPlayingVideo = null;
-        let isRoundLock = false; let timerInterval = null; let totalSeconds = 0; let roundScores = [];       
-        let totalOuterBullCount = 0; let totalInnerBullCount = 0;
-        let logTimeout = null; let headerTimeout = null;
+        let totalScore = 0;
+        let totalDartsCount = 0;
+        let totalBullCount = 0;
+        let roundHits = []; 
+        let isVideoPlaying = false;
+        let currentPlayingVideo = null;
+
+        let isRoundLock = false;    
+        let timerInterval = null;   
+        let totalSeconds = 0;       
+        let roundScores = [];       
+
+        let totalOuterBullCount = 0;
+        let totalInnerBullCount = 0;
+
+        let logTimeout = null;
+        let headerTimeout = null;
 
         const awardCounts = { onebull: 0, lowton: 0, highton: 0, ton80: 0, hattrick: 0, bed: 0, whitehorse: 0, black: 0 };
         const awardVideos = {
@@ -274,50 +412,38 @@
             hattrick: 'videos/hattrick.mp4', bed: 'videos/three-in-a-bed.mp4', whitehorse: 'videos/white-horse.mp4', black: 'videos/three-in-the-black.mp4'
         };
 
-        // 🎯 縦型・横型それぞれのアスペクト比スケーラーを完全分離計算
         function resizeApp() {
-            const scalerL = document.getElementById('app-scaler-l');
-            const scaleL = Math.min(window.innerWidth / 1920, window.innerHeight / 1080);
-            if (scalerL) scalerL.style.transform = `scale(${scaleL})`;
-
-            const scalerP = document.getElementById('app-scaler-p');
-            const scaleP = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
-            if (scalerP) scalerP.style.transform = `scale(${scaleP})`;
+            const scaler = document.getElementById('app-scaler');
+            const scale = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+            scaler.style.transform = `scale(${scale})`;
         }
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // タブ切り替え（横型モード用）
-        const btnTabBull = document.getElementById('btnTabBull'); const btnTabAward = document.getElementById('btnTabAward'); const btnTabScore = document.getElementById('btnTabScore');
-        const contentBull = document.getElementById('contentBull'); const contentAward = document.getElementById('contentAward'); const contentScore = document.getElementById('contentScore');
-        function switchTab(activeBtn, activeContent) {
-            playSound('poti');
-            [btnTabBull, btnTabAward, btnTabScore].forEach(b => b.classList.remove('active'));
-            [contentBull, contentAward, contentScore].forEach(c => c.classList.remove('active'));
-            activeBtn.classList.add('active'); activeContent.classList.add('active');
-        }
-        btnTabBull.addEventListener('click', () => switchTab(btnTabBull, contentBull));
-        btnTabAward.addEventListener('click', () => switchTab(btnTabAward, contentAward));
-        btnTabScore.addEventListener('click', () => switchTab(btnTabScore, contentScore));
-
         function recordRoundScore(score) {
             const roundNum = Math.ceil(totalDartsCount / 3);
             roundScores.push({ num: roundNum, score: score });
-            if (roundScores.length > 24) roundScores.shift();
+            if (roundScores.length > 24) {
+                roundScores.shift();
+            }
             renderScoreGrid();
         }
 
         function renderScoreGrid() {
             const grid = document.getElementById('scoreGrid');
-            if (!grid) return;
             grid.innerHTML = '';
             for (let i = 0; i < 24; i++) {
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
-                    let colorStyle = ''; const s = roundScores[i].score;
-                    if (s >= 100 && s <= 150) colorStyle = 'color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.4);';
-                    else if (s >= 151 && s <= 180) colorStyle = 'color: #ffea00; text-shadow: 0 0 10px rgba(255,234,0,0.4);';
+                    // 🎯【修正①】スコア履歴タブの点数に応じて文字色を動的に変更
+                    let colorStyle = '';
+                    const s = roundScores[i].score;
+                    if (s >= 100 && s <= 150) {
+                        colorStyle = 'color: #ff6600; text-shadow: 0 0 10px rgba(255,102,0,0.4);'; // 濃いオレンジ
+                    } else if (s >= 151 && s <= 180) {
+                        colorStyle = 'color: #ffea00; text-shadow: 0 0 10px rgba(255,234,0,0.4);'; // 黄色
+                    }
                     row.innerHTML = `<span class="r-num">R${roundScores[i].num}</span><span class="r-val" style="${colorStyle}">${roundScores[i].score}</span>`;
                 } else {
                     row.innerHTML = `<span class="r-num">--</span><span class="r-val">---</span>`;
@@ -329,54 +455,80 @@
 
         function startGameTimer() {
             if (timerInterval) return;
-            document.querySelectorAll('.common-timer-txt').forEach(el => el.style.display = 'block');
+            document.getElementById('gameTimer').style.display = 'block';
             timerInterval = setInterval(() => {
                 totalSeconds++;
                 const hrs = String(Math.floor(totalSeconds / 3600)).padStart(2, '0');
                 const mins = String(Math.floor((totalSeconds % 3600) / 60)).padStart(2, '0');
                 const secs = String(totalSeconds % 60).padStart(2, '0');
-                document.querySelectorAll('.common-timer-txt').forEach(el => el.innerText = `${hrs}:${mins}:${secs}`);
+                document.getElementById('gameTimer').innerText = `${hrs}:${mins}:${secs}`;
             }, 1000);
         }
 
         function getColorAtRate(rate) {
-            const colors = [{ p: 0, r: 0, g: 68, b: 255 },{ p: 25, r: 153, g: 0, b: 255 },{ p: 50, r: 255, g: 0, b: 127 },{ p: 75, r: 255, g: 0, b: 0 },{ p: 100, r: 255, g: 234, b: 0 }];
-            if (rate <= 0) return 'rgb(0,68,255)'; if (rate >= 100) return 'rgb(255,234,0)';
+            const colors = [
+                { p: 0, r: 0, g: 68, b: 255 },     
+                { p: 25, r: 153, g: 0, b: 255 },   
+                { p: 50, r: 255, g: 0, b: 127 },   
+                { p: 75, r: 255, g: 0, b: 0 },     
+                { p: 100, r: 255, g: 234, b: 0 }   
+            ];
+            if (rate <= 0) return 'rgb(0,68,255)';
+            if (rate >= 100) return 'rgb(255,234,0)';
+            
             let lower = colors[0]; let upper = colors[colors.length - 1];
-            for (let i = 0; i < colors.length - 1; i++) { if (rate >= colors[i].p && rate <= colors[i+1].p) { lower = colors[i]; upper = colors[i+1]; break; } }
-            const factor = (rate - lower.p) / (upper.p - lower.p);
-            return `rgb(${Math.round(lower.r + (upper.r - lower.r) * factor)},${Math.round(lower.g + (upper.g - lower.g) * factor)},${Math.round(lower.b + (upper.b - lower.b) * factor)})`;
+            for (let i = 0; i < colors.length - 1; i++) {
+                if (rate >= colors[i].p && rate <= colors[i+1].p) {
+                    lower = colors[i]; upper = colors[i+1]; break;
+                }
+            }
+            const range = upper.p - lower.p;
+            const factor = (rate - lower.p) / range;
+            const r = Math.round(lower.r + (upper.r - lower.r) * factor);
+            const g = Math.round(lower.g + (upper.g - lower.g) * factor);
+            const b = Math.round(lower.b + (upper.b - lower.b) * factor);
+            return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯 横型（440px）と縦型（360px）の別々の軌道を持つ進捗ピンを完全シンクロ制御
+        // 🎯 縦型（320pxサークル、中心軸 X:200, Y:170）に完全に吸い付くズレ防止アライメント
         function updateBullRateUI(rate) {
-            const intPart = Math.floor(rate); const decPart = (rate - intPart).toFixed(2).substring(1);
-            document.querySelectorAll('.common-rate-txt').forEach(el => el.innerHTML = `${intPart}<span>${decPart}%</span>`);
+            const gauge = document.getElementById('gaugeCircleCSS');
+            const dot = document.getElementById('gaugeDot');
             
             let gradientStr = 'transparent';
             if (rate > 0) {
                 const currentSecColor = getColorAtRate(rate);
-                if (rate <= 25) gradientStr = `conic-gradient(#0044ff 0%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
-                else if (rate <= 50) gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
-                else if (rate <= 75) gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
-                else gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
+                if (rate <= 25) {
+                    gradientStr = `conic-gradient(#0044ff 0%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
+                } else if (rate <= 50) {
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
+                } else if (rate <= 75) {
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
+                } else {
+                    gradientStr = `conic-gradient(#0044ff 0%, #9900ff 25%, #ff007f 50%, #ff0000 75%, ${currentSecColor} ${rate}%, transparent ${rate}%)`;
+                }
             }
-            
-            // 横型ゲージ
-            const gaugeL = document.getElementById('gaugeCircleCSS_l'); const dotL = document.getElementById('gaugeDot_l');
-            if (gaugeL) gaugeL.style.background = gradientStr;
-            if (dotL) {
-                if (rate > 0) { dotL.style.display = 'block'; const angle = ((rate * 3.6) - 90) * Math.PI / 180; dotL.style.left = `${250 + 212 * Math.cos(angle)}px`; dotL.style.top = `${250 + 212 * Math.sin(angle)}px`; } 
-                else dotL.style.display = 'none';
+            gauge.style.background = gradientStr;
+
+            if (rate > 0) {
+                dot.style.display = 'block';
+                const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
+                const r = 153; // 縦型用に計算した物理半径
+                const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
+                const dotY = 170 + r * Math.sin(angleRad); // 固定軸Yの中心
+                dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
+                
+                let dotBorderColor = '#0044ff';
+                if (rate > 25) dotBorderColor = '#9900ff';
+                if (rate > 50) dotBorderColor = '#ff007f';
+                if (rate > 75) dotBorderColor = '#ff0000';
+                dot.style.borderColor = dotBorderColor;
+            } else {
+                dot.style.display = 'none';
             }
-            
-            // 縦型ゲージ
-            const gaugeP = document.getElementById('gaugeCircleCSS_p'); const dotP = document.getElementById('gaugeDot_p');
-            if (gaugeP) gaugeP.style.background = gradientStr;
-            if (dotP) {
-                if (rate > 0) { dotP.style.display = 'block'; const angle = ((rate * 3.6) - 90) * Math.PI / 180; dotP.style.left = `${220 + 173 * Math.cos(angle)}px`; dotP.style.top = `${200 + 173 * Math.sin(angle)}px`; } 
-                else dotP.style.display = 'none';
-            }
+
+            const intPart = Math.floor(rate); const decPart = (rate - intPart).toFixed(2).substring(1);
+            document.getElementById('bullRate').innerHTML = `${intPart}<span>${decPart}%</span>`;
         }
 
         function calculateScore(id) {
@@ -384,140 +536,279 @@
             if (id >= 21 && id <= 40) return { score: id - 20, label: `S${id - 20}`, type: 'single', num: id - 20 };
             if (id >= 41 && id <= 60) return { score: (id - 40) * 2, label: `D${id - 40}`, type: 'double', num: id - 40 };
             if (id >= 61 && id <= 80) return { score: (id - 60) * 3, label: `T${id - 60}`, type: 'triple', num: id - 60 };
-            if (id === 81) return { score: 50, label: 'BULL', type: 'bull', num: 25 }; if (id === 82) return { score: 50, label: 'D-BULL', type: 'inbull', num: 25 };
+            if (id === 81) return { score: 50, label: 'BULL', type: 'bull', num: 25 };
+            if (id === 82) return { score: 50, label: 'D-BULL', type: 'inbull', num: 25 };
             return { score: 0, label: 'MISSED', type: 'unknown', num: 0 };
         }
 
         function playSound(type) {
             let path = '';
-            if (type === 'single') path = 'sounds/single.mp3'; if (type === 'double') path = 'sounds/double.mp3'; if (type === 'triple') path = 'sounds/triple.mp3';
-            if (type === 'bull') path = 'sounds/bull.mp3'; if (type === 'inbull') path = 'sounds/inner-bull.mp3'; if (type === 'round-change') path = 'sounds/round-change.mp3'; if (type === 'poti') path = 'sounds/poti.mp3';
+            if (type === 'single') path = 'sounds/single.mp3';
+            if (type === 'double') path = 'sounds/double.mp3';
+            if (type === 'triple') path = 'sounds/triple.mp3';
+            if (type === 'bull') path = 'sounds/bull.mp3';
+            if (type === 'inbull') path = 'sounds/inner-bull.mp3';
+            if (type === 'round-change') path = 'sounds/round-change.mp3';
+            if (type === 'poti') path = 'sounds/poti.mp3';
             if (path) { new Audio(path).play().catch(e => console.log(e)); }
         }
 
         function playAwardVideo(awardKey) {
-            const overlay = document.getElementById('videoOverlay'); const video = document.getElementById('awardVideo');
-            if (!awardVideos[awardKey]) return;
-            awardCounts[awardKey]++; document.querySelectorAll(`.common-cnt-${awardKey}`).forEach(el => el.innerText = awardCounts[awardKey]);
+            const overlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('awardVideo');
+            const path = awardVideos[awardKey];
+
+            if (!path) return;
+
+            awardCounts[awardKey]++;
+            document.getElementById(`cnt_${awardKey}`).innerText = awardCounts[awardKey];
+
+            video.src = path;
+            overlay.style.display = 'block';
+            currentPlayingVideo = video;
+            isVideoPlaying = true;
+            video.currentTime = 0;
             
-            video.src = awardVideos[awardKey]; overlay.style.display = 'block'; currentPlayingVideo = video; isVideoPlaying = true; video.currentTime = 0;
-            video.play().catch(e => { console.log("Play blocked:", e); closeAwardVideo(); });
+            video.play().catch(e => {
+                console.log("Play blocked:", e);
+                closeAwardVideo();
+            });
+
             video.onended = () => { closeAwardVideo(); };
         }
 
         function closeAwardVideo() {
-            const overlay = document.getElementById('videoOverlay'); const video = document.getElementById('awardVideo');
-            if (video) { video.pause(); video.src = ''; video.load(); }
-            overlay.style.display = 'none'; currentPlayingVideo = null; isVideoPlaying = false;
+            const overlay = document.getElementById('videoOverlay');
+            const video = document.getElementById('awardVideo');
+            if (video) {
+                video.pause(); video.src = ''; video.load();
+            }
+            overlay.style.display = 'none';
+            currentPlayingVideo = null;
+            isVideoPlaying = false;
         }
 
         function checkRoundAward(hits) {
-            if (hits.length === 0) return null;
+            if (hits.length === 0) return null; // 🎯 空配列（0本Change）のevery誤爆を徹底ガード
+
+            // 3本きっちり刺さっているときのみ成立する最高位アワード
             if (hits.length === 3) {
-                if (hits.every(h => h.type === 'inbull')) return 'black'; if (hits.every(h => h.type === 'bull' || h.type === 'inbull')) return 'hattrick';
-                if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80'; if (hits.every(h => h.type === 'triple') && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
-                if ((hits.every(h => h.type === 'triple') || hits.every(h => h.type === 'double')) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
+                const isAllInBull = hits.every(h => h.type === 'inbull');
+                const isAllBull = hits.every(h => h.type === 'bull' || h.type === 'inbull');
+                const isAllTriple = hits.every(h => h.type === 'triple');
+                const isAllDouble = hits.every(h => h.type === 'double');
+
+                if (isAllInBull) return 'black';
+                if (isAllBull) return 'hattrick';
+                if (hits.every(h => h.type === 'triple' && h.num === 20)) return 'ton80';
+                if (isAllTriple && (new Set(hits.map(h => h.num)).size === 3)) return 'whitehorse';
+                if ((isAllTriple || isAllDouble) && (new Set(hits.map(h => h.num)).size === 1)) return 'bed';
             }
-            const total = hits.reduce((sum, h) => sum + h.score, 0);
-            if (total >= 150 && total <= 179) return 'highton'; if (total >= 100 && total <= 149) return 'lowton';
-            if (hits.some(h => h.type === 'bull' || h.type === 'inbull')) return 'onebull';
+
+            const roundTotal = hits.reduce((sum, h) => sum + h.score, 0);
+            if (roundTotal >= 150 && roundTotal <= 179) return 'highton';
+            if (roundTotal >= 100 && roundTotal <= 149) return 'lowton';
+
+            const hasAnyBull = hits.some(h => h.type === 'bull' || h.type === 'inbull');
+            if (hasAnyBull) return 'onebull';
+
             return null;
         }
 
         // Bluetooth接続（通信強化マルチ探索フィルター版）
         document.getElementById('connectBtn').addEventListener('click', () => {
             addLog("SEARCHING BOARD...");
+
             navigator.bluetooth.requestDevice({
-                filters: [{ name: 'DARTSLIVE HOME' }, { name: 'DARTSLIVE Home' }, { name: 'dartslive home' }, { namePrefix: 'DARTSLIVE' }, { namePrefix: 'DartsLive' }, { namePrefix: 'dartslive' }],
+                filters: [
+                    { name: 'DARTSLIVE HOME' }, { name: 'DARTSLIVE Home' }, { name: 'dartslive home' },
+                    { namePrefix: 'DARTSLIVE' }, { namePrefix: 'DartsLive' }, { namePrefix: 'dartslive' }
+                ],
                 optionalServices: [SERVICE_UUID]
             })
             .then(async (device) => {
-                addLog("CONNECTING..."); const server = await device.gatt.connect(); const service = await server.getPrimaryService(SERVICE_UUID); const characteristics = await service.getCharacteristics();
-                let target = null; for (const c of characteristics) { if (c.properties.notify) { target = c; break; } }
-                await target.startNotifications(); target.addEventListener('characteristicvaluechanged', handleDataChanged);
-                addLog("CONNECTED."); document.getElementById('connectBtn').style.display = 'none';
-                const startOverlay = document.getElementById('startOverlay'); startOverlay.style.display = 'flex';
+                addLog("CONNECTING...");
+                const server = await device.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                const characteristics = await service.getCharacteristics();
+                
+                let targetCharacteristic = null;
+                for (const c of characteristics) {
+                    if (c.properties.notify) { targetCharacteristic = c; break; }
+                }
+                if (!targetCharacteristic) throw new Error("NO NOTIFY CHARACTERISTIC");
+
+                await targetCharacteristic.startNotifications();
+                targetCharacteristic.addEventListener('characteristicvaluechanged', handleDataChanged);
+                
+                addLog("CONNECTED.");
+                document.getElementById('connectBtn').style.display = 'none';
+
+                const startOverlay = document.getElementById('startOverlay');
+                startOverlay.style.display = 'flex';
+
                 startOverlay.onclick = () => {
                     playSound('round-change');
-                    setTimeout(() => { const h = document.querySelector('.header-controls'); if (h) { h.style.transition = 'opacity 1s ease'; h.style.opacity = '0'; setTimeout(() => { h.style.display = 'none'; }, 1000); } }, 5000);
-                    const v = document.getElementById('awardVideo'); if (v) { v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e)); }
+                    
+                    const v = document.getElementById('awardVideo');
+                    if (v) {
+                        v.play().then(() => { v.pause(); v.currentTime = 0; }).catch(e => console.log(e));
+                    }
+
+                    if (document.documentElement.requestFullscreen) {
+                        document.documentElement.requestFullscreen().catch(e => console.log(e));
+                    }
+
                     startOverlay.style.display = 'none';
+                    addLog("ALL SYSTEMS OPERATIONAL. READY!");
                 };
-            }).catch(error => { addLog(`ERROR: ${error.message}`); });
+            })
+            .catch(error => {
+                addLog(`ERROR: ${error.message}`);
+            });
         });
 
         function handleDataChanged(event) {
             if (isRoundLock) return;
+
             const data = event.target.value;
             if (data.byteLength >= 3 && data.getUint8(0) === 0xA1 && data.getUint8(1) === 0x03) {
                 if (isVideoPlaying) { closeAwardVideo(); }
+
                 const segmentId = data.getUint8(2);
 
-                // Changeボタン（0x54）割り込み処理
+                // Changeボタン（0x54）が押された瞬間の割り込み処理
                 if (segmentId === 0x54) {
-                    isRoundLock = true;
-                    recordRoundScore(roundHits.reduce((sum, h) => sum + h.score, 0));
+                    isRoundLock = true; 
+                    
+                    const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
+                    recordRoundScore(roundTotal);
+
                     const award = checkRoundAward(roundHits);
-                    setTimeout(() => { if (award) { playAwardVideo(award); } else { playSound('round-change'); } }, 600);
-                    if (totalDartsCount % 3 !== 0) totalDartsCount = Math.ceil(totalDartsCount / 3) * 3;
-                    else if (roundHits.length === 0) totalDartsCount += 3;
                     setTimeout(() => {
-                        isRoundLock = false; roundHits = [];
-                        document.querySelectorAll('.common-slot0-txt, .common-slot1-txt, .common-slot2-txt').forEach(el => el.innerText = '---');
-                        document.querySelectorAll('.common-round-txt').forEach(el => el.innerText = (totalDartsCount / 3) + 1);
+                        if (award) { 
+                            playAwardVideo(award); 
+                        } else { 
+                            playSound('round-change'); 
+                        }
+                    }, 600); 
+
+                    if (totalDartsCount % 3 !== 0) {
+                        totalDartsCount = Math.ceil(totalDartsCount / 3) * 3;
+                    } else if (roundHits.length === 0) {
+                        totalDartsCount += 3; 
+                    }
+
+                    setTimeout(() => {
+                        isRoundLock = false;
+                        roundHits = [];
+                        document.getElementById('slot0').innerText = '---';
+                        document.getElementById('slot1').innerText = '---';
+                        document.getElementById('slot2').innerText = '---';
+                        document.getElementById('currentRoundNum').innerText = (totalDartsCount / 3) + 1;
                     }, 6000);
-                    return;
+                    
+                    return; 
                 }
 
                 if (roundHits.length === 3) {
                     roundHits = [];
-                    document.querySelectorAll('.common-slot0-txt, .common-slot1-txt, .common-slot2-txt').forEach(el => el.innerText = '---');
+                    document.getElementById('slot0').innerText = '---';
+                    document.getElementById('slot1').innerText = '---';
+                    document.getElementById('slot2').innerText = '---';
                 }
 
                 const result = calculateScore(segmentId);
+
                 if (result.score >= 0) {
-                    if (totalDartsCount === 0) startGameTimer();
-                    totalScore += result.score; totalDartsCount++;
+                    if (totalDartsCount === 0) {
+                        startGameTimer();
+                    }
+
+                    totalScore += result.score;
+                    totalDartsCount++;
                     
-                    if (result.type === 'bull' || result.type === 'inbull') {
+                    const isBullHit = (result.type === 'bull' || result.type === 'inbull');
+                    if (isBullHit) {
                         totalBullCount++;
-                        if (result.type === 'inbull') totalInnerBullCount++; else totalOuterBullCount++;
+                        if (result.type === 'inbull') {
+                            totalInnerBullCount++;
+                        } else {
+                            totalOuterBullCount++;
+                        }
                     }
 
                     roundHits.push(result);
-                    const slotIdx = roundHits.length - 1;
+                    const currentSlotIndex = roundHits.length - 1;
 
-                    // クラス指定（querySelectorAll）による、隠れている画面も含めた一括同期同期
-                    document.querySelectorAll('.common-score-txt').forEach(el => el.innerText = totalScore);
-                    document.querySelectorAll('.common-bull-txt').forEach(el => el.innerText = totalBullCount);
-                    document.querySelectorAll('.common-inner-txt').forEach(el => el.innerText = totalInnerBullCount);
-                    document.querySelectorAll('.common-outer-txt').forEach(el => el.innerText = totalOuterBullCount);
-                    document.querySelectorAll(`.common-slot${slotIdx}-txt`).forEach(el => el.innerText = result.label);
-                    document.querySelectorAll('.common-round-txt').forEach(el => el.innerText = Math.ceil(totalDartsCount / 3));
+                    document.getElementById('totalScore').innerText = totalScore;
+                    
+                    document.getElementById('bullCount').innerText = totalBullCount;
+                    document.getElementById('innerBullCount').innerText = totalInnerBullCount;
+                    document.getElementById('outerBullCount').innerText = totalOuterBullCount;
+                    
+                    document.getElementById(`slot${currentSlotIndex}`).innerText = result.label;
+                    document.getElementById('currentRoundNum').innerText = Math.ceil(totalDartsCount / 3);
 
-                    updateBullRateUI((totalBullCount / totalDartsCount) * 100);
+                    const currentRate = (totalBullCount / totalDartsCount) * 100;
+                    updateBullRateUI(currentRate);
+
                     playSound(result.type);
 
                     if (roundHits.length === 3) {
-                        isRoundLock = true;
-                        recordRoundScore(roundHits.reduce((sum, h) => sum + h.score, 0));
+                        isRoundLock = true; 
+                        
+                        const roundTotal = roundHits.reduce((sum, h) => sum + h.score, 0);
+                        recordRoundScore(roundTotal);
+
                         const award = checkRoundAward(roundHits);
-                        setTimeout(() => { if (award) { playAwardVideo(award); } else { playSound('round-change'); } }, 600);
-                        setTimeout(() => { isRoundLock = false; }, 6000);
+                        setTimeout(() => {
+                            if (award) { 
+                                playAwardVideo(award); 
+                            } else { 
+                                playSound('round-change'); 
+                            }
+                        }, 600); 
+
+                        setTimeout(() => {
+                            isRoundLock = false;
+                        }, 6000);
                     }
                 }
             }
         }
 
+        // 🎯【修正②】すべてのログテキスト表示を、更新から5秒後に確実にフェードアウト消去する一元化ロジック
         function addLog(text) {
-            const c = document.getElementById('logConsole'); const h = document.querySelector('.header-controls');
-            c.style.transition = 'none'; c.style.opacity = '1';
-            if (h) { h.style.transition = 'none'; h.style.opacity = '1'; h.style.display = 'flex'; }
-            c.innerText = text;
-            if (logTimeout) clearTimeout(logTimeout); if (headerTimeout) clearTimeout(headerTimeout);
-            logTimeout = setTimeout(() => { c.style.transition = 'opacity 1s ease'; c.style.opacity = '0'; }, 5000);
+            const consoleLog = document.getElementById('logConsole');
+            const controlsHeader = document.querySelector('.header-controls');
+            
+            consoleLog.style.transition = 'none';
+            consoleLog.style.opacity = '1';
+            if (controlsHeader) {
+                controlsHeader.style.transition = 'none';
+                controlsHeader.style.opacity = '1';
+                controlsHeader.style.display = 'flex';
+            }
+
+            consoleLog.innerText = text;
+
+            if (logTimeout) clearTimeout(logTimeout);
+            if (headerTimeout) clearTimeout(headerTimeout);
+
+            logTimeout = setTimeout(() => {
+                consoleLog.style.transition = 'opacity 1s ease';
+                consoleLog.style.opacity = '0';
+            }, 5000);
+
             if (text === "CONNECTED." || text.includes("READY")) {
-                headerTimeout = setTimeout(() => { if (h) { h.style.transition = 'opacity 1s ease'; h.style.opacity = '0'; setTimeout(() => { h.style.display = 'none'; }, 1000); } }, 5000);
+                headerTimeout = setTimeout(() => {
+                    if (controlsHeader) {
+                        controlsHeader.style.transition = 'opacity 1s ease';
+                        controlsHeader.style.opacity = '0';
+                        setTimeout(() => { controlsHeader.style.display = 'none'; }, 1000);
+                    }
+                }, 5000);
             }
         }
     </script>
