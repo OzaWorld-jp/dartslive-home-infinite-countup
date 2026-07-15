@@ -51,7 +51,6 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
-            height: 80px;
         }
 
         .round-badge {
@@ -109,7 +108,6 @@
             display: flex;
             justify-content: center;
             width: 100%;
-            height: 100px;
         }
 
         .history-capsule {
@@ -127,17 +125,17 @@
         .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さを500pxに制限して画面潰れを防御） */
+        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ720px） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 500px;
+            height: 720px;
         }
 
-        /* 左パネル：ブル率＆カウント詳細（ライン統一のため幅を460pxに固定） */
+        /* 左パネル：ブル率＆カウント詳細 */
         .left-stats-panel {
-            width: 460px;
+            flex: 1;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -157,10 +155,10 @@
             height: 340px;
         }
 
-        /* 🎯【ズレ完全修正】配置をtop:30px, left:60pxに絶対固定し、マスク内径を124pxに精密補正。これで2つの円の太さが完全一致します */
+        /* 🎯【サークル同期完全修正】外径280pxに対して、マスク内径を「124px」へ精密同期。これで線の太さが完全に1本に重なり合います */
         .gauge-track-css {
             position: absolute;
-            top: 30px;
+            top: 20px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -170,7 +168,7 @@
         }
         .gauge-progress-css {
             position: absolute;
-            top: 30px;
+            top: 20px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -196,13 +194,13 @@
             pointer-events: none;
         }
 
-        /* 🎯【文字ズレ完全修正】サークルの縦の中心（170px）を起点に、translateY(-50%)で完全な「上下絶対中央配置」へ修正 */
+        /* 🎯【文字ズレ完全修正】親コンテナ（400x340）の完全な上下左右中央に、CSSの絶対配置で不動ロックをかけました */
         .gauge-text {
             position: absolute;
-            top: 170px; 
-            left: 0;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             width: 100%;
-            transform: translateY(-50%);
             text-align: center;
         }
         .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
@@ -213,9 +211,9 @@
         .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
         .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
-        /* 右パネル：アワードカウンター（ライン統一のため幅を510pxに固定、文字パッキング最適化） */
+        /* 右パネル：アワードカウンター（4行に美しくパッキング） */
         .right-awards-panel {
-            width: 510px;
+            flex: 1.1;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -230,13 +228,13 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             height: 100%;
-            gap: 20px;
+            gap: 30px;
         }
         .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        .award-item .count { font-size: 5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高を500pxに制限） */
+        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高500px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
@@ -244,9 +242,9 @@
             height: 500px;
         }
 
-        /* 左側：スコア履歴を8行にジャストフィット（幅を上のパネルと同じ460pxに完全統一） */
+        /* 左側：スコア履歴を8行にジャストフィット（はみ出しバグを完全封殺） */
         .score-history-panel {
-            width: 460px;
+            flex: 1;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -276,9 +274,9 @@
         .score-row .r-num { color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
-        /* 右側：アワードパネルの真下（幅510px）。完全な透過カメラマウントスペースとして確保 */
+        /* 右側：アワードパネルの真下にあたる広大な領域を「OBS用完全透過空白スペース」に */
         .camera-mount-space {
-            width: 510px;
+            flex: 1.1;
             background: transparent;
             border: none;
             height: 100%;
@@ -300,13 +298,16 @@
 </head>
 <body>
 
+    <!-- 接続ヘッダー -->
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
+    <!-- 縦型1080×1920仮想キャンバス -->
     <div id="app-scaler">
         
+        <!-- 最上部メタデータ行 -->
         <div class="top-row">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -314,10 +315,12 @@
             <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
         </div>
 
+        <!-- スコア表示パネル -->
         <div class="score-panel">
             <div class="huge-score" id="totalScore">0</div>
         </div>
 
+        <!-- 3本履歴カプセル（中央揃え仕様） -->
         <div class="history-row">
             <div class="history-capsule">
                 <div id="slot0">---</div>
@@ -328,8 +331,10 @@
             </div>
         </div>
 
+        <!-- 上段最大拡張スタッツエリア（ブル率 ＆ アワードカウンター） -->
         <div class="bottom-stats-container">
             
+            <!-- 左パネル：ブル率 ＆ 内訳 -->
             <div class="left-stats-panel">
                 <div class="bull-rate-container">
                     <div class="gauge-track-css"></div>
@@ -350,6 +355,7 @@
                 </div>
             </div>
 
+            <!-- 右パネル：アワードカウンター -->
             <div class="right-awards-panel">
                 <div class="award-grid">
                     <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
@@ -364,15 +370,19 @@
             </div>
         </div>
 
+        <!-- 下段ツインコンテナ：左寄せスコア履歴(8行) ＆ 右側カメラ用透過空白スペース -->
         <div class="middle-bottom-container">
+            <!-- 左側：1列縦長のコンパクトなスコア履歴リスト（最新8R分） -->
             <div class="score-history-panel">
                 <div class="score-grid" id="scoreGrid"></div>
             </div>
             
+            <!-- 右側：OBSで実際のボードカメラを重ねるための完全透過空白スペース -->
             <div class="camera-mount-space"></div>
         </div>
     </div>
 
+    <!-- 1本使い回し・フリーズ完全根絶型ビデオコンテキスト -->
     <div id="videoOverlay">
         <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
@@ -490,7 +500,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        /* 🎯【大型化アライメント精密修正】直径280pxの固定中心軸（X:200, Y:170, 半径r:132）でマスクとピンを100%一致 */
+        // 🎯【サークル同期完全修正】固定中心軸（X:200px, Y:160px[top:20px + 半径140px]）で計算軸をミリ単位完全同期
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -514,9 +524,9 @@
                 if (dot) {
                     dot.style.display = 'block';
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                    const r = 132; 
-                    const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
-                    const dotY = 170 + r * Math.sin(angleRad); // 固定軸Yの中心
+                    const r = 132; // 直径280pxのセンターライン半径
+                    const dotX = 200 + r * Math.cos(angleRad); // 横コンテナ（幅400px）の中心点200px
+                    const dotY = 160 + r * Math.sin(angleRad); // 縦サークル配置（top:20px + 半径140px）の中心点160px
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
