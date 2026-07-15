@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信画面・OBSに完全シンクロ） */
+        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信用OBS画面に完全シンクロ） */
         #app-scaler {
             width: 1080px;
             height: 1920px;
@@ -41,7 +41,7 @@
             transform-origin: center center;
             box-sizing: border-box;
             padding: 60px 40px;
-            gap: 40px;
+            gap: 30px; /* gapを30pxにタイト化して縦ハラを完全防御 */
         }
 
         /* 最上部：ラウンド数 ＆ タイマーの並列行 */
@@ -50,6 +50,7 @@
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            height: 80px;
         }
 
         .round-badge {
@@ -74,7 +75,7 @@
             font-size: 3rem;
             font-weight: 400;
             font-family: 'Oswald', sans-serif;
-            font-variant-numeric: tabular-nums; /* タイマーのガタつきを完全防御 */
+            font-variant-numeric: tabular-nums;
             letter-spacing: 2px;
             color: #ffffff;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -85,7 +86,7 @@
             background: var(--panel-bg);
             border-radius: 30px;
             width: 100%;
-            height: 260px;
+            height: 280px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -102,11 +103,12 @@
             letter-spacing: -4px;
         }
 
-        /* 3本ヒット履歴カプセル（中央揃え仕様） */
+        /* 3本ヒット履歴カプセル */
         .history-row {
             display: flex;
             justify-content: center;
             width: 100%;
+            height: 110px;
         }
 
         .history-capsule {
@@ -121,31 +123,31 @@
             color: #eee;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
+        .history-capsule div { min-width: 130px; text-align: center; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ720px） */
+        /* 中段スタッツコンテナ（ブル率とアワードの並列行：高さ580pxにパッキング） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 720px;
+            height: 580px;
         }
 
-        /* 左パネル：ブル率＆カウント詳細 */
+        /* 左パネル：幅440pxに固定し、下のスコア履歴と縦のラインを完全統一 */
         .left-stats-panel {
+            width: 440px;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 40px 10px;
+            padding: 30px 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             box-sizing: border-box;
-            width: 440px;
         }
 
         .bull-rate-container {
@@ -154,10 +156,10 @@
             height: 340px;
         }
 
-        /* 🎯【サークル完全同期】マスクのくり抜き内半径を「124px」へ両プロパティとも精密補正。これで2つの円の太さが完全一致します */
+        /* 🎯【サークルズレ完全修正】中心配置（top:30px, left:60px）に固定し、マスク内径を124pxに精密シンクロ。これで線の太さが完全に一致します */
         .gauge-track-css {
             position: absolute;
-            top: 20px;
+            top: 30px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -167,7 +169,7 @@
         }
         .gauge-progress-css {
             position: absolute;
-            top: 20px;
+            top: 30px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -193,10 +195,10 @@
             pointer-events: none;
         }
 
-        /* 🎯【テキスト上下ズレ完全修正】サークルのY中心軸（160px）を起点に、translateY(-50%)で完全な「上下絶対中央配置」へ大改造 */
+        /* 🎯【文字ズレ完全修正】 top: 170px（340pxの半分）を起点に、translateY(-50%)で上下左右のド真ん中へ100%固定 */
         .gauge-text {
             position: absolute;
-            top: 160px; 
+            top: 170px; 
             left: 0;
             width: 100%;
             transform: translateY(-50%);
@@ -207,18 +209,18 @@
         .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
 
         .bull-count-box { text-align: center; width: 100%; }
-        .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
-        .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
+        .bull-count-box .label { font-size: 1.8rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
+        .bull-count-box .count { font-size: 8rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
-        /* 右パネル：アワードカウンター（縦に余白を広げて文字サイズをドカンと拡大） */
+        /* 右パネル：幅530pxに固定。アワード数を4行に美しく構造格納 */
         .right-awards-panel {
-            flex: 1.1;
+            width: 530px;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 40px 15px;
+            padding: 40px 20px;
             box-sizing: border-box;
         }
 
@@ -227,23 +229,23 @@
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             height: 100%;
-            gap: 30px;
+            gap: 20px;
         }
         .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        .award-item .count { font-size: 5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空白スペース（全高500px） */
+        /* 下段：スコア履歴(左) ＆ カメラ用完全透過空間(右)の並列ツインコンテナ（全高550px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 500px;
+            height: 550px;
         }
 
-        /* 左側：スコア履歴を8行にジャストフィット（はみ出しバグを完全封殺） */
+        /* 左側：スコア履歴を8行にジャストフィット（幅440pxで縦のラインを完全統一） */
         .score-history-panel {
-            flex: 1;
+            width: 440px;
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
             -webkit-backdrop-filter: blur(25px);
@@ -255,8 +257,8 @@
         }
         .score-grid {
             display: grid;
-            grid-template-columns: 1fr; /* 1列に完全ロック */
-            grid-template-rows: repeat(8, 1fr); /* 縦に美しく8行リレー */
+            grid-template-columns: 1fr; 
+            grid-template-rows: repeat(8, 1fr); /* 🎯 ご指示通り8ラウンド分にパッキング */
             height: 100%;
             box-sizing: border-box;
             font-size: 2.4rem;
@@ -273,9 +275,9 @@
         .score-row .r-num { color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
-        /* 右側：アワードパネルの真下にあたる広大な領域を「OBS用完全透過空白スペース」に */
+        /* 右側：幅530px。アワードパネルの真下にあたる広大な領域を「OBS用完全透過空白スペース」に */
         .camera-mount-space {
-            flex: 1.1;
+            width: 530px;
             background: transparent;
             border: none;
             height: 100%;
@@ -487,7 +489,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【大型化アライメント精密修正】直径280pxの固定中心軸（X:200, Y:160, 半径r:132）でマスクとピンを100%一致
+        // 🎯【サークル同期完全修正】直径280pxの固定中心軸（X:200, Y:170, 半径r:132）でマスクとピンを完璧に一致
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -513,7 +515,7 @@
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
                     const r = 132; 
                     const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
-                    const dotY = 160 + r * Math.sin(angleRad); // 固定軸Yの中心
+                    const dotY = 170 + r * Math.sin(angleRad); // 固定軸Yの中心
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
