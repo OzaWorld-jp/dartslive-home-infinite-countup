@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Vertical Premium Overlay</title>
+    <title>DARTSLIVE Home - Vertical Premium Interface</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -28,7 +28,7 @@
             box-sizing: border-box;
         }
 
-        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信画面・OBSに完全シンクロ） */
+        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信用OBS画面に完全シンクロ） */
         #app-scaler {
             width: 1080px;
             height: 1920px;
@@ -75,7 +75,7 @@
             font-size: 3rem;
             font-weight: 400;
             font-family: 'Oswald', sans-serif;
-            font-variant-numeric: tabular-nums; /* タイマーの数字の横幅を固定してガタつきを完全防御 */
+            font-variant-numeric: tabular-nums; /* 数字の横幅を等幅に固定して左右の微振動をシャットアウト */
             letter-spacing: 2px;
             color: #ffffff;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -103,7 +103,7 @@
             letter-spacing: -4px;
         }
 
-        /* 3本ヒット履歴カプセル（完全中央寄せ） */
+        /* 3本ヒット履歴カプセル */
         .history-row {
             display: flex;
             justify-content: center;
@@ -122,10 +122,10 @@
             color: #eee;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
+        .history-capsule div { min-width: 130px; text-align: center; } /* 履歴の枠内を完全中央揃え */
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 同時表示スタッツコンテナ（左右2カラム） */
+        /* 同時表示スタッツコンテナ（ブル率とアワードの並列） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
@@ -133,7 +133,7 @@
             height: 500px;
         }
 
-        /* 左スタッツ：ブル率＆カウント詳細 */
+        /* 左パネル：ブル率＆カウント詳細 */
         .left-stats-panel {
             flex: 1;
             background: var(--bg-translucent);
@@ -155,12 +155,12 @@
             height: 340px;
         }
 
-        /* 🎯【ポインタズレ完全修正】絶対座標を明示的に指定して配置を完全固定。JSの計算軸（X:200, Y:170）と100%シンクロさせます */
+        /* 🎯【ポインタズレ修正】絶対配置を明示的に指定して配置を完全固定。JSの計算軸（X:200, Y:170）と100%シンクロさせます */
         .gauge-track-css {
             position: absolute;
             top: 10px;
-            left: 40px;
-            width: 320px;
+            left: 50px;
+            width: 300px;
             height: 320px;
             border: 14px solid rgba(255, 255, 255, 0.04);
             border-radius: 50%;
@@ -169,14 +169,14 @@
         .gauge-progress-css {
             position: absolute;
             top: 10px;
-            left: 40px;
-            width: 320px;
+            left: 50px;
+            width: 300px;
             height: 320px;
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
             -webkit-mask: radial-gradient(transparent 145px, #000 146px);
-            mask: radial-gradient(transparent 165px, #000 166px);
+            mask: radial-gradient(transparent 145px, #000 146px);
         }
 
         .gauge-dot {
@@ -209,7 +209,7 @@
         .bull-count-box .label { font-size: 1.8rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
         .bull-count-box .count { font-size: 7.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 2px; }
 
-        /* 右スタッツ：アワード一覧（1画面常時露出） */
+        /* 右パネル：アワードカウンターグリッド（1画面集約） */
         .right-awards-panel {
             flex: 1.1;
             background: var(--bg-translucent);
@@ -232,7 +232,7 @@
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
         .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 中下段：独立した24Rスコア履歴パネル（はみ出しバグを物理ガードで根絶） */
+        /* 中下段：独立した24Rスコア履歴パネル（はみ出しを物理ガード） */
         .score-history-panel {
             background: var(--bg-translucent);
             backdrop-filter: blur(25px);
@@ -266,26 +266,14 @@
         .score-row .r-num { color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
-        /* 最下部：実機カメラ映像配置用の透過マウントスペース */
+        /* 🎯【修正】最下部：余計な文字や点線枠をすべて消し去り、完全な透過空白スペースとして確保 */
         .camera-mount-placeholder {
             width: 100%;
             flex: 1;
-            background: rgba(0, 0, 0, 0.4);
-            border: 2px dashed rgba(255, 255, 255, 0.15);
-            border-radius: 30px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: rgba(255, 255, 255, 0.25);
-            font-size: 2.2rem;
-            font-weight: 700;
-            letter-spacing: 2px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+            background: transparent;
         }
-        .camera-mount-placeholder span { font-size: 1.4rem; font-weight: 400; color: rgba(255, 255, 255, 0.1); margin-top: 5px; }
 
-        /* 接続コントロールバー（5秒消去対応） */
+        /* 接続ボタン＆ログ */
         .header-controls { position: absolute; top: 15px; left: 40px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
         .btn-connect {
             background: #00adb5; border: none; color: white; padding: 10px 30px;
@@ -369,10 +357,7 @@
             <div class="score-grid" id="scoreGrid"></div>
         </div>
 
-        <div class="camera-mount-placeholder">
-            DARTBOARD CAMERA LAYER
-            <span>PLACE OBS VIDEO CAPTURE SOURCE HERE</span>
-        </div>
+        <div class="camera-mount-placeholder"></div>
     </div>
 
     <div id="videoOverlay">
@@ -436,7 +421,7 @@
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
-                    // 🎯【修正①】スコア履歴タブの点数に応じて文字色を動的に変更
+                    // 🎯【修正①】スコア点数に応じて文字色を動的に変更
                     let colorStyle = '';
                     const s = roundScores[i].score;
                     if (s >= 100 && s <= 150) {
@@ -490,7 +475,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯 縦型（320pxサークル、中心軸 X:200, Y:170）に完全に吸い付くズレ防止アライメント
+        // 🎯 縦型（300pxサークル、中心軸 X:200, Y:170）に完全に吸い付くズレ防止アライメント
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -513,7 +498,7 @@
             if (rate > 0) {
                 dot.style.display = 'block';
                 const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                const r = 153; // 縦型用に計算した物理半径
+                const r = 143; // 縦型用に計算した物理半径
                 const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
                 const dotY = 170 + r * Math.sin(angleRad); // 固定軸Yの中心
                 dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
@@ -589,7 +574,7 @@
         }
 
         function checkRoundAward(hits) {
-            if (hits.length === 0) return null; // 🎯 空配列（0本Change）のevery誤爆を徹底ガード
+            if (hits.length === 0) return null; // 空配列（0本Change）のevery誤爆を徹底ガード
 
             // 3本きっちり刺さっているときのみ成立する最高位アワード
             if (hits.length === 3) {
