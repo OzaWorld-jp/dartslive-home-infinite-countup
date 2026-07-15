@@ -125,7 +125,7 @@
         .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 🔥【サイズ拡張】上段スタッツコンテナ（ブル率とアワードの並列行：高さを460pxから720pxへ大幅に拡張！） */
+        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ720px） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
@@ -155,7 +155,7 @@
             height: 340px;
         }
 
-        /* 🎯【円ゲージの大型化修正】直径を240pxから280pxへサイズアップ！配置軸（top:20px, left:60px）へ絶対固定してブレを100%防御 */
+        /* 🎯【真のズレ修正】マスクのくり抜き内半径を「124px」へ精密補正。これで2つの円の太さが完全一致し、ピンの浮きが100%消滅します */
         .gauge-track-css {
             position: absolute;
             top: 20px;
@@ -175,8 +175,8 @@
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
-            -webkit-mask: radial-gradient(transparent 131px, #000 132px);
-            mask: radial-gradient(transparent 131px, #000 132px);
+            -webkit-mask: radial-gradient(transparent 123px, #000 124px);
+            mask: radial-gradient(transparent 123px, #000 124px);
         }
 
         .gauge-dot {
@@ -209,7 +209,7 @@
         .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
         .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
-        /* 右パネル：アワードカウンター（縦に広がり、フォントサイズも大幅に大型化！） */
+        /* 右パネル：アワードカウンター（4行に美しくパッキング） */
         .right-awards-panel {
             flex: 1.1;
             background: var(--bg-translucent);
@@ -221,7 +221,6 @@
             box-sizing: border-box;
         }
 
-        /* 🎯【アワードの視認性爆上げ】高くなった縦幅に合わせてgapを広げ、アワードの数字を5.5remへガッツリ拡大。はみ出しも起きません */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -233,7 +232,7 @@
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
         .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 🔥【縦幅縮小】中下段コンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（高さを760pxから500pxへスマートに集約） */
+        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高500px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
@@ -256,7 +255,7 @@
         .score-grid {
             display: grid;
             grid-template-columns: 1fr; /* 1列に完全ロック */
-            grid-template-rows: repeat(8, 1fr); /* 🎯 縦に美しく8行リレー */
+            grid-template-rows: repeat(8, 1fr); /* 縦に美しく8行リレー */
             height: 100%;
             box-sizing: border-box;
             font-size: 2.4rem;
@@ -415,7 +414,7 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 🎯【履歴の8行制限】カンプに収めるため、最新8ラウンド分のローテーションへパッキング
+        // 履歴の8行制限ローテーションパッキング
         function recordRoundScore(score) {
             const roundNum = Math.ceil(totalDartsCount / 3);
             roundScores.push({ num: roundNum, score: score });
@@ -486,7 +485,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【大型化アライメント修正】直径280pxの固定中心軸（X:200, Y:160, 半径r:132）でドットを完全同期
+        // 🎯【大型化アライメント精密修正】直径280pxの固定中心軸（X:200, Y:160, 半径r:132）でマスクとピンを100%一致
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -509,7 +508,7 @@
             if (rate > 0) {
                 dot.style.display = 'block';
                 const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                const r = 132; // 拡張された大型サークル用の物理半径
+                const r = 132; 
                 const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
                 const dotY = 160 + r * Math.sin(angleRad); // 固定軸Yの中心
                 dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
@@ -773,7 +772,7 @@
             }
         }
 
-        // すべてのログテキスト表示を5秒後にフェードアウト消去する一元化ロジック
+        // すべてのログテキスト表示を、更新から5秒後に確実にフェードアウト消去する一元化ロジック
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
