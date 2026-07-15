@@ -125,12 +125,12 @@
         .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 同時表示スタッツコンテナ（ブル率とアワードの並列行：高さ460px） */
+        /* 🔥【サイズ拡張】上段スタッツコンテナ（ブル率とアワードの並列行：高さを460pxから720pxへ大幅に拡張！） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 460px;
+            height: 720px;
         }
 
         /* 左パネル：ブル率＆カウント詳細 */
@@ -141,7 +141,7 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 20px 10px;
+            padding: 40px 10px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -152,64 +152,64 @@
         .bull-rate-container {
             position: relative;
             width: 400px;
-            height: 260px;
+            height: 340px;
         }
 
-        /* 🎯【円ゲージのリサイズ修正】直径を240pxにコンパクト化。配置軸を中心（top:10px, left:90px）へ絶対固定して浮きを完全相殺 */
+        /* 🎯【円ゲージの大型化修正】直径を240pxから280pxへサイズアップ！配置軸（top:20px, left:60px）へ絶対固定してブレを100%防御 */
         .gauge-track-css {
             position: absolute;
-            top: 10px;
-            left: 90px;
-            width: 240px;
-            height: 240px;
-            border: 14px solid rgba(255, 255, 255, 0.04);
+            top: 20px;
+            left: 60px;
+            width: 280px;
+            height: 280px;
+            border: 16px solid rgba(255, 255, 255, 0.04);
             border-radius: 50%;
             box-sizing: border-box;
         }
         .gauge-progress-css {
             position: absolute;
-            top: 10px;
-            left: 90px;
-            width: 240px;
-            height: 240px;
+            top: 20px;
+            left: 60px;
+            width: 280px;
+            height: 280px;
             border-radius: 50%;
             background: transparent;
             box-sizing: border-box;
-            -webkit-mask: radial-gradient(transparent 112px, #000 113px);
-            mask: radial-gradient(transparent 112px, #000 113px);
+            -webkit-mask: radial-gradient(transparent 131px, #000 132px);
+            mask: radial-gradient(transparent 131px, #000 132px);
         }
 
         .gauge-dot {
             position: absolute;
-            width: 20px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             background: #ffffff;
-            border: 4px solid #0044ff;
+            border: 5px solid #0044ff;
             border-radius: 50%;
             box-sizing: border-box;
-            box-shadow: 0 0 12px rgba(255,255,255,0.8);
+            box-shadow: 0 0 15px rgba(255,255,255,0.8);
             display: none;
             z-index: 100;
-            transform: translate(-10px, -11px);
+            transform: translate(-12px, -12px);
             pointer-events: none;
         }
 
         .gauge-text {
             position: absolute;
-            top: 85px;
+            top: 110px;
             left: 0;
             width: 100%;
             text-align: center;
         }
-        .gauge-text .label { font-size: 1.6rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
-        .gauge-text .percent { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
-        .gauge-text .percent span { font-size: 2.2rem; font-weight: 400; }
+        .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
+        .gauge-text .percent { font-size: 6.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; }
+        .gauge-text .percent span { font-size: 2.8rem; font-weight: 400; }
 
         .bull-count-box { text-align: center; width: 100%; }
-        .bull-count-box .label { font-size: 1.8rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
-        .bull-count-box .count { font-size: 7.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 2px; }
+        .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
+        .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
-        /* 右パネル：アワードカウンター（1画面常時露出） */
+        /* 右パネル：アワードカウンター（縦に広がり、フォントサイズも大幅に大型化！） */
         .right-awards-panel {
             flex: 1.1;
             background: var(--bg-translucent);
@@ -217,31 +217,31 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 30px 15px;
+            padding: 40px 15px;
             box-sizing: border-box;
         }
 
-        /* 🎯【アワードはみ出し修正】フォントサイズを最適化し、高さ460pxの4行グリッド内に完璧に収めました */
+        /* 🎯【アワードの視認性爆上げ】高くなった縦幅に合わせてgapを広げ、アワードの数字を5.5remへガッツリ拡大。はみ出しも起きません */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             height: 100%;
-            gap: 12px;
+            gap: 30px;
         }
         .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
-        .award-item .label { font-size: 1.4rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        .award-item .count { font-size: 4.2rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
+        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 🎯【新設】中下段：スコア履歴(左) ＆ カメラ用透過マウント空間(右)の並列ツインコンテナ（全高760px） */
+        /* 🔥【縦幅縮小】中下段コンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（高さを760pxから500pxへスマートに集約） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 760px;
+            height: 500px;
         }
 
-        /* 🎯【新設】左側：スコア履歴を縦1列×12行に変更し左側にタイトに寄せる（はみ出しバグ物理防御版） */
+        /* 左側：スコア履歴を8行にジャストフィット（はみ出しバグを完全封殺） */
         .score-history-panel {
             flex: 1;
             background: var(--bg-translucent);
@@ -256,7 +256,7 @@
         .score-grid {
             display: grid;
             grid-template-columns: 1fr; /* 1列に完全ロック */
-            grid-template-rows: repeat(12, 1fr); /* 縦に美しく12行リレー */
+            grid-template-rows: repeat(8, 1fr); /* 🎯 縦に美しく8行リレー */
             height: 100%;
             box-sizing: border-box;
             font-size: 2.4rem;
@@ -273,7 +273,7 @@
         .score-row .r-num { color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
-        /* 🎯【新設】右側：カンプ通りアワードの下を丸ごと「カメラマウント用」の100%完全な透過空白スペースとして確保 */
+        /* 右側：アワードパネルの真下にあたる広大な領域を「OBS用完全透過空白スペース」に */
         .camera-mount-space {
             flex: 1.1;
             background: transparent;
@@ -415,12 +415,12 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
-        // 🎯【履歴の12行制限】縦型カンプに収めるため、最新12ラウンド分のローテーションへ変更
+        // 🎯【履歴の8行制限】カンプに収めるため、最新8ラウンド分のローテーションへパッキング
         function recordRoundScore(score) {
             const roundNum = Math.ceil(totalDartsCount / 3);
             roundScores.push({ num: roundNum, score: score });
-            if (roundScores.length > 12) {
-                roundScores.shift(); // 12個を超えたら古いものから消去して上へリレー
+            if (roundScores.length > 8) {
+                roundScores.shift(); // 8個を超えたら古いものから消去して上へリレー
             }
             renderScoreGrid();
         }
@@ -428,7 +428,7 @@
         function renderScoreGrid() {
             const grid = document.getElementById('scoreGrid');
             grid.innerHTML = '';
-            for (let i = 0; i < 12; i++) {
+            for (let i = 0; i < 8; i++) {
                 const row = document.createElement('div');
                 row.className = 'score-row';
                 if (roundScores[i]) {
@@ -486,7 +486,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【高精度アライメント修正】直径240pxの固定中心軸（X:210, Y:130, 半径r:113）でドットを完全同期
+        // 🎯【大型化アライメント修正】直径280pxの固定中心軸（X:200, Y:160, 半径r:132）でドットを完全同期
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -509,9 +509,9 @@
             if (rate > 0) {
                 dot.style.display = 'block';
                 const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                const r = 113; 
-                const dotX = 210 + r * Math.cos(angleRad); // 横固定中心
-                const dotY = 130 + r * Math.sin(angleRad); // 縦固定中心
+                const r = 132; // 拡張された大型サークル用の物理半径
+                const dotX = 200 + r * Math.cos(angleRad); // 固定軸Xの中心
+                const dotY = 160 + r * Math.sin(angleRad); // 固定軸Yの中心
                 dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                 
                 let dotBorderColor = '#0044ff';
@@ -773,7 +773,7 @@
             }
         }
 
-        // すべてのログテキスト表示を、更新から5秒後に確実にフェードアウト消去する一元化ロジック
+        // すべてのログテキスト表示を5秒後にフェードアウト消去する一元化ロジック
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
