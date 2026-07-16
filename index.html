@@ -42,10 +42,10 @@
             transform-origin: center center;
             box-sizing: border-box;
             padding: 40px 40px; /* パディング込で1920pxに完全パッキング */
-            gap: 30px; /* 要素間の隙間を30pxに固定して自動縮小バグを完全粉砕 */
+            gap: 30px; /* 自動縮小バグを完全粉砕する固定ギャップ */
         }
 
-        /* 🎯【最上部】ご指示通りの流れるテキスト用透過150pxスペース */
+        /* 最上部：流れるテキスト用透過150pxスペース */
         .ticker-space {
             width: 100%;
             height: 150px;
@@ -85,28 +85,28 @@
             font-size: 3rem;
             font-weight: 400;
             font-family: 'Oswald', sans-serif;
-            font-variant-numeric: tabular-nums; /* タイマーのガタつきを完全防御 */
+            font-variant-numeric: tabular-nums;
             letter-spacing: 2px;
             color: #ffffff;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* スコア表示パネル */
+        /* 巨大スコア表示パネル */
+        /* 🎯【修正①】背景の黒い四角・白枠線を完全撤廃し、元のベース通り100%完全な透明に変更 */
         .score-panel {
-            background: var(--panel-bg);
-            border-radius: 30px;
+            background: transparent;
+            border: none;
+            box-shadow: none;
             width: 100%;
             height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
-            border: 1px solid rgba(255, 255, 255, 0.05);
             flex-shrink: 0;
             overflow: hidden;
         }
 
-        /* 🎯【被りバグ修正】フォントサイズを16remに最適化し、240pxの枠内に完全固定。下のはみ出しをシャットアウト */
+        /* 巨大スコア文字自体（被り防止のため高さを枠内に完全ホールド） */
         .huge-score {
             font-size: 16rem; 
             font-family: 'Impact', 'Arial Black', sans-serif;
@@ -116,7 +116,7 @@
             letter-spacing: -2px;
         }
 
-        /* 3本ヒット履歴カプセル（中央揃え仕様） */
+        /* 3本ヒット履歴カプセル */
         .history-row {
             display: flex;
             justify-content: center;
@@ -140,7 +140,7 @@
         .history-capsule div { min-width: 130px; text-align: center; } 
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ640pxにパッキング） */
+        /* 上段スタッツコンテナ（ブル率とアワードの並列行：高さ640px） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
@@ -150,6 +150,7 @@
         }
 
         /* 左パネル：ブル率＆カウント詳細（幅440px） */
+        /* 🎯【修正②】上下のパディングを45pxに指定し、中身が下に偏らず上下均等に美しく収まるように調整 */
         .left-stats-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -157,7 +158,7 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 30px 10px;
+            padding: 45px 10px; 
             display: flex;
             flex-direction: column;
             justify-content: space-between;
@@ -171,7 +172,7 @@
             height: 340px;
         }
 
-        /* 🎯【サークルズレ完全修正】配置をtop:30px, left:60pxに完全固定し、マスク内径を124pxに超精密同期。これで線の太さが100%一致します */
+        /* 🎯【サークルズレ完全修正】配置をtop:30px, left:60pxに固定し、マスク内径を標準・プレフィックス共に124pxに精密同期。これで線の太さが100%一致します */
         .gauge-track-css {
             position: absolute;
             top: 30px;
@@ -210,7 +211,7 @@
             pointer-events: none;
         }
 
-        /* 🎯【文字ズレ完全修正】親コンテナ（400x340）の完全な上下左右中央に、CSSの絶対配置で不動ロック。下振れを完全に破壊しました */
+        /* 🎯【文字盤中央固定】親コンテナ（400x340）の完全な上下左右中央にCSSの絶対配置で不動ロック。下振れズレを100%根絶 */
         .gauge-text {
             position: absolute;
             top: 50%;
@@ -227,7 +228,8 @@
         .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
         .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
-        /* 右パネル：アワードカウンター（幅510px、4行に美しくパッキング） */
+        /* 右パネル：アワードカウンター（幅510px） */
+        /* 🎯【修正②】上下パディングを45pxに指定し、グリッド内のアワードが枠の下にくっつかず、上下均等な美空間を維持 */
         .right-awards-panel {
             width: 510px;
             background: var(--bg-translucent);
@@ -235,7 +237,7 @@
             -webkit-backdrop-filter: blur(25px);
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
-            padding: 40px 15px;
+            padding: 45px 15px; 
             box-sizing: border-box;
         }
 
@@ -250,7 +252,7 @@
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
         .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高490pxに制限して画面潰れを完全根絶） */
+        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高490px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
@@ -260,6 +262,7 @@
         }
 
         /* 左側：スコア履歴（幅440pxにロックして縦のラインを完全統一） */
+        /* 🎯【修正②】パディングを上下35pxに均等化し、一番下の行が枠線にベタづきするバグを修正 */
         .score-history-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -268,7 +271,7 @@
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             height: 100%;
-            padding: 20px 0;
+            padding: 35px 0; 
             box-sizing: border-box;
         }
         .score-grid {
@@ -281,11 +284,11 @@
             font-weight: 700;
         }
         
-        /* 🎯【スコア履歴中央揃え修正】中央を基準軸にして、左右の幅を固定。美しく中央に整列します */
+        /* 🎯【修正②】中央寄せアライメント。左右の幅を固定して中央基準で整列させたため、完全に中央に揃います */
         .score-row {
             display: flex;
             justify-content: center;
-            gap: 60px; /* ラウンド数とスコアの間の絶妙な距離 */
+            gap: 60px; /* ラウンド数とスコアの間の美しいディスタンス */
             align-items: center;
             color: #fff;
             border-bottom: 1px solid rgba(255, 255, 255, 0.02);
@@ -509,7 +512,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【一芯同期アライメント精密修正】中心座標（X:200px, Y:170px[top:30px + 半径140px]）でマスクとピンを100%完全同期
+        // 🎯【一芯同期アライメント完全修正】中心座標（X:200px, Y:170px[top:30px + 半径140px]）でマスクとピンを100%完全同期
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
