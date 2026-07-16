@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>DARTSLIVE Home - Vertical Premium Interface</title>
+    <title>DARTSLIVE Home - Vertical Premium Overlay</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
     
@@ -41,16 +41,25 @@
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
-            padding: 60px 40px;
-            gap: 40px;
+            padding: 40px 40px; /* 縦幅を1920px以内に収めるためパディングを最適化 */
+            gap: 25px; /* 各ブロックの隙間を25pxにパッキングして画面潰れバグを完全防御 */
         }
 
-        /* 最上部：ラウンド数 ＆ タイマーの並列行 */
+        /* 🎯【新設】最上部に確保した「150px分」の完全透過なテキスト流し用スペース */
+        .ticker-space {
+            width: 100%;
+            height: 150px;
+            background: transparent;
+            flex-shrink: 0;
+        }
+
+        /* ラウンド数 ＆ タイマーの並列行 */
         .top-row {
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
+            height: 70px;
         }
 
         .round-badge {
@@ -86,7 +95,7 @@
             background: var(--panel-bg);
             border-radius: 30px;
             width: 100%;
-            height: 260px;
+            height: 240px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -108,6 +117,7 @@
             display: flex;
             justify-content: center;
             width: 100%;
+            height: 95px;
         }
 
         .history-capsule {
@@ -125,12 +135,12 @@
         .history-capsule div { min-width: 130px; text-align: center; } /* 3本の各枠内をジャスト中央揃え */
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
-        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ720px） */
+        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ680px） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 720px;
+            height: 680px;
         }
 
         /* 左パネル：ブル率＆カウント詳細 */
@@ -155,10 +165,10 @@
             height: 340px;
         }
 
-        /* 🎯【サークル同期完全修正】外径280pxに対して、マスク内径を「124px」へ精密同期。これで線の太さが完全に1本に重なり合います */
+        /* 🎯【サークル同期微調整】配置を top: 30px に修正し、マスク内径を124pxに精密補正。これで背景グレー円と太さが完璧に重なり合います */
         .gauge-track-css {
             position: absolute;
-            top: 20px;
+            top: 30px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -168,7 +178,7 @@
         }
         .gauge-progress-css {
             position: absolute;
-            top: 20px;
+            top: 30px;
             left: 60px;
             width: 280px;
             height: 280px;
@@ -194,7 +204,7 @@
             pointer-events: none;
         }
 
-        /* 🎯【文字ズレ完全修正】親コンテナ（400x340）の完全な上下左右中央に、CSSの絶対配置で不動ロックをかけました */
+        /* 🎯【文字盤中央ロック】親コンテナ（400x340）の完全な上下左右中央（X:200, Y:170）にCSS絶対配置で不動ロック。下振れを根絶しました */
         .gauge-text {
             position: absolute;
             top: 50%;
@@ -234,12 +244,12 @@
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
         .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
-        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高500px） */
+        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高480px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
             gap: 30px;
-            height: 500px;
+            height: 480px;
         }
 
         /* 左側：スコア履歴を8行にジャストフィット（はみ出しバグを完全封殺） */
@@ -298,16 +308,15 @@
 </head>
 <body>
 
-    <!-- 接続ヘッダー -->
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
-    <!-- 縦型1080×1920仮想キャンバス -->
     <div id="app-scaler">
         
-        <!-- 最上部メタデータ行 -->
+        <div class="ticker-space"></div>
+
         <div class="top-row">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -315,12 +324,10 @@
             <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
         </div>
 
-        <!-- スコア表示パネル -->
         <div class="score-panel">
             <div class="huge-score" id="totalScore">0</div>
         </div>
 
-        <!-- 3本履歴カプセル（中央揃え仕様） -->
         <div class="history-row">
             <div class="history-capsule">
                 <div id="slot0">---</div>
@@ -331,10 +338,8 @@
             </div>
         </div>
 
-        <!-- 上段最大拡張スタッツエリア（ブル率 ＆ アワードカウンター） -->
         <div class="bottom-stats-container">
             
-            <!-- 左パネル：ブル率 ＆ 内訳 -->
             <div class="left-stats-panel">
                 <div class="bull-rate-container">
                     <div class="gauge-track-css"></div>
@@ -355,7 +360,6 @@
                 </div>
             </div>
 
-            <!-- 右パネル：アワードカウンター -->
             <div class="right-awards-panel">
                 <div class="award-grid">
                     <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
@@ -370,19 +374,15 @@
             </div>
         </div>
 
-        <!-- 下段ツインコンテナ：左寄せスコア履歴(8行) ＆ 右側カメラ用透過空白スペース -->
         <div class="middle-bottom-container">
-            <!-- 左側：1列縦長のコンパクトなスコア履歴リスト（最新8R分） -->
             <div class="score-history-panel">
                 <div class="score-grid" id="scoreGrid"></div>
             </div>
             
-            <!-- 右側：OBSで実際のボードカメラを重ねるための完全透過空白スペース -->
             <div class="camera-mount-space"></div>
         </div>
     </div>
 
-    <!-- 1本使い回し・フリーズ完全根絶型ビデオコンテキスト -->
     <div id="videoOverlay">
         <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
@@ -500,7 +500,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【サークル同期完全修正】固定中心軸（X:200px, Y:160px[top:20px + 半径140px]）で計算軸をミリ単位完全同期
+        // 🎯【一芯同期アライメント】中心座標（X:200, Y:170[top:30px+半径140px]）でゲージとピンを100%完璧に一致
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -526,7 +526,7 @@
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
                     const r = 132; // 直径280pxのセンターライン半径
                     const dotX = 200 + r * Math.cos(angleRad); // 横コンテナ（幅400px）の中心点200px
-                    const dotY = 160 + r * Math.sin(angleRad); // 縦サークル配置（top:20px + 半径140px）の中心点160px
+                    const dotY = 170 + r * Math.sin(angleRad); // 縦サークル配置（top:30px + 半径140px）の中心点170px
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
