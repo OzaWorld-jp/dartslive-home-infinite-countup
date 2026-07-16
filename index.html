@@ -10,7 +10,7 @@
     <style>
         :root {
             --primary-color: #00adb5;
-            --bg-translucent: rgba(255, 255, 255, 0.12);
+            --bg-translucent: rgba(255, 255, 255, 0.12); /* カンプの美しい透過 */
             --panel-bg: rgba(0, 0, 0, 0.6);
         }
 
@@ -28,6 +28,7 @@
             box-sizing: border-box;
         }
 
+        /* 1080*1920 固定の縦型仮想キャンバス（9:16の配信画面・OBSに完全シンクロ） */
         #app-scaler {
             width: 1080px;
             height: 1920px;
@@ -40,10 +41,11 @@
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
-            padding: 40px 40px;
-            gap: 30px;
+            padding: 40px 40px; /* パディング込で1920pxに完全パッキング */
+            gap: 30px; /* 強制自動縮小バグを完全粉砕する固定ギャップ */
         }
 
+        /* 最上部：テキスト流し用透過150pxスペース */
         .ticker-space {
             width: 100%;
             height: 150px;
@@ -51,6 +53,7 @@
             flex-shrink: 0;
         }
 
+        /* ラウンド数 ＆ タイマーの並列行 */
         .top-row {
             display: flex;
             justify-content: space-between;
@@ -73,7 +76,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
         .round-badge .infinity { font-size: 4rem; line-height: 0; }
-        .round-badge .label { font-size: 1.8rem; color: #aaa; font-weight: 400; margin-left: 5px; font-family: 'Oswald', sans-serif; }
+        .round-badge .label { font-size: 1.8rem; color: #aaa; margin-left: 5px; font-family: 'Oswald', sans-serif; }
 
         .top-timer {
             background: var(--panel-bg);
@@ -82,12 +85,13 @@
             font-size: 3rem;
             font-weight: 400;
             font-family: 'Oswald', sans-serif;
-            font-variant-numeric: tabular-nums;
+            font-variant-numeric: tabular-nums; /* タイマーのガタつきを完全防御 */
             letter-spacing: 2px;
             color: #ffffff;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
+        /* スコア表示パネル（完全透明デザイン） */
         .score-panel {
             background: transparent;
             border: none;
@@ -110,6 +114,7 @@
             letter-spacing: -2px;
         }
 
+        /* 3本ヒット履歴カプセル */
         .history-row {
             display: flex;
             justify-content: center;
@@ -130,9 +135,10 @@
             color: #eee;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .history-capsule div { min-width: 130px; text-align: center; }
+        .history-capsule div { min-width: 130px; text-align: center; } 
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
+        /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ640px） */
         .bottom-stats-container {
             display: flex;
             width: 100%;
@@ -141,6 +147,7 @@
             flex-shrink: 0;
         }
 
+        /* 左パネル：ブル率＆カウント詳細（幅440px） */
         .left-stats-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -162,9 +169,10 @@
             height: 340px;
         }
 
+        /* 🎯【隙間拡張のための上シフト】サークル配置を top: 30px から「10px」へ引き上げ、下部カウントとの距離を20px分拡張！ */
         .gauge-track-css {
             position: absolute;
-            top: 30px;
+            top: 10px; 
             left: 60px;
             width: 280px;
             height: 280px;
@@ -174,7 +182,7 @@
         }
         .gauge-progress-css {
             position: absolute;
-            top: 30px;
+            top: 10px; 
             left: 60px;
             width: 280px;
             height: 280px;
@@ -200,9 +208,10 @@
             pointer-events: none;
         }
 
+        /* 🎯【文字盤の完全追従】サークル上シフトに伴い、文字の固定中心Y軸を 170px から「150px」へ精密修正！ */
         .gauge-text {
             position: absolute;
-            top: 50%;
+            top: 150px; 
             left: 50%;
             transform: translate(-50%, -50%);
             width: 100%;
@@ -216,6 +225,7 @@
         .bull-count-box .label { font-size: 2rem; letter-spacing: 4px; color: #aaa; font-weight: 700; }
         .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
+        /* 右パネル：アワードカウンター（幅510px） */
         .right-awards-panel {
             width: 510px;
             background: var(--bg-translucent);
@@ -238,6 +248,7 @@
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
         .award-item .count { font-size: 4.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
+        /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高490px） */
         .middle-bottom-container {
             display: flex;
             width: 100%;
@@ -246,7 +257,7 @@
             flex-shrink: 0;
         }
 
-        /* 🎯 修正：下部余白を追加調整したスコア履歴パネル */
+        /* 左側：スコア履歴（幅440px、上下対称余白） */
         .score-history-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -255,7 +266,7 @@
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             height: 100%;
-            padding: 25px 0 35px 0;
+            padding: 30px 0 35px 0; 
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -264,7 +275,7 @@
         .score-grid {
             display: grid;
             grid-template-columns: 1fr; 
-            grid-template-rows: repeat(8, 1fr);
+            grid-template-rows: repeat(8, 1fr); 
             height: 100%;
             box-sizing: border-box;
             font-size: 2.3rem;
@@ -274,7 +285,7 @@
         .score-row {
             display: flex;
             justify-content: center;
-            gap: 60px;
+            gap: 60px; 
             align-items: center;
             color: #fff;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -282,9 +293,10 @@
         .score-row:last-child {
             border-bottom: none;
         }
-        .score-row .r-num { width: 100px; text-align: left; color: #777; font-weight: 400; }
+        .score-row .r-num { width: 100px; text-align: left; color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { width: 120px; text-align: right; font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
+        /* 右側：アワードパネルの真下（幅510px）。完全な透過カメラマウントスペース */
         .camera-mount-space {
             width: 510px;
             background: transparent;
@@ -292,6 +304,7 @@
             height: 100%;
         }
 
+        /* 接続ボタン＆ログ */
         .header-controls { position: absolute; top: 15px; left: 40px; display: flex; align-items: center; gap: 20px; z-index: 10000; }
         .btn-connect {
             background: #00adb5; border: none; color: white; padding: 10px 30px;
@@ -300,20 +313,26 @@
         }
         .dev-log { color: #555; font-size: 1.1rem; font-family: monospace; }
 
+        /* 全画面ビデオオーバーレイ */
         #videoOverlay { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.95); z-index: 99999; }
         #awardVideo { width: 100%; height: 100%; object-fit: contain; }
     </style>
 </head>
 <body>
 
+    <!-- 接続ヘッダー -->
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
+    <!-- 縦型1080×1920仮想キャンバス -->
     <div id="app-scaler">
+        
+        <!-- 最上部テキスト流し用透過150pxスペース -->
         <div class="ticker-space"></div>
 
+        <!-- メタデータ行 -->
         <div class="top-row">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -321,10 +340,12 @@
             <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
         </div>
 
+        <!-- スコア表示パネル -->
         <div class="score-panel">
             <div class="huge-score" id="totalScore">0</div>
         </div>
 
+        <!-- 3本履歴カプセル（中央揃え仕様） -->
         <div class="history-row">
             <div class="history-capsule">
                 <div id="slot0">---</div>
@@ -335,7 +356,10 @@
             </div>
         </div>
 
+        <!-- 上段最大拡張スタッツエリア（ブル率 ＆ アワードカウンター） -->
         <div class="bottom-stats-container">
+            
+            <!-- 左パネル：ブル率 ＆ 内訳 -->
             <div class="left-stats-panel">
                 <div class="bull-rate-container">
                     <div class="gauge-track-css"></div>
@@ -356,6 +380,7 @@
                 </div>
             </div>
 
+            <!-- 右パネル：アワードカウンター -->
             <div class="right-awards-panel">
                 <div class="award-grid">
                     <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
@@ -370,15 +395,19 @@
             </div>
         </div>
 
+        <!-- 下段ツインコンテナ：左寄せスコア履歴(8行) ＆ 右側カメラ用透過空白スペース -->
         <div class="middle-bottom-container">
+            <!-- 左側：1列縦長のコンパクトなスコア履歴リスト（最新8R分） -->
             <div class="score-history-panel">
                 <div class="score-grid" id="scoreGrid"></div>
             </div>
             
+            <!-- 右側：OBSで実際のボードカメラを重ねるための完全透過空白スペース -->
             <div class="camera-mount-space"></div>
         </div>
     </div>
 
+    <!-- 1本使い回し・フリーズ完全根絶型ビデオコンテキスト -->
     <div id="videoOverlay">
         <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
@@ -424,11 +453,12 @@
         window.addEventListener('resize', resizeApp);
         window.addEventListener('DOMContentLoaded', resizeApp);
 
+        // 履歴の8行制限ローテーションパッキング
         function recordRoundScore(score) {
             const roundNum = Math.ceil(totalDartsCount / 3);
             roundScores.push({ num: roundNum, score: score });
             if (roundScores.length > 8) {
-                roundScores.shift();
+                roundScores.shift(); 
             }
             renderScoreGrid();
         }
@@ -494,6 +524,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
+        /* 🎯【一芯同期アライメント完全修正】中心座標（X:200px, Y:150px[top:10px + 半径140px]）でマスクとピンを100%完全同期 */
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -517,9 +548,9 @@
                 if (dot) {
                     dot.style.display = 'block';
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                    const r = 132;
-                    const dotX = 200 + r * Math.cos(angleRad);
-                    const dotY = 170 + r * Math.sin(angleRad);
+                    const r = 132; // 直径280pxのセンターライン半径
+                    const dotX = 200 + r * Math.cos(angleRad); // 横コンテナ（幅400px）の中心点200px
+                    const dotY = 150 + r * Math.sin(angleRad); // 🎯縦サークル配置の中心点150pxに完全連動
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
@@ -596,7 +627,7 @@
         }
 
         function checkRoundAward(hits) {
-            if (hits.length === 0) return null;
+            if (hits.length === 0) return null; 
 
             if (hits.length === 3) {
                 const isAllInBull = hits.every(h => h.type === 'inbull');
@@ -782,6 +813,7 @@
             }
         }
 
+        // すべてのログテキスト表示を5秒後にフェードアウト消去する一元化ロジック
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
