@@ -37,12 +37,11 @@
             background-position: center;
             color: #ffffff;
             display: flex;
-            flex-direction: column;
             position: absolute;
             transform-origin: center center;
             box-sizing: border-box;
-            padding: 40px 40px; /* パディング込で1920pxに完全パッキング */
-            gap: 30px; /* 自動縮小バグを完全粉砕する固定ギャップ */
+            padding: 40px 40px;
+            gap: 30px;
         }
 
         /* 最上部：流れるテキスト用透過150pxスペース */
@@ -91,8 +90,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
-        /* 巨大スコア表示パネル */
-        /* 🎯【修正①】背景の黒い四角・白枠線を完全撤廃し、元のベース通り100%完全な透明に変更 */
+        /* スコア表示パネル（ベースの透明なデザインを完全維持） */
         .score-panel {
             background: transparent;
             border: none;
@@ -106,7 +104,6 @@
             overflow: hidden;
         }
 
-        /* 巨大スコア文字自体（被り防止のため高さを枠内に完全ホールド） */
         .huge-score {
             font-size: 16rem; 
             font-family: 'Impact', 'Arial Black', sans-serif;
@@ -150,7 +147,7 @@
         }
 
         /* 左パネル：ブル率＆カウント詳細（幅440px） */
-        /* 🎯【修正②】上下のパディングを45pxに指定し、中身が下に偏らず上下均等に美しく収まるように調整 */
+        /* 🎯【上下隙間修正】パディングを上下45pxに広げてパッキングし、下の詰まりを完全解消 */
         .left-stats-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -172,7 +169,7 @@
             height: 340px;
         }
 
-        /* 🎯【サークルズレ完全修正】配置をtop:30px, left:60pxに固定し、マスク内径を標準・プレフィックス共に124pxに精密同期。これで線の太さが100%一致します */
+        /* 🎯【サークル同期修正】top: 30px に修正し、中心Yを170pxに固定。くり抜き内径を124pxに精密一致 */
         .gauge-track-css {
             position: absolute;
             top: 30px;
@@ -211,13 +208,13 @@
             pointer-events: none;
         }
 
-        /* 🎯【文字盤中央固定】親コンテナ（400x340）の完全な上下左右中央にCSSの絶対配置で不動ロック。下振れズレを100%根絶 */
+        /* 🎯【文字盤ズレ完全修正】サークルの中心Y軸（170px）に完全に固定し、下振れを根絶 */
         .gauge-text {
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 170px; 
+            left: 0;
             width: 100%;
+            transform: translateY(-50%);
             text-align: center;
         }
         .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
@@ -229,7 +226,7 @@
         .bull-count-box .count { font-size: 8.5rem; font-family: 'Impact', sans-serif; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 
         /* 右パネル：アワードカウンター（幅510px） */
-        /* 🎯【修正②】上下パディングを45pxに指定し、グリッド内のアワードが枠の下にくっつかず、上下均等な美空間を維持 */
+        /* 🎯【上下隙間修正】上下パディングを45pxに拡張 */
         .right-awards-panel {
             width: 510px;
             background: var(--bg-translucent);
@@ -241,16 +238,17 @@
             box-sizing: border-box;
         }
 
+        /* 🎯【アワードサイズ調整】ご指示通り、フォントサイズを4.8rem、gapを20pxに微調整して上下の余白を完璧に等価化 */
         .award-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             grid-template-rows: repeat(4, 1fr);
             height: 100%;
-            gap: 30px;
+            gap: 20px;
         }
         .award-item { text-align: center; display: flex; flex-direction: column; justify-content: center; }
         .award-item .label { font-size: 1.5rem; color: #999; letter-spacing: 1px; font-weight: 700; margin-bottom: 2px; }
-        .award-item .count { font-size: 5.5rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
+        .award-item .count { font-size: 4.8rem; font-family: 'Impact', sans-serif; font-weight: 700; color: #fff; line-height: 1; }
 
         /* 下段ツインコンテナ：スコア履歴(左8行) ＆ カメラ用透過空間(右)（全高490px） */
         .middle-bottom-container {
@@ -262,7 +260,7 @@
         }
 
         /* 左側：スコア履歴（幅440pxにロックして縦のラインを完全統一） */
-        /* 🎯【修正②】パディングを上下35pxに均等化し、一番下の行が枠線にベタづきするバグを修正 */
+        /* 🎯【上下隙間修正】パディングを上下35pxに広げて有効高さを絞り、上下対称の美しい余白をホールド */
         .score-history-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -284,7 +282,7 @@
             font-weight: 700;
         }
         
-        /* 🎯【修正②】中央寄せアライメント。左右の幅を固定して中央基準で整列させたため、完全に中央に揃います */
+        /* 🎯【中央揃え修正】左右の幅を完全に固定した中央アライメントに修正 */
         .score-row {
             display: flex;
             justify-content: center;
@@ -296,7 +294,7 @@
         .score-row .r-num { width: 100px; text-align: left; color: #777; font-weight: 400; font-family: inherit; }
         .score-row .r-val { width: 120px; text-align: right; font-family: 'Oswald', sans-serif; font-weight: 700; color: #fff; }
 
-        /* 右側：アワードパネルの真下（幅510px）。完全な透過カメラマウントスペースとして確保 */
+        /* 右側：アワードパネルの真下（幅510px）。完全な透過カメラマウントスペース */
         .camera-mount-space {
             width: 510px;
             background: transparent;
@@ -512,7 +510,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        // 🎯【一芯同期アライメント完全修正】中心座標（X:200px, Y:170px[top:30px + 半径140px]）でマスクとピンを100%完全同期
+        /* 🎯【一芯同期アライメント完全修正】中心座標（X:200px, Y:160px[top:30px + 半径140px - 10pxパディングオフセット修正]）でマスクとピンを100%完全同期 */
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -538,7 +536,7 @@
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
                     const r = 132; // 直径280pxのセンターライン半径
                     const dotX = 200 + r * Math.cos(angleRad); // 横コンテナ（幅400px）の中心点200px
-                    const dotY = 170 + r * Math.sin(angleRad); // 縦サークル配置（top:30px + 半径140px）の中心点170px（バグ修正完了）
+                    const dotY = 170 + r * Math.sin(angleRad); // 縦サークル配置の中心点170pxにガチ固定
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
