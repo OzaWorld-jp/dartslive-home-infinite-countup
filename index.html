@@ -135,7 +135,7 @@
             color: #eee;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .history-capsule div { min-width: 130px; text-align: center; } 
+        .history-capsule div { min-width: 130px; text-align: center; }
         .history-capsule .separator { color: #444; font-weight: 400; min-width: auto; font-family: 'Oswald', sans-serif; }
 
         /* 上段最大拡張スタッツコンテナ（ブル率とアワードの並列行：高さ640px） */
@@ -169,10 +169,10 @@
             height: 340px;
         }
 
-        /* 🎯【隙間拡張のための上シフト】サークル配置を top: 30px から「10px」へ引き上げ、下部カウントとの距離を20px分拡張！ */
+        /* 🎯【サークル上シフト】topを0pxに引き上げ、BULL COUNTとの隙間を美しく拡張！ */
         .gauge-track-css {
             position: absolute;
-            top: 10px; 
+            top: 0px; 
             left: 60px;
             width: 280px;
             height: 280px;
@@ -182,7 +182,7 @@
         }
         .gauge-progress-css {
             position: absolute;
-            top: 10px; 
+            top: 0px; 
             left: 60px;
             width: 280px;
             height: 280px;
@@ -208,13 +208,13 @@
             pointer-events: none;
         }
 
-        /* 🎯【文字盤の完全追従】サークル上シフトに伴い、文字の固定中心Y軸を 170px から「150px」へ精密修正！ */
+        /* 🎯【文字盤一芯同期】サークルの上シフトに伴い、固定中心軸を「top: 140px」へ完全追従 */
         .gauge-text {
             position: absolute;
-            top: 150px; 
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 140px; 
+            left: 0;
             width: 100%;
+            transform: translateY(-50%);
             text-align: center;
         }
         .gauge-text .label { font-size: 1.8rem; color: #aaa; letter-spacing: 3px; font-weight: 700; margin-bottom: 2px; }
@@ -257,7 +257,8 @@
             flex-shrink: 0;
         }
 
-        /* 左側：スコア履歴（幅440px、上下対称余白） */
+        /* 左側：スコア履歴（幅440pxにロックして縦のラインを完全統一） */
+        /* 🎯【下振れドロップ修正】パディングを「top:15px / bottom:45px」にリパッキングして、スコア全体の重心をキュッと上へ引き上げ！ */
         .score-history-panel {
             width: 440px;
             background: var(--bg-translucent);
@@ -266,7 +267,7 @@
             border-radius: 35px;
             border: 1px solid rgba(255, 255, 255, 0.15);
             height: 100%;
-            padding: 30px 0 35px 0; 
+            padding: 15px 0 45px 0; 
             box-sizing: border-box;
             display: flex;
             flex-direction: column;
@@ -285,7 +286,7 @@
         .score-row {
             display: flex;
             justify-content: center;
-            gap: 60px; 
+            gap: 60px;
             align-items: center;
             color: #fff;
             border-bottom: 1px solid rgba(255, 255, 255, 0.03);
@@ -320,19 +321,15 @@
 </head>
 <body>
 
-    <!-- 接続ヘッダー -->
     <div class="header-controls">
         <button class="btn-connect" id="connectBtn">CONNECT BOARD</button>
         <div class="dev-log" id="logConsole">BOARD READY.</div>
     </div>
 
-    <!-- 縦型1080×1920仮想キャンバス -->
     <div id="app-scaler">
         
-        <!-- 最上部テキスト流し用透過150pxスペース -->
         <div class="ticker-space"></div>
 
-        <!-- メタデータ行 -->
         <div class="top-row">
             <div class="round-badge">
                 <span id="currentRoundNum">1</span> <span style="color:#555;">/</span> <span class="infinity">∞</span> <span class="label">ROUND</span>
@@ -340,12 +337,10 @@
             <div class="top-timer" id="gameTimer" style="display:none;">00:00:00</div>
         </div>
 
-        <!-- スコア表示パネル -->
         <div class="score-panel">
             <div class="huge-score" id="totalScore">0</div>
         </div>
 
-        <!-- 3本履歴カプセル（中央揃え仕様） -->
         <div class="history-row">
             <div class="history-capsule">
                 <div id="slot0">---</div>
@@ -356,10 +351,8 @@
             </div>
         </div>
 
-        <!-- 上段最大拡張スタッツエリア（ブル率 ＆ アワードカウンター） -->
         <div class="bottom-stats-container">
             
-            <!-- 左パネル：ブル率 ＆ 内訳 -->
             <div class="left-stats-panel">
                 <div class="bull-rate-container">
                     <div class="gauge-track-css"></div>
@@ -380,7 +373,6 @@
                 </div>
             </div>
 
-            <!-- 右パネル：アワードカウンター -->
             <div class="right-awards-panel">
                 <div class="award-grid">
                     <div class="award-item"><div class="label">ONE BULL</div><div class="count" id="cnt_onebull">0</div></div>
@@ -395,19 +387,15 @@
             </div>
         </div>
 
-        <!-- 下段ツインコンテナ：左寄せスコア履歴(8行) ＆ 右側カメラ用透過空白スペース -->
         <div class="middle-bottom-container">
-            <!-- 左側：1列縦長のコンパクトなスコア履歴リスト（最新8R分） -->
             <div class="score-history-panel">
                 <div class="score-grid" id="scoreGrid"></div>
             </div>
             
-            <!-- 右側：OBSで実際のボードカメラを重ねるための完全透過空白スペース -->
             <div class="camera-mount-space"></div>
         </div>
     </div>
 
-    <!-- 1本使い回し・フリーズ完全根絶型ビデオコンテキスト -->
     <div id="videoOverlay">
         <video id="awardVideo" preload="none" playsinline webkit-playsinline></video>
     </div>
@@ -524,7 +512,7 @@
             return `rgb(${r},${g},${b})`;
         }
 
-        /* 🎯【一芯同期アライメント完全修正】中心座標（X:200px, Y:150px[top:10px + 半径140px]）でマスクとピンを100%完全同期 */
+        /* 🎯【一芯同期完全連動】中心座標（X:200px, Y:140px[top:0px + 半径140px]）でマスクとピンを100%完全同期 */
         function updateBullRateUI(rate) {
             const gauge = document.getElementById('gaugeCircleCSS');
             const dot = document.getElementById('gaugeDot');
@@ -548,9 +536,9 @@
                 if (dot) {
                     dot.style.display = 'block';
                     const angleRad = ((rate * 3.6) - 90) * Math.PI / 180;
-                    const r = 132; // 直径280pxのセンターライン半径
-                    const dotX = 200 + r * Math.cos(angleRad); // 横コンテナ（幅400px）の中心点200px
-                    const dotY = 150 + r * Math.sin(angleRad); // 🎯縦サークル配置の中心点150pxに完全連動
+                    const r = 132; 
+                    const dotX = 200 + r * Math.cos(angleRad); // 横コンテナの中心点200px
+                    const dotY = 140 + r * Math.sin(angleRad); // 🎯縦サークル上シフトに伴い中心点140pxへ完全同期修正
                     dot.style.left = `${dotX}px`; dot.style.top = `${dotY}px`;
                     
                     let dotBorderColor = '#0044ff';
@@ -813,7 +801,6 @@
             }
         }
 
-        // すべてのログテキスト表示を5秒後にフェードアウト消去する一元化ロジック
         function addLog(text) {
             const consoleLog = document.getElementById('logConsole');
             const controlsHeader = document.querySelector('.header-controls');
